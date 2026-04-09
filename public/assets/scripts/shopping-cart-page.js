@@ -58,12 +58,11 @@
   }
 
   function updateTotals(total) {
-    document.querySelectorAll('.order-total .amount, .cart-total .amount, .total-price').forEach(el => {
-      el.textContent = parseFloat(total || 0).toFixed(2) + ' USD';
-    });
-    // Update subtotals summary
-    const subtotalEl = document.querySelector('.cart-subtotal .amount');
-    if (subtotalEl) subtotalEl.textContent = parseFloat(total || 0).toFixed(2) + ' USD';
+    var formatted = parseFloat(total || 0).toFixed(2) + ' USD';
+    var subtotalEl = document.querySelector('.cart-subtotal');
+    var orderEl    = document.querySelector('.order-total');
+    if (subtotalEl) subtotalEl.textContent = formatted;
+    if (orderEl)    orderEl.textContent    = formatted;
   }
 
   function bindCartEvents() {

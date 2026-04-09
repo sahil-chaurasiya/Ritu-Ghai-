@@ -15,9 +15,18 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 // GET /api/products  – public
 router.get('/', async (req, res) => {
   try {
-    const { category, sort } = req.query;
+    const { category, sort, minPrice, maxPrice, size } = req.query;
     let query = { isActive: true };
     if (category && category !== 'all') query.category = category;
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      query.price = {};
+      if (minPrice !== undefined) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice !== undefined) query.price.$lte = parseFloat(maxPrice);
+    }
+    if (size) {
+      const sizes = Array.isArray(size) ? size : [size];
+      query.sizes = { $in: sizes };
+    }
 
     let sortObj = { createdAt: -1 };
     if (sort === 'price_asc') sortObj = { price: 1 };
@@ -45,8 +54,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', protect, upload.array('images', 5), async (req, res) => {
   try {
     const { name, price, originalPrice, description, additionalInfo, category, stock, badge } = req.body;
+    const sizes = req.body.sizes ? (Array.isArray(req.body.sizes) ? req.body.sizes : [req.body.sizes]) : [];
     const images = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
-    const product = await Product.create({ name, price, originalPrice, description, additionalInfo, category, stock, badge, images });
+    const product = await Product.create({ name, price, originalPrice, description, additionalInfo, category, stock, badge, images, sizes });
     res.status(201).json({ success: true, product });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -57,13 +67,14 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
 router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
   try {
     const { name, price, originalPrice, description, additionalInfo, category, stock, badge, existingImages } = req.body;
+    const sizes = req.body.sizes ? (Array.isArray(req.body.sizes) ? req.body.sizes : [req.body.sizes]) : [];
     const newImages = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
     const keptImages = existingImages ? (Array.isArray(existingImages) ? existingImages : [existingImages]) : [];
     const images = [...keptImages, ...newImages];
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, price, originalPrice, description, additionalInfo, category, stock, badge, images },
+      { name, price, originalPrice, description, additionalInfo, category, stock, badge, images, sizes },
       { new: true, runValidators: true }
     );
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });

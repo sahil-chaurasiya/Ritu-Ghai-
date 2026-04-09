@@ -38,6 +38,10 @@ const productSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
+  sizes: {
+    type: [String],
+    default: []
+  },
   badge: {
     type: String,
     enum: ['new', 'sale', ''],
