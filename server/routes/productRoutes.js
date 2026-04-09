@@ -44,9 +44,9 @@ router.get('/:id', async (req, res) => {
 // POST /api/products – admin only
 router.post('/', protect, upload.array('images', 5), async (req, res) => {
   try {
-    const { name, price, originalPrice, description, category, stock, badge } = req.body;
+    const { name, price, originalPrice, description, additionalInfo, category, stock, badge } = req.body;
     const images = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
-    const product = await Product.create({ name, price, originalPrice, description, category, stock, badge, images });
+    const product = await Product.create({ name, price, originalPrice, description, additionalInfo, category, stock, badge, images });
     res.status(201).json({ success: true, product });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -56,14 +56,14 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
 // PUT /api/products/:id – admin only
 router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
   try {
-    const { name, price, originalPrice, description, category, stock, badge, existingImages } = req.body;
+    const { name, price, originalPrice, description, additionalInfo, category, stock, badge, existingImages } = req.body;
     const newImages = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
     const keptImages = existingImages ? (Array.isArray(existingImages) ? existingImages : [existingImages]) : [];
     const images = [...keptImages, ...newImages];
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, price, originalPrice, description, category, stock, badge, images },
+      { name, price, originalPrice, description, additionalInfo, category, stock, badge, images },
       { new: true, runValidators: true }
     );
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });

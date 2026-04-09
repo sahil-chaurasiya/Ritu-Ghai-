@@ -85,7 +85,13 @@
 
         <div class="form-group">
           <label>Description</label>
-          <textarea name="description" id="fDescription" class="form-control"></textarea>
+          <textarea name="description" id="fDescription" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Additional Information</label>
+          <textarea name="additionalInfo" id="fAdditionalInfo" class="form-control" rows="4" placeholder="e.g. Material, fit, care instructions, dimensions..."></textarea>
+          <p class="form-hint">Shown in the "Additional Information" tab on the product page.</p>
         </div>
 
         <!-- Existing Images -->
@@ -135,6 +141,7 @@
     document.getElementById('fOriginalPrice').value = p.originalPrice || '';
     document.getElementById('fStock').value = p.stock;
     document.getElementById('fDescription').value = p.description || '';
+    document.getElementById('fAdditionalInfo').value = p.additionalInfo || '';
     document.getElementById('fBadge').value = p.badge || '';
 
     // Render existing images

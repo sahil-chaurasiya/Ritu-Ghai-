@@ -31,6 +31,44 @@
         <link href="/assets/styles/styles.css" rel="stylesheet"/>
         <script src="/assets/scripts/libs/prefixfree.min.js"></script>
         <script src="/assets/scripts/libs/modernizr.js"></script>
+    <style>
+      /* ── Custom product tabs (replaces easyResponsiveTabs on dynamic pages) ── */
+      #sp-tabs .resp-tabs-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 0 0;
+        border-bottom: 2px solid #e8e8e8;
+        display: flex;
+        gap: 0;
+      }
+      #sp-tabs .resp-tabs-list li {
+        font-family: Montserrat, sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #999;
+        padding: 14px 24px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: color 0.2s, border-color 0.2s;
+        white-space: nowrap;
+      }
+      #sp-tabs .resp-tabs-list li:hover {
+        color: #25282c;
+      }
+      #sp-tabs .resp-tabs-list li.resp-tab-active {
+        color: #25282c;
+        border-bottom: 2px solid #25282c;
+      }
+      #sp-tabs .resp-tabs-container > div {
+        padding: 28px 4px 12px;
+        font-family: Georgia, serif;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #555;
+      }
+    </style>
     </head>
     <body>
         <div class="topbar gray-bg">
@@ -516,146 +554,43 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="product-tabs vertical-tabs">
+                        <div class="product-tabs" id="sp-tabs">
                             <ul class="resp-tabs-list hor_1">
                                 <li>DESCRIPTION</li>
                                 <li>ADDITIONAL INFORMATION</li>
-                                <li>REVIEWS (10)</li>
+                                <li id="tab-reviews-label">REVIEWS (0)</li>
                             </ul>
                             <div class="resp-tabs-container hor_1">
-                                <div>
-                                    Cras ut magna quis metus tristique vulputate. Ut a sapien scelerisque, fermentum lorem a, aliquet mi. Ut lobortis lorem nisl, vel euismod ligula ornare quis. In consectetur elit sed leo fringilla, a placerat ipsum mollis. Proin suscipit metus vitae lectus malesuada scelerisque. Quisque interdum malesuada nisi non accumsan. Suspendisse eget lorem libero. Pellentesque mauris risus, cursus eget aliquet quis, iaculis vel purus. Nam in ligula vel mi interdum tincidunt sit amet eget leo. Phasellus dapibus augue a lorem luctus aliquet. Duis consectetur eros arcu, eget consequat orci mattis non.Nam nec ex maximus sem egestas elementum. Duis nisl arcu, sodales ut porttitor at, tincidunt vitae risus. Suspendisse eu nunc ligula.
+                                <!-- Tab 1: Description -->
+                                <div id="tab-description">
+                                    <p style="color:#aaa;font-style:italic;">Loading description…</p>
                                 </div>
-                                <div>
-                                    Lorem consectetur adipiscing elit. Vestibulum nibh urna, euismod ut ornare non, volutpat vel tortor. Integer laoreet placerat suscipit. Sed sodales scelerisque commodo. Nam porta cursus lectus. Proin nunc erat, gravida a facilisis quis, ornare id lectus. Proin consectetur nibh quis.
+                                <!-- Tab 2: Additional Information -->
+                                <div id="tab-additional-info">
+                                    <p style="color:#aaa;font-style:italic;">Loading additional information…</p>
                                 </div>
-                                <div>
+                                <!-- Tab 3: Reviews -->
+                                <div id="tab-reviews">
                                     <div class="comments-area">
-                                <div class="comment-account media">
-                                    <div class="media-left">
-                                        <a href="#">
-                                            <img class="avatar" src="assets/images/cmt-avatar-1.jpg" alt="img" />
-                                        </a>
-                                        <h4>ANNA PANDORA</h4>
-                                        <h5>Stylist</h5>
-                                    </div>
-                                    <div class="media-body">
-                                        Nulla mattis mi quis elit porttitor. Ut ut laoreet justo. Suspendisse nulla ligula, aliquet sed cursus ut, sodales sit amet metus. Proin sollicitudin, urna nec placerat faucibus, ex elit mattis nulla, sed placerat libero dui sem. Etiam non auctor odio. Cras posuere ante vitae molestie. Nunc imperdiet viverra nunc, eget aliquet diam.
-                                    </div>
-                                </div>
-                                <p class="comment-count">5 COMMENTS</p>
-                                <ol class="comment-list media-list">
-                                    <li class="comment parent">
-                                        <article class="comment-body media">
-                                            <div class="media-left">
-                                                <a href="#">
-                                                    <img class="avatar" src="assets/images/cmt-avatar-2.jpg" alt="img" />
-                                                </a>
-                                            </div>
-                                            <div class="media-body">
-                                                <div class="comment-content">
-                                                    Nulla mattis mi quis elit porttitor gravida. Ut ut laoreet justo. Suspendisse nulla ligula
+                                        <p class="comment-count" id="review-count-label">0 COMMENTS</p>
+                                        <ol class="comment-list media-list" id="review-list"></ol>
+                                        <div class="comment-respond pe-7s-user">
+                                            <form id="review-form" class="comment-form">
+                                                <div class="wrap-rating">
+                                                    <h4>YOUR RATING: </h4>
+                                                    <span class="review-star star-rating" id="review-star-input" data-score="0"></span>
+                                                    <input type="hidden" id="review-rating-val" value="0" />
                                                 </div>
-                                                <div class="comment-info">
-                                                    <h5>LANA WINTERS</h5>
-                                                    <div class="comment-date">
-                                                        <a href="#"><i class="pe-7s-clock"></i>JANUARY 15, 2015</a>
-                                                    </div>
-                                                    <div class="comment-reply">
-                                                        <a class='comment-reply-link' href='#'>Reply</a>
-                                                    </div>
+                                                <div class="wrap-textarea">
+                                                    <textarea class="textarea-form" id="review-body" placeholder="YOUR REVIEW*"></textarea>
                                                 </div>
-                                            </div>
-                                        </article>
-                                        <ul class="children">
-                                            <li class="comment">
-                                                <article class="comment-body media">
-                                                    <div class="media-left">
-                                                        <a href="#">
-                                                            <img class="avatar" src="assets/images/cmt-avatar-3.jpg" alt="img" />
-                                                        </a>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <div class="comment-content">
-                                                            Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla fermentum libero libero, ac mollis nisl commodo in.
-                                                        </div>
-                                                        <div class="comment-info">
-                                                            <h5>JOHNNY CLAMP</h5>
-                                                            <div class="comment-date">
-                                                                <a href="#"><i class="pe-7s-clock"></i>JANUARY 15, 2015</a>
-                                                            </div>
-                                                            <div class="comment-reply">
-                                                                <a class='comment-reply-link' href='#'>Reply</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </article>
-                                            </li>
-                                            <li class="comment">
-                                                <article class="comment-body media">
-                                                    <div class="media-left">
-                                                        <a href="#">
-                                                            <img class="avatar" src="assets/images/cmt-avatar-2.jpg" alt="img" />
-                                                        </a>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <div class="comment-content">
-                                                            Nulla mattis mi quis elit porttitor gravida.
-                                                        </div>
-                                                        <div class="comment-info">
-                                                            <h5>LANA WINTERS</h5>
-                                                            <div class="comment-date">
-                                                                <a href="#"><i class="pe-7s-clock"></i>JANUARY 15, 2015</a>
-                                                            </div>
-                                                            <div class="comment-reply">
-                                                                <a class='comment-reply-link' href='#'>Reply</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </article>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="comment">
-                                        <article class="comment-body media">
-                                            <div class="media-left">
-                                                <a href="#">
-                                                    <img class="avatar" src="assets/images/cmt-avatar-4.jpg" alt="img" />
-                                                </a>
-                                            </div>
-                                            <div class="media-body">
-                                                <div class="comment-content">
-                                                    Phasellus finibus neque in elementum sagittis. Integer congue cursus ullamcorper. Pellentesque a metus pulvinar, varius nisl porta, cursus nibh. Praesent ut dapibus nisl, ut faucibus sem. Maecenas non congue ipsum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam vitae vehicula justo, at tincidunt nulla.
-                                                </div>
-                                                <div class="comment-info">
-                                                    <h5>ANNA PANDORA</h5>
-                                                    <div class="comment-date">
-                                                        <a href="#"><i class="pe-7s-clock"></i>JANUARY 15, 2015</a>
-                                                    </div>
-                                                    <div class="comment-reply">
-                                                        <a class='comment-reply-link' href='#'>Reply</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </li>
-                                </ol>
-                                <div class="comment-respond pe-7s-user">
-                                    <form action="#" class="comment-form">
-                                        <div class="wrap-rating">
-                                            <h4>YOUR RATING: </h4>
-                                            <span class="review-star star-rating" data-score="0"></span>
+                                                <input class="input-form" type="text" id="review-name" placeholder="YOUR NAME*" />
+                                                <input class="input-form" type="email" id="review-email" placeholder="YOUR EMAIL*" />
+                                                <button type="submit">ADD REVIEW</button>
+                                                <p id="review-msg" style="margin-top:10px;font-size:12px;font-family:Montserrat,sans-serif;letter-spacing:1px;"></p>
+                                            </form>
                                         </div>
-                                        <div class="wrap-textarea">
-                                            <textarea class="textarea-form" placeholder="YOUR REVIEW*"></textarea>
-                                        </div>
-                                        <input class="input-form" type="text" placeholder="YOUR NAME*" />
-                                        <input class="input-form" type="email" placeholder="YOUR EMAIL*" />
-                                        <button type="submit">ADD REVIEW</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <!-- /.comments-area -->
+                                    </div>
                                 </div>
                             </div>
                         </div>

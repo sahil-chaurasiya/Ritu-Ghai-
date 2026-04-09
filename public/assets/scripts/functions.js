@@ -332,48 +332,57 @@
             }
             );
 
-            var related_products = $('.related-products .box-content');
-            related_products.owlCarousel( {
-                loop: true, items:1, dots:false, autoHeight:true, rtl:false, smartSpeed: 1500
-            }
-            );
-            $(".related-products .next").click(function() {
-                related_products.trigger('next.owl.carousel');
-            }
-            );
-            $(".related-products .prev").click(function() {
-                related_products.trigger('prev.owl.carousel');
-            }
-            );
+            // When a dynamic product is loaded via ?id=, single-product.js
+            // handles both the gallery carousel and related-products carousel
+            // AFTER the API data arrives. Initialising them here (on static
+            // placeholder content) would prevent the later destroy+reinit from
+            // working correctly, so we skip them on dynamic product pages.
+            var _isDynamicProduct = !!(new URLSearchParams(window.location.search).get('id'));
 
-            var product_showcase_thumb = $('.gallery .previews .box-content');
-            product_showcase_thumb.owlCarousel({
-                margin: 0,
-                smartSpeed: 1000,
-                dots:false,
-                responsive:{
-                    0:{
-                        items:3
-                    },
-                    480:{
-                        items:4
-                    },
-                    768:{
-                        items:5
-                    },
-                    1200:{
-                        items:6
-                    }
+            if (!_isDynamicProduct) {
+                var related_products = $('.related-products .box-content');
+                related_products.owlCarousel( {
+                    loop: true, items:1, dots:false, autoHeight:true, rtl:false, smartSpeed: 1500
                 }
-            });
-            $(".gallery .previews .next").click(function() {
-                product_showcase_thumb.trigger('next.owl.carousel');
+                );
+                $(".related-products .next").click(function() {
+                    related_products.trigger('next.owl.carousel');
+                }
+                );
+                $(".related-products .prev").click(function() {
+                    related_products.trigger('prev.owl.carousel');
+                }
+                );
+
+                var product_showcase_thumb = $('.gallery .previews .box-content');
+                product_showcase_thumb.owlCarousel({
+                    margin: 0,
+                    smartSpeed: 1000,
+                    dots:false,
+                    responsive:{
+                        0:{
+                            items:3
+                        },
+                        480:{
+                            items:4
+                        },
+                        768:{
+                            items:5
+                        },
+                        1200:{
+                            items:6
+                        }
+                    }
+                });
+                $(".gallery .previews .next").click(function() {
+                    product_showcase_thumb.trigger('next.owl.carousel');
+                }
+                );
+                $(".gallery .previews .prev").click(function() {
+                    product_showcase_thumb.trigger('prev.owl.carousel');
+                }
+                );
             }
-            );
-            $(".gallery .previews .prev").click(function() {
-                product_showcase_thumb.trigger('prev.owl.carousel');
-            }
-            );
         }
         );
         /* =================================
@@ -442,7 +451,7 @@
         /* =================================
          ===  Responsive Map                 ====
          =================================== */
-        if ($('.vertical-tabs').length) {
+        if ($('.vertical-tabs').length && !new URLSearchParams(window.location.search).get('id')) {
             $('.vertical-tabs').easyResponsiveTabs({
                 type: 'vertical',
                 width: 'auto',

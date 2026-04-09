@@ -37,6 +37,7 @@ app.use('/admin', express.static(path.join(__dirname, '../admin')));
 
 // API Routes
 app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/products/:productId/reviews', require('./routes/reviewRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/admin', require('./routes/authRoutes'));
