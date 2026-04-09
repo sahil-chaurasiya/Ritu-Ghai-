@@ -1,0 +1,187 @@
+/* Blue
+----------------*/
+.minimal-menu.clr-blue {
+	background: #5bc7fd;
+}
+
+	.minimal-menu.clr-blue ul ul li:hover > a,
+	.minimal-menu.clr-blue ul ul li.current > a {
+		border-color: #5bc7fd;
+	}
+	
+/* Green
+----------------*/
+.minimal-menu.clr-green {
+	background: #65e7a2;
+}
+
+	.minimal-menu.clr-green ul ul li:hover > a,
+	.minimal-menu.clr-green ul ul li.current > a {
+		border-color: #65e7a2;
+	}
+
+
+.minimal-menu-button {
+	display: none;
+}
+
+.minimal-menu a {
+	white-space: nowrap;
+}
+
+.minimal-menu > ul {
+	margin-bottom: -15px;
+	padding: 5px;
+}
+	
+	.minimal-menu ul li {
+		display: inline-block;
+	}
+	
+		.minimal-menu ul li.submenu > a:before,
+		.minimal-menu ul li.submenu > a:after {
+			position: absolute;
+			content: '';
+			width: 5px;
+			height: 1px;
+			bottom: 0;
+			left: 50%;
+			background: #fff;
+		}
+		
+		.minimal-menu ul li.submenu > a:before {
+			margin-left: -4px;
+		}
+		
+		.minimal-menu ul li.submenu > a:after {
+			margin-left: -1px;
+		}
+
+		.minimal-menu ul li.submenu:hover > a:before,
+		.minimal-menu ul li.submenu:hover > a:after {
+			bottom: -20px;
+			opacity: 0;
+		}
+	
+/*** Submenu ***/
+.minimal-menu ul ul, .minimal-menu ul .menu-wrapper {
+	position: absolute;
+	display: block;
+	visibility: hidden;
+	z-index: 1;
+	height: auto;
+	left: 3px;
+	top: 100%;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	border: 1px solid #e3e3e3;
+	border-bottom-width: 3px;
+	opacity: 0;
+}
+
+.minimal-menu ul li:hover > ul, .minimal-menu ul li:hover > .menu-wrapper {
+	visibility: visible;
+	padding: 10px 0;
+	opacity: 1;
+}
+
+	.minimal-menu ul ul li {
+		display: block;
+		overflow: hidden;
+		height: auto;
+		padding: 10px;
+	}
+	
+		.minimal-menu ul ul li a {
+			font-size: 14px;
+			color: #666;
+			border: 1px solid transparent;
+		}
+
+		.minimal-menu ul ul li:hover > a,
+		.minimal-menu ul ul li.current > a {
+			border-style: solid;
+			border-width: 1px;
+		}
+		
+	.minimal-menu ul li:hover ul li {
+		overflow: visible;
+		padding: 0 10px;
+	}
+
+		.minimal-menu ul ul li.submenu > a:before,
+		.minimal-menu ul ul li.submenu > a:after {
+			left: auto;
+			top: 50%;
+			right: 0;
+			background: #ccc;
+		}
+		
+		.minimal-menu ul ul li.submenu > a:before {
+			margin-top: -1px;
+		}
+		
+		.minimal-menu ul ul li.submenu > a:after {
+			margin-top: 2px;
+		}
+		
+		.minimal-menu ul ul li.submenu > a:hover:before,
+		.minimal-menu ul ul li.submenu > a:hover:after {
+			right: -13px;
+		}
+		
+		
+	.minimal-menu ul ul ul {
+		left: 100%;
+		top: -11px;
+	}
+
+	
+	/* Megamenu */
+	.minimal-menu ul li.megamenu {
+		position: static;
+	}
+
+		.minimal-menu ul .menu-wrapper {
+			position: absolute;
+			left: -1px;
+			top: 100%;
+			margin-top: -5px;
+			width: 100%;
+		}
+
+		.minimal-menu ul .menu-wrapper a {
+			white-space: inherit;
+		}
+
+			.minimal-menu ul .menu-wrapper .menu-col {
+				position: relative;
+				float: left;
+				width: 23%;
+				margin: 0 1%;
+			}
+			
+				.minimal-menu ul .menu-wrapper h3 {
+					margin: 20px 15px;
+					font-size: 18px;
+					line-height: 22px;
+					color: #000;
+				}
+
+				.minimal-menu ul .menu-wrapper ul {
+					position: relative;
+					visibility: hidden;
+					height: 100%;
+					border: 0;
+					opacity: 1;
+					background: transparent;
+				}
+				
+				.minimal-menu ul li:hover > .menu-wrapper ul {
+					visibility: visible;
+				}
+					
+					.minimal-menu ul .menu-wrapper ul li {
+						padding: 0 10px;
+					}

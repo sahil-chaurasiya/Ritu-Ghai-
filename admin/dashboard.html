@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Zorka Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Zorka</h1>
+      <p>Admin Panel</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Dashboard</h2>
+      <div class="topbar-right">
+        <a href="add-product.html" class="btn btn-primary">+ Add Product</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Total Products</div>
+        <div class="value" id="totalProducts">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Active Products</div>
+        <div class="value" id="activeProducts">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Categories</div>
+        <div class="value" id="totalCategories">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Out of Stock</div>
+        <div class="value" id="outOfStock">—</div>
+      </div>
+    </div>
+
+    <!-- Recent Products -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Recent Products</h3>
+        <a href="products.html" class="btn btn-secondary btn-sm">View All</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="recentProductsTable">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  async function loadDashboard() {
+    const data = await AdminAuth.apiFetch('/api/products?all=1');
+    if (!data) return;
+    const products = data.products || [];
+
+    document.getElementById('totalProducts').textContent = products.length;
+    document.getElementById('activeProducts').textContent = products.filter(p => p.isActive).length;
+    document.getElementById('totalCategories').textContent = new Set(products.map(p => p.category)).size;
+    document.getElementById('outOfStock').textContent = products.filter(p => p.stock === 0).length;
+
+    const tbody = document.getElementById('recentProductsTable');
+    const recent = products.slice(0, 8);
+    if (!recent.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">No products yet. <a href="add-product.html">Add one!</a></td></tr>';
+      return;
+    }
+    tbody.innerHTML = recent.map(p => `
+      <tr>
+        <td><img class="product-img-cell" src="${p.images[0] || '/assets/images/product-img-1.jpg'}" onerror="this.src='/assets/images/product-img-1.jpg'" /></td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.category}</td>
+        <td>${p.price.toFixed(2)} USD</td>
+        <td>${p.stock}</td>
+        <td>
+          <a href="edit-product.html?id=${p._id}" class="btn btn-secondary btn-sm">Edit</a>
+        </td>
+      </tr>`).join('');
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

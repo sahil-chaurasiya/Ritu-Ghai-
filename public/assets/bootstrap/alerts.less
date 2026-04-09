@@ -1,0 +1,70 @@
+//
+// Alerts
+// --------------------------------------------------
+
+
+// Base styles
+// -------------------------
+
+.alert {
+  font-size: 11px;
+  margin-bottom: 30px;
+  padding: 25px 15px;
+  i {
+    font-size: 36px;
+    margin-right: 15px;
+    vertical-align: middle;
+  }
+  // Headings for larger alerts
+  h4 {
+    margin-top: 0;
+    // Specified for the h4 to prevent conflicts of changing @headings-color
+    color: inherit;
+  }
+  // Provide class for links that match alerts
+  .alert-link {
+    font-weight: @alert-link-font-weight;
+  }
+  // Improve alignment and spacing of inner content
+  > p, > ul {
+    margin-bottom: 0;
+  }
+  > p + p {
+    margin-top: 5px;
+  }
+}
+// Dismissible alerts
+//
+// Expand the right padding and account for the close button's positioning.
+
+.alert-dismissable, // The misspelled .alert-dismissable was deprecated in 3.2.0.
+.alert-dismissible {
+  padding-right: (@alert-padding + 20);
+  // Adjust close link position
+  .close {
+    position: relative;
+    top: -2px;
+    right: -21px;
+    color: inherit;
+  }
+}
+// Alternate styles
+//
+// Generate contextual modifier classes for colorizing the alert.
+
+.alert-success {
+  background-color: #f5fcf8;
+  color: #339b62;
+}
+.alert-info {
+  background-color: #f7faff;
+  color: #6379b7;
+}
+.alert-warning {
+  background-color: #fffdf3;
+  color: #f2c800;
+}
+.alert-danger {
+  background-color: #fdf4f3;
+  color: #cb323e;
+}

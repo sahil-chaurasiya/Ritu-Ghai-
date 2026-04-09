@@ -1,0 +1,383 @@
+/* ====================================================================================================
+MINIMAL CSS3 MENU
+==================================================================================================== */
+.minimal-menu {
+	position: relative;
+	display: block;
+	text-decoration: none;
+	font-size: 0;
+	line-height: 0;
+}
+.minimal-menu h3 {
+	font-weight: normal;
+}
+.minimal-menu a {
+	transition: all 0.3s;
+}
+.minimal-menu ul, .minimal-menu ul li, .minimal-menu ul li a {
+	position: relative;
+}
+.minimal-menu ul {
+	z-index: 100;
+}
+.minimal-menu ul li a {
+	display: block;
+	padding: 10px 16px;
+	line-height: 1;
+	text-decoration: none;
+}
+.minimal-menu ul li.submenu > a:after {
+	color: #aaa;
+	content: "\f107";
+	font-family: FontAwesome;
+	font-size: 12px;
+	left: calc(100% + 5px);
+	position: absolute;
+	top: 2px;
+	transition: all 0.5s ease 0s;
+}
+
+/* RESPONSIVE
+================================================== */
+@media only screen and (min-width:768px) {
+	/* Blue
+	---------------- */
+	.minimal-menu.clr-blue {
+		background: #5bc7fd;
+	}
+	.minimal-menu.clr-blue ul ul li:hover > a, .minimal-menu.clr-blue ul ul li.current > a {
+		border-color: #5bc7fd;
+	}
+	
+	/* Green
+	---------------- */
+	.minimal-menu.clr-green {
+		background: #65e7a2;
+	}
+	.minimal-menu.clr-green ul ul li:hover > a, .minimal-menu.clr-green ul ul li.current > a {
+		border-color: #65e7a2;
+	}
+	
+	/* Orange
+	---------------- */
+	.minimal-menu.clr-orange {
+		background: #e1c75f;
+	}
+	.minimal-menu.clr-orange ul ul li:hover > a, .minimal-menu.clr-orange ul ul li.current > a {
+		border-color: #e1c75f;
+	}
+	
+	/* Black
+	---------------- */
+	.minimal-menu.clr-black {
+		background: #333;
+	}
+	.minimal-menu.clr-black > ul > li > a {
+		color: #fff;
+	}
+	.minimal-menu.clr-black > ul > li:hover > a, .minimal-menu.clr-black > ul > li.current > a {
+		border-color: #aaa;
+	}
+	.minimal-menu.clr-black ul ul li:hover > a, .minimal-menu.clr-black ul ul li.current > a {
+		border-color: #999;
+	}
+	
+	/* White
+	---------------- */
+	.minimal-menu.clr-white {
+		background: #fff;
+		border-color: #000;
+	}
+	.minimal-menu.clr-white > ul > li > a {
+		color: #000;
+	}
+	.minimal-menu.clr-white > ul > li:hover > a, .minimal-menu.clr-white > ul > li.current > a {
+		border-color: #aaa;
+	}
+	.minimal-menu.clr-white ul ul li:hover > a, .minimal-menu.clr-white ul ul li.current > a {
+		border-color: #999;
+	}
+	.minimal-menu.clr-white > ul > li.submenu > a:before, .minimal-menu.clr-white > ul > li.submenu > a:after {
+		background: #999;
+	}
+	.minimal-menu-button {
+		display: none;
+	}
+	.minimal-menu {
+		border-radius: 30px;
+	}
+	.minimal-menu.pos-fixed {
+		position: fixed;
+		top: -2px;
+		left: -2px;
+		right: -2px;
+		z-index: 9999;
+		border-radius: 0;
+	}
+	.minimal-menu a {
+		white-space: nowrap;
+	}
+	.minimal-menu > ul {
+		margin-bottom: 0;
+	}
+	.minimal-menu ul li {
+		display: inline-block;
+	}
+	.minimal-menu ul li.submenu:hover > a:before, .minimal-menu ul li.submenu:hover > a:after {
+		bottom: -20px;
+		opacity: 0;
+	}
+	
+	/*** Submenu ***/
+	.minimal-menu ul ul, .minimal-menu ul .menu-wrapper {
+		background-color: #fff;
+		border-radius: 5px;
+		box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+		display: block;
+		height: auto;
+		left: 0;
+		margin: 0;
+		opacity: 0;
+		padding: 0;
+		position: absolute;
+		top: 100%;
+		transition: all 0.3s ease 0s;
+		visibility: hidden;
+		z-index: 1;
+	}
+	.minimal-menu ul li:hover > ul, .minimal-menu ul li:hover > .menu-wrapper {
+		visibility: visible;
+		padding: 10px 0;
+		opacity: 1;
+	}
+	.minimal-menu ul ul li {
+		display: block;
+		overflow: hidden;
+		height: auto;
+		padding: 10px;
+		transition: all 0.3s;
+	}
+	.minimal-menu ul ul li a:hover {
+		color: #cf5053;
+	}
+	.minimal-menu ul li:hover ul li {
+		overflow: visible;
+		padding: 0 10px;
+	}
+	.minimal-menu ul ul li.submenu > a:after {
+		content: "\f105";
+		font-family: FontAwesome;
+		left: auto;
+		right: 2px;
+		top: 9px;
+	}
+	.minimal-menu ul ul li.submenu > a:before {
+		margin-top: -1px;
+	}
+	.minimal-menu ul ul li.submenu > a:after {
+		margin-top: 2px;
+	}
+	.minimal-menu ul ul li.submenu > a:hover:before, .minimal-menu ul ul li.submenu > a:hover:after {
+		right: -13px;
+	}
+	.minimal-menu ul ul ul {
+		left: 100%;
+		top: -10px;
+	}
+	
+	/* Megamenu */
+	.minimal-menu ul li .menu-wrapper {
+		visibility: hidden;
+	}
+	.minimal-menu ul li:hover .menu-wrapper ul, .minimal-menu ul li:hover .menu-wrapper {
+		visibility: visible !important;
+	}
+	.minimal-menu ul .menu-wrapper ul li {
+		padding: 0 10px;
+	}
+	.minimal-menu .show-submenu {
+		display: none;
+	}
+}
+@media only screen and (max-width:767px) {
+	/* Blue
+	---------------- */
+	.minimal-menu.clr-blue {
+		background: #5bc7fd;
+	}
+	
+	/* Green
+	---------------- */
+	.minimal-menu.clr-green {
+		background: #65e7a2;
+	}
+	
+	/* Orange
+	---------------- */
+	.minimal-menu.clr-orange {
+		background: #e1c75f;
+	}
+	
+	/* Black
+	---------------- */
+	.minimal-menu.clr-black {
+		background: #000;
+	}
+	
+	/* White
+	---------------- */
+	.minimal-menu.clr-white {
+		background: #fff;
+	}
+	.minimal-menu.clr-white h3, .minimal-menu.clr-white ul li a {
+		color: #000;
+		border-bottom-color: rgba(0, 0, 0, 0.08);
+	}
+	.minimal-menu.clr-white h3 {
+		background: rgba(0, 0, 0, 0.05);
+	}
+	.minimal-menu.clr-white ul li:hover a, .minimal-menu.clr-white ul li.current a {
+		background: rgba(0, 0, 0, 0.1);
+	}
+	.minimal-menu.clr-white ul li li:hover a, .minimal-menu.clr-white ul li li.current a {
+		background: rgba(0, 0, 0, 0.2);
+	}
+	.minimal-menu.clr-white ul li li li:hover a, .minimal-menu.clr-white ul li li li.current a {
+		background: rgba(0, 0, 0, 0.3);
+	}
+	.minimal-menu {
+		border-color: rgba(100%, 100%, 100%, 0.3);
+	}
+	.minimal-menu-button, .minimal-menu {
+		position: fixed;
+		right: 8px;
+		top: 10px;
+		z-index: 9999;
+	}
+	.minimal-menu ul li {
+		padding-bottom: 15px;
+	}
+	input.minimal-menu-button {
+		display: none;
+	}
+	label.minimal-menu-button {
+		background-color: #222;
+		color: #fff;
+		cursor: pointer;
+		display: inline-block;
+		height: 38px;
+		padding-top: 3px;
+		text-indent: -9999px;
+		text-transform: uppercase;
+		width: 42px;
+	}
+	label.minimal-menu-button .icon-bar {
+		background-color: #fff;
+		border-radius: 2px;
+		color: #fff;
+		display: block;
+		height: 3px;
+		margin: 6px 5px;
+	}
+	.minimal-menu {
+		background: url("../images/sprinkles.png") repeat;
+		overflow: auto;
+		left: -100%;
+		top: 0;
+		width: 55%;
+		height: 100%;
+		opacity: 0;
+		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+		transition: left 0.8s, opacity 0.5s;
+	}
+	#mobile-nav:checked + .minimal-menu {
+		visibility: visible;
+		left: 0;
+		opacity: 1;
+	}
+	.minimal-menu h3, .minimal-menu ul li a {
+		border-top: 1px solid transparent;
+		border-bottom: 1px solid rgba(100%, 100%, 100%, 0.2);
+	}
+	.minimal-menu h3 {
+		background: none repeat scroll 0 0 rgba(100%, 100%, 100%, 0.2);
+		font-size: 12px;
+		line-height: 1em;
+		margin: 0;
+		padding: 10px 0 10px 20px;
+		font-weight: 700;
+	}
+	.minimal-menu ul {
+		margin: 0;
+		padding: 0;
+	}
+	.minimal-menu li, .minimal-menu a {
+		display: block;
+	}
+	.minimal-menu li {
+		position: relative;
+	}
+	.minimal-menu li:hover a, .minimal-menu li.current a {
+		background: rgba(100%, 100%, 100%, 0.3);
+	}
+	.minimal-menu li li:hover a, .minimal-menu li li.current a {
+		background: rgba(100%, 100%, 100%, 0.5);
+	}
+	.minimal-menu li li li:hover a, .minimal-menu li li li.current a {
+		background: rgba(100%, 100%, 100%, 0.7);
+	}
+	.minimal-menu ul > li {
+		padding-bottom: 0;
+	}
+	.minimal-menu ul ul a {
+		padding-left: 40px;
+	}
+	.minimal-menu ul ul ul a {
+		padding-left: 55px;
+	}
+	.minimal-menu ul ul ul ul a {
+		padding-left: 70px;
+	}
+	.minimal-menu ul li.submenu > a:before, .minimal-menu ul li.submenu > a:after {
+		left: auto;
+		right: 10px;
+		top: 10px;
+		color: #222;
+		font-size: 14px;
+	}
+	.minimal-menu.clr-white ul li.submenu a:before, .minimal-menu.clr-white ul li.submenu a:after {
+		background: #999;
+	}
+	.minimal-menu ul li.submenu > a:before {
+		margin-top: -2px;
+	}
+	.minimal-menu ul li.submenu > a:after {
+		margin-top: 1px;
+	}
+	.minimal-menu .show-submenu {
+		position: absolute;
+		display: block;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 40px;
+		min-width: 100%;
+		min-height: 40px;
+		margin: 0;
+		opacity: 0;
+		-webkit-appearance: none;
+	}
+	.minimal-menu .show-submenu + ul, .minimal-menu .show-submenu + .menu-wrapper {
+		display: none;
+		visibility: hidden;
+	}
+	.minimal-menu .show-submenu:checked + ul, .minimal-menu .show-submenu:checked + .menu-wrapper {
+		display: block;
+		visibility: visible;
+	}
+}
+@media only screen and (max-width:480px) {
+	.minimal-menu {
+		width: 70%;
+	}
+}

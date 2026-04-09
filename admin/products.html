@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products — Zorka Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <style>
+    .category-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cat-btn { padding: 6px 14px; border: 1px solid #ddd; background: #fff; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all .2s; }
+    .cat-btn.active, .cat-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .empty-state { text-align: center; padding: 80px 20px; color: #aaa; }
+    .empty-state a { color: #1a1a1a; text-decoration: underline; }
+    .confirm-modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 999; align-items: center; justify-content: center;
+    }
+    .confirm-modal.open { display: flex; }
+    .confirm-box { background: #fff; padding: 32px; width: 360px; text-align: center; }
+    .confirm-box h3 { margin-bottom: 12px; font-size: 16px; }
+    .confirm-box p { color: #888; font-size: 13px; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Zorka</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Products</h2>
+      <div class="topbar-right">
+        <input type="text" class="search-bar" id="searchInput" placeholder="Search products..." />
+        <a href="add-product.html" class="btn btn-primary">+ Add Product</a>
+      </div>
+    </div>
+
+    <div class="category-filter" id="categoryFilter"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>All Products <span id="productCount" style="color:#aaa;font-weight:400"></span></h3>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Badge</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productsTable">
+          <tr><td colspan="7" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="confirm-modal" id="deleteModal">
+  <div class="confirm-box">
+    <h3>Delete Product?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  let allProducts = [];
+  let deleteTargetId = null;
+
+  async function loadProducts() {
+    const data = await AdminAuth.apiFetch('/api/products');
+    if (!data) return;
+    allProducts = data.products || [];
+    renderCategories();
+    renderTable(allProducts);
+  }
+
+  function renderCategories() {
+    const cats = ['All', ...new Set(allProducts.map(p => p.category))];
+    const container = document.getElementById('categoryFilter');
+    container.innerHTML = cats.map((c, i) =>
+      `<button class="cat-btn ${i === 0 ? 'active' : ''}" data-cat="${c === 'All' ? '' : c}" onclick="filterCat(this)">${c}</button>`
+    ).join('');
+  }
+
+  function filterCat(btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    const filtered = cat ? allProducts.filter(p => p.category === cat) : allProducts;
+    renderTable(filtered);
+  }
+
+  function renderTable(products) {
+    document.getElementById('productCount').textContent = `(${products.length})`;
+    const tbody = document.getElementById('productsTable');
+    if (!products.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No products found. <a href="add-product.html">Add one!</a></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td><img class="product-img-cell" src="${p.images[0] || '/assets/images/product-img-1.jpg'}" onerror="this.src='/assets/images/product-img-1.jpg'" /></td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.category}</td>
+        <td>
+          ${p.originalPrice ? `<span style="color:#27ae60;">${p.price.toFixed(2)}</span> <del style="color:#aaa;font-size:11px;">${p.originalPrice.toFixed(2)}</del>` : p.price.toFixed(2)} USD
+        </td>
+        <td>${p.stock === 0 ? '<span style="color:#c0392b;">Out of Stock</span>' : p.stock}</td>
+        <td>
+          ${p.badge ? `<span class="badge badge-${p.badge}">${p.badge}</span>` : '<span class="badge badge-none">—</span>'}
+        </td>
+        <td>
+          <a href="edit-product.html?id=${p._id}" class="btn btn-secondary btn-sm">Edit</a>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete('${p._id}')">Delete</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    const filtered = allProducts.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+    renderTable(filtered);
+  });
+
+  // Delete modal
+  function confirmDelete(id) {
+    deleteTargetId = id;
+    document.getElementById('deleteModal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('deleteModal').classList.remove('open');
+    deleteTargetId = null;
+  }
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!deleteTargetId) return;
+    const btn = document.getElementById('confirmDeleteBtn');
+    btn.textContent = 'Deleting...';
+    btn.disabled = true;
+    await AdminAuth.apiFetch('/api/products/' + deleteTargetId, { method: 'DELETE' });
+    closeModal();
+    loadProducts();
+    btn.textContent = 'Delete';
+    btn.disabled = false;
+  });
+
+  loadProducts();
+</script>
+</body>
+</html>

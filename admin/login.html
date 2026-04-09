@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zorka Admin — Login</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', 'Segoe UI', sans-serif;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .login-box {
+      background: #fff;
+      padding: 50px 40px;
+      width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .login-box h1 {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .login-box h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 36px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      border: 1px solid #ddd;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color .2s;
+      font-family: inherit;
+    }
+    input:focus { border-color: #1a1a1a; }
+    button[type=submit] {
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      transition: background .2s;
+    }
+    button[type=submit]:hover { background: #333; }
+    .error-msg {
+      background: #fdecea;
+      color: #c0392b;
+      padding: 10px 14px;
+      font-size: 12px;
+      margin-bottom: 18px;
+      display: none;
+      border-left: 3px solid #c0392b;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 1px;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>Zorka Shop</h1>
+    <h2>Admin Login</h2>
+    <div class="error-msg" id="errorMsg"></div>
+    <form id="loginForm">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="admin" required autocomplete="username" />
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+      <button type="submit" id="submitBtn">Sign In</button>
+    </form>
+    <a href="/" class="back-link">← Back to Website</a>
+  </div>
+  <script>
+    // Redirect if already logged in
+    if (localStorage.getItem('admin_token')) {
+      window.location.href = '/admin/dashboard.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errEl = document.getElementById('errorMsg');
+      btn.textContent = 'SIGNING IN...';
+      btn.disabled = true;
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_username', data.username);
+          window.location.href = '/admin/dashboard.html';
+        } else {
+          errEl.textContent = data.message || 'Invalid credentials';
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = 'Server error. Please try again.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'SIGN IN';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

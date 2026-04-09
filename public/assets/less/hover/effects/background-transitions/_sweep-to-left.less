@@ -1,0 +1,35 @@
+/* Sweep To Left */
+.sweep-to-left(@bgColor:@activeColor, @color:#fff, @br:0) {
+	.hacks();
+	position: relative;
+	border-radius: @br;
+	.prefixed(transition-property, color);
+	.prefixed(transition-duration, @mediumDuration);
+
+	&:before {
+		content: "";
+		position: absolute;
+		z-index: -1;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: @bgColor;
+		border-radius: @br;
+		.prefixed(transform, scaleX(0));
+		.prefixed(transform-origin, 100% 50%);
+		.prefixed(transition-property, transform);
+		.prefixed(transition-duration, @mediumDuration);
+		.prefixed(transition-timing-function, ease-out);
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+		color: @color;
+
+		&:before {
+			.prefixed(transform, scaleX(1));
+		}
+	}
+}

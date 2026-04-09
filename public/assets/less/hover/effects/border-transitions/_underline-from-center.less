@@ -1,0 +1,31 @@
+/* Underline From Center */
+.underline-from-center(@height: 4px, @color: @activeColor) {
+	@duration: @mediumDuration;
+
+	.hacks();
+	position: relative;
+
+	&:before {
+		content: "";
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		right: 50%;
+		bottom: 0;
+		background: @color;
+		height: @height;
+		.prefixed(transition-property, "left, right");
+		.prefixed(transition-duration, @duration);
+		.prefixed(transition-timing-function, ease-out);
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+
+		&:before {
+			left: 0;
+			right: 0;
+		}
+	}
+}

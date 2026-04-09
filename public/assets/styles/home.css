@@ -1,0 +1,67 @@
+﻿a .image-wrap {
+	display: block;
+	height: 350px;
+	background-position: center 0%;
+	background-size: cover;
+}
+a:hover .image-wrap {
+	background-position: center 100%;
+	background-size: cover;
+}
+.move {
+	-webkit-transition: all 4s ease-out;
+	-moz-transition: all 4s ease-out;
+	-ms-transition: all 4s ease-out;
+	-o-transition: all 4s ease-out;
+	transition: all 4s ease-out;
+}
+
+.splash_item {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	display: block;
+	margin: 0 0 30px;
+	padding: 20px 20px 28px;
+	position: relative;
+}
+.splash_item span {
+	display: block;
+}
+.splash_item figure {
+	margin: 0 0 28px;
+}
+.splash_item:after {
+	display: block;
+	width: 0;
+	height: 100%;
+	top: 0;
+	left: 50%;
+	position: absolute;
+	z-index: -1;
+	background: #fff;
+	box-shadow: 0 0 10px #e0e0e0;
+	opacity: 0;
+	content: "";
+	border-radius: 6px;
+}
+.splash_item:after {
+	-webkit-transition: all .5s ease-in-out 0s;
+	-moz-transition: all .5s ease-in-out 0s;
+	-o-transition: all .5s ease-in-out 0s;
+	transition: all .5s ease-in-out 0s
+}
+.splash_item:hover:after {
+	width: 100%;
+	opacity: 1;
+	left: 0;
+}
+.splash_item:hover {
+}
+.splash_item .title {
+	color: #333;
+	font-size: 18px;
+	margin: 15px 0;
+	text-align: center;
+	text-transform: uppercase;
+}

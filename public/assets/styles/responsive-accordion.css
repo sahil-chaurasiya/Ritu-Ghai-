@@ -1,0 +1,76 @@
+/* Responsive Accordion v1.3, Copyright 2014, Joe Mottershaw, https://github.com/joemottershaw/
+//	============================================================================================ */
+
+/*	Table of Contents
+//	==================================================
+//		#Reset
+//		#Themes
+
+
+/* #Reset
+//	================================================== */
+
+.responsive-accordion {
+	margin: 0;
+	list-style: none;
+}
+.responsive-accordion li {
+	margin-bottom: 10px;
+}
+.responsive-accordion li:last-child {
+	margin-bottom: 0;
+}
+.responsive-accordion li .responsive-accordion-head {
+	cursor: pointer;
+}
+.responsive-accordion li .responsive-accordion-head.active {
+	border-bottom: none !important;
+}
+
+/* #Themes
+//	================================================== */
+.responsive-accordion-default.responsive-accordion li .responsive-accordion-head {
+	border-bottom: 1px solid #ddd;
+	padding: 10px 0;
+	position: relative;
+}
+.responsive-accordion-default.responsive-accordion li .responsive-accordion-head h5 {
+	color: #212121;
+	font-size: 11px;
+	margin: 0 0 10px;
+}
+.responsive-accordion-default.responsive-accordion li .responsive-accordion-head i {
+	position: absolute;
+	top: 12px;
+	right: 10px;
+}
+.responsive-accordion-default.responsive-accordion li .responsive-accordion-panel {
+	border: 1px solid #ddd;
+	border-radius: 20px;
+	line-height: 2;
+	padding: 20px;
+}
+
+/* #Themes Grey
+//	================================================== */
+.responsive-accordion-grey.responsive-accordion li .responsive-accordion-head {
+	border-bottom: 1px solid #ddd;
+	padding: 10px 0;
+	position: relative;
+}
+.responsive-accordion-grey.responsive-accordion li .responsive-accordion-head h5 {
+	color: #212121;
+	font-size: 11px;
+	margin: 0 0 10px;
+}
+.responsive-accordion-grey.responsive-accordion li .responsive-accordion-head i {
+	position: absolute;
+	top: 12px;
+	right: 10px;
+}
+.responsive-accordion-grey.responsive-accordion li .responsive-accordion-panel {
+	line-height: 2;
+	padding: 20px;
+	background-color: #FAFAFA;
+	border-top: 2px solid #ddd;
+}

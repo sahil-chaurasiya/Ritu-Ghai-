@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Product — Zorka Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="admin-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Zorka</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Edit Product</h2>
+      <a href="products.html" class="btn btn-secondary">← Back to Products</a>
+    </div>
+
+    <div class="alert alert-success" id="successMsg">✓ Product updated successfully!</div>
+    <div class="alert alert-error" id="errorMsg"></div>
+
+    <div class="form-card" id="formContainer" style="display:none">
+      <form id="productForm" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" name="name" id="fName" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <input type="text" name="category" id="fCategory" class="form-control" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (USD) *</label>
+            <input type="number" name="price" id="fPrice" class="form-control" step="0.01" min="0" required />
+          </div>
+          <div class="form-group">
+            <label>Original Price (USD)</label>
+            <input type="number" name="originalPrice" id="fOriginalPrice" class="form-control" step="0.01" min="0" />
+            <p class="form-hint">Leave empty if not on sale</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" name="stock" id="fStock" class="form-control" min="0" required />
+          </div>
+          <div class="form-group">
+            <label>Badge</label>
+            <select name="badge" id="fBadge" class="form-control">
+              <option value="">None</option>
+              <option value="new">New</option>
+              <option value="sale">Sale</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" id="fDescription" class="form-control"></textarea>
+        </div>
+
+        <!-- Existing Images -->
+        <div class="form-group">
+          <label>Current Images</label>
+          <p class="form-hint">Click "Remove" to delete an image when saving.</p>
+          <div class="img-preview" id="existingImages"></div>
+        </div>
+
+        <!-- New Images -->
+        <div class="form-group">
+          <label>Upload New Images (optional, up to 5)</label>
+          <input type="file" name="images" id="imageInput" class="form-control" multiple accept="image/*" />
+          <div class="img-preview" id="newImgPreview"></div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button type="submit" class="btn btn-primary" id="submitBtn">Update Product</button>
+          <a href="products.html" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <div id="loadingMsg" style="padding:60px;text-align:center;color:#aaa;">Loading product...</div>
+  </main>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  const productId = new URLSearchParams(window.location.search).get('id');
+  if (!productId) window.location.href = 'products.html';
+
+  let removedImages = new Set();
+
+  async function loadProduct() {
+    const data = await AdminAuth.apiFetch('/api/products/' + productId);
+    if (!data || !data.success) {
+      document.getElementById('loadingMsg').textContent = 'Product not found.';
+      return;
+    }
+    const p = data.product;
+    document.getElementById('fName').value = p.name;
+    document.getElementById('fCategory').value = p.category;
+    document.getElementById('fPrice').value = p.price;
+    document.getElementById('fOriginalPrice').value = p.originalPrice || '';
+    document.getElementById('fStock').value = p.stock;
+    document.getElementById('fDescription').value = p.description || '';
+    document.getElementById('fBadge').value = p.badge || '';
+
+    // Render existing images
+    const existing = document.getElementById('existingImages');
+    if (p.images && p.images.length) {
+      existing.innerHTML = p.images.map(img => `
+        <div id="img-wrap-${btoa(img)}" style="position:relative;display:inline-block;">
+          <img src="${img}" style="width:80px;height:80px;object-fit:cover;border:1px solid #eee;" onerror="this.src='/assets/images/product-img-1.jpg'" />
+          <input type="hidden" name="existingImages" value="${img}" id="hidden-${btoa(img)}" />
+          <span class="remove-img" onclick="removeExistingImg('${img}')">Remove</span>
+        </div>`).join('');
+    } else {
+      existing.innerHTML = '<p style="color:#aaa;font-size:13px;">No images uploaded.</p>';
+    }
+
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+  }
+
+  function removeExistingImg(imgPath) {
+    const key = btoa(imgPath);
+    const wrap = document.getElementById('img-wrap-' + key);
+    const hidden = document.getElementById('hidden-' + key);
+    if (wrap) wrap.style.opacity = '0.3';
+    if (hidden) hidden.disabled = true;
+    removedImages.add(imgPath);
+  }
+
+  // New image preview
+  document.getElementById('imageInput').addEventListener('change', function () {
+    const preview = document.getElementById('newImgPreview');
+    preview.innerHTML = '';
+    Array.from(this.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div');
+        div.innerHTML = `<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border:1px solid #eee;" />`;
+        preview.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  document.getElementById('productForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const successEl = document.getElementById('successMsg');
+    const errorEl = document.getElementById('errorMsg');
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    btn.textContent = 'Updating...';
+    btn.disabled = true;
+
+    try {
+      const formData = new FormData(this);
+      const res = await fetch('/api/products/' + productId, {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + AdminAuth.token() },
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        successEl.style.display = 'block';
+        window.scrollTo(0, 0);
+      } else {
+        errorEl.textContent = data.message || 'Error updating product';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.textContent = 'Network error. Please try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      btn.textContent = 'Update Product';
+      btn.disabled = false;
+    }
+  });
+
+  loadProduct();
+</script>
+</body>
+</html>
