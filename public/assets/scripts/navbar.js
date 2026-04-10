@@ -34,7 +34,7 @@
     <header>
       <div class="container">
         <a class="logo" href="/index.html">
-          <img src="/assets/images/logo.png" alt="Zorka" style="width:120px; height:auto;" />
+          <img src="/assets/images/logo.png" alt="Zorka" style="width:200px; height:auto;" />
         </a>
         <div class="header-social">
           <ul class="list-social">

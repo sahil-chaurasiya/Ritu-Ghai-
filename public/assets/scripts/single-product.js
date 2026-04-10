@@ -189,7 +189,7 @@
       document.title = p.name + ' — Zorka Shop';
 
       var nameEl = document.querySelector('h2.product-name');
-      if (nameEl) nameEl.textContent = p.name;
+      if (nameEl) { nameEl.textContent = p.name; nameEl.style.color = ''; nameEl.style.minHeight = ''; }
 
       var breadEl = document.querySelector('nav.breadcrumb span');
       if (breadEl) breadEl.textContent = p.name;

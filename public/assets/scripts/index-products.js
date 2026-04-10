@@ -23,20 +23,20 @@
       : (p.badge === 'sale' || hasDeal) ? '<div class="product-sale">-' + discount + '%</div>' : '';
 
     return '<div class="col-lg-3 col-md-4 col-sm-6">'
-      + '<div class="product-item' + (hasDeal ? ' has-deal' : '') + '">'
-      + '<div class="product-thumb">'
-      + '<div class="main-img"><a href="/single-product.html?id=' + p._id + '">'
-      + '<img class="img-responsive" src="' + img(p) + '" alt="' + p.name + '" onerror="this.src=\'' + FALLBACK_IMG + '\'"/>'
+      + '<div class="product-item' + (hasDeal ? ' has-deal' : '') + '" style="overflow:visible;display:block;">'
+      + '<div class="product-thumb" style="display:block;position:relative;width:100%;overflow:visible;">'
+      + '<div class="main-img" style="display:block;width:100%;"><a href="/single-product.html?id=' + p._id + '">'
+      + '<img class="img-responsive" src="' + img(p) + '" alt="' + p.name + '" style="width:100%;height:auto;display:block;" onerror="this.src=\'' + FALLBACK_IMG + '\'"/>'
       + '</a></div>'
       + '<div class="overlay-img"><a href="/single-product.html?id=' + p._id + '">'
-      + '<img class="img-responsive" src="' + img2(p) + '" alt="' + p.name + '" onerror="this.src=\'' + FALLBACK_IMG + '\'"/>'
+      + '<img class="img-responsive" src="' + img2(p) + '" alt="' + p.name + '" style="width:100%;height:auto;display:block;" onerror="this.src=\'' + FALLBACK_IMG + '\'"/>'
       + '</a></div>'
       + badge
       + '<a href="/single-product.html?id=' + p._id + '" class="details"><i class="pe-7s-search"></i></a>'
       + '</div>'
-      + '<h4 class="product-name"><a href="/single-product.html?id=' + p._id + '">' + p.name + '</a></h4>'
-      + '<p class="product-price">' + priceHtml + '</p>'
-      + '<div class="group-buttons">'
+      + '<h4 class="product-name" style="display:block;"><a href="/single-product.html?id=' + p._id + '">' + p.name + '</a></h4>'
+      + '<p class="product-price" style="display:block;">' + priceHtml + '</p>'
+      + '<div class="group-buttons" style="display:block;">'
       + '<button type="button" class="add-to-cart btn-dyn-cart" data-id="' + p._id + '" data-toggle="tooltip" data-placement="top" title="Add to Cart"><span>Add to Cart</span></button>'
       + '<button type="button" class="btn-dyn-wish" data-id="' + p._id + '" data-toggle="tooltip" data-placement="top" title="Add to Wishlist"><i class="pe-7s-like"></i></button>'
       + '</div>'
@@ -128,8 +128,9 @@
   function reinitOwl() {
     if (typeof $ === 'undefined' || !$.fn.owlCarousel) return;
 
-    var owl1el = $('#carousel-1 .box-content');
-    if (owl1el.length) {
+    function initOwl1() {
+      var owl1el = $('#carousel-1 .box-content');
+      if (!owl1el.length) return;
       try {
         if (owl1el.data('owl.carousel')) { owl1el.trigger('destroy.owl.carousel'); }
       } catch(e) {}
@@ -147,8 +148,9 @@
       });
     }
 
-    var owl2el = $('#carousel-2 .box-content');
-    if (owl2el.length) {
+    function initOwl2() {
+      var owl2el = $('#carousel-2 .box-content');
+      if (!owl2el.length) return;
       try {
         if (owl2el.data('owl.carousel')) { owl2el.trigger('destroy.owl.carousel'); }
       } catch(e) {}
@@ -156,6 +158,21 @@
       $('#carousel-2 .next').off('click').click(function () { owl2el.trigger('next.owl.carousel'); });
       $('#carousel-2 .prev').off('click').click(function () { owl2el.trigger('prev.owl.carousel'); });
     }
+
+    // Wait for all product images to load before init so autoHeight measures correctly
+    var allImgs = document.querySelectorAll('#carousel-1 img, #carousel-2 img');
+    var total = allImgs.length;
+    if (total === 0) { initOwl1(); initOwl2(); return; }
+
+    var loaded = 0;
+    function onLoad() {
+      loaded++;
+      if (loaded >= total) { initOwl1(); initOwl2(); }
+    }
+    allImgs.forEach(function(img) {
+      if (img.complete) { onLoad(); }
+      else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
+    });
   }
 
   /* ── MAIN ── */
