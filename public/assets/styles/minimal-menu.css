@@ -158,7 +158,7 @@ MINIMAL CSS3 MENU
 		transition: all 0.3s;
 	}
 	.minimal-menu ul ul li a:hover {
-		color: #cf5053;
+		color: #44332B;
 	}
 	.minimal-menu ul li:hover ul li {
 		overflow: visible;

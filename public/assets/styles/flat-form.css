@@ -554,7 +554,7 @@ label.custom-option.toggle {
 .alert-success	{ background: #cafbe1; }
 .alert-info		{ background: #d8e6f7; }
 .alert-warning	{ background: #f9edca; }
-.alert-danger	{ background: #fccdcd; }
+.alert-danger	{ background: #ede8e6; }
 
 .alert-default,
 .alert-default .alert-link	{ color: #999; border-color: #eee; }
@@ -565,7 +565,7 @@ label.custom-option.toggle {
 .alert-warning,
 .alert-warning .alert-link	{ color: #c19716; border-color: #f5e2a6; }
 .alert-danger,
-.alert-danger .alert-link	{ color: #ab0505; border-color: #f9abab; }
+.alert-danger .alert-link	{ color: #ab0505; border-color: #c9b9b0; }
 
 	.alert .alert-link {
 		text-decoration: underline;

@@ -15,7 +15,7 @@
     var s = Math.round(Number(score));
     var html = '';
     for (var i = 1; i <= 5; i++) {
-      html += '<i class="fa fa-star' + (i <= s ? '' : '-o') + '" style="color:#ca7379;font-size:13px;margin-right:2px;"></i>';
+      html += '<i class="fa fa-star' + (i <= s ? '' : '-o') + '" style="color:#44332B;font-size:13px;margin-right:2px;"></i>';
     }
     return html;
   }
@@ -74,7 +74,7 @@
     list.innerHTML = reviews.map(function(r) {
       return '<li class="comment">'
         + '<article class="comment-body media">'
-        + '<div class="media-left"><span style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#f0e8e9;color:#ca7379;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;">'
+        + '<div class="media-left"><span style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#ede8e6;color:#44332B;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;">'
         + escapeHtml(r.name.charAt(0))
         + '</span></div>'
         + '<div class="media-body">'
@@ -111,7 +111,7 @@
         (function(val) {
           var star = document.createElement('i');
           star.className = 'fa fa-star-o';
-          star.style.cssText = 'color:#ca7379;font-size:20px;margin-right:5px;cursor:pointer;transition:transform 0.1s;';
+          star.style.cssText = 'color:#44332B;font-size:20px;margin-right:5px;cursor:pointer;transition:transform 0.1s;';
           star.addEventListener('mouseover', function() { paintStars(starSpan, val); });
           star.addEventListener('mouseout',  function() { paintStars(starSpan, picked); });
           star.addEventListener('click',     function() {
@@ -127,7 +127,7 @@
     function paintStars(container, n) {
       container.querySelectorAll('i').forEach(function(s, idx) {
         s.className = idx < n ? 'fa fa-star' : 'fa fa-star-o';
-        s.style.cssText = 'color:#ca7379;font-size:20px;margin-right:5px;cursor:pointer;';
+        s.style.cssText = 'color:#44332B;font-size:20px;margin-right:5px;cursor:pointer;';
       });
     }
 
@@ -146,10 +146,10 @@
       var emailEl = document.getElementById('review-email');
       var rating  = ratingInput ? Number(ratingInput.value) : 0;
 
-      if (!rating || rating < 1) { showMsg('Please select a star rating.', '#c0392b'); return; }
-      if (!bodyEl  || !bodyEl.value.trim())  { showMsg('Please write your review.', '#c0392b'); return; }
-      if (!nameEl  || !nameEl.value.trim())  { showMsg('Please enter your name.', '#c0392b'); return; }
-      if (!emailEl || !emailEl.value.trim()) { showMsg('Please enter your email.', '#c0392b'); return; }
+      if (!rating || rating < 1) { showMsg('Please select a star rating.', '#44332B'); return; }
+      if (!bodyEl  || !bodyEl.value.trim())  { showMsg('Please write your review.', '#44332B'); return; }
+      if (!nameEl  || !nameEl.value.trim())  { showMsg('Please enter your name.', '#44332B'); return; }
+      if (!emailEl || !emailEl.value.trim()) { showMsg('Please enter your email.', '#44332B'); return; }
 
       var btn = form.querySelector('button[type="submit"]');
       if (btn) { btn.disabled = true; btn.textContent = 'SUBMITTING…'; }
@@ -168,10 +168,10 @@
           if (starSpan) paintStars(starSpan, 0);
           await loadReviews(productId);
         } else {
-          showMsg(data.message || 'Error submitting review.', '#c0392b');
+          showMsg(data.message || 'Error submitting review.', '#44332B');
         }
       } catch(err) {
-        showMsg('Network error. Please try again.', '#c0392b');
+        showMsg('Network error. Please try again.', '#44332B');
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'ADD REVIEW'; }
       }
@@ -221,7 +221,7 @@
 
       // ── Stock / Category ──
       var skuEl = document.querySelector('.ul-product li:first-child');
-      if (skuEl) skuEl.innerHTML = 'Stock: <strong>' + (p.stock > 0 ? p.stock + ' available' : '<span style="color:#c0392b">Out of Stock</span>') + '</strong>';
+      if (skuEl) skuEl.innerHTML = 'Stock: <strong>' + (p.stock > 0 ? p.stock + ' available' : '<span style="color:#44332B">Out of Stock</span>') + '</strong>';
       var catEl = document.querySelectorAll('.ul-product li')[1];
       if (catEl) catEl.innerHTML = 'Category: <a href="/shop-fullwidth.html?category=' + encodeURIComponent(p.category) + '">' + escapeHtml(p.category) + '</a>';
 

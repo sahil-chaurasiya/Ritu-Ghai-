@@ -15,7 +15,7 @@
     var s = Math.round(Number(score));
     var html = '';
     for (var i = 1; i <= 5; i++) {
-      html += '<i class="fa fa-star' + (i <= s ? '' : '-o') + '" style="color:#ca7379;font-size:13px;margin-right:2px;"></i>';
+      html += '<i class="fa fa-star' + (i <= s ? '' : '-o') + '" style="color:#44332B;font-size:13px;margin-right:2px;"></i>';
     }
     return html;
   }
@@ -72,7 +72,7 @@
     list.innerHTML = reviews.map(function(r) {
       return '<li class="comment">'
         + '<article class="comment-body media">'
-        + '<div class="media-left"><span style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#f0e8e9;color:#ca7379;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;">'
+        + '<div class="media-left"><span style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#ede8e6;color:#44332B;font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;">'
         + escapeHtml(r.name.charAt(0))
         + '</span></div>'
         + '<div class="media-body">'
@@ -109,7 +109,7 @@
         (function(val) {
           var star = document.createElement('i');
           star.className = 'fa fa-star-o';
-          star.style.cssText = 'color:#ca7379;font-size:20px;margin-right:5px;cursor:pointer;transition:transform 0.1s;';
+          star.style.cssText = 'color:#44332B;font-size:20px;margin-right:5px;cursor:pointer;transition:transform 0.1s;';
           star.addEventListener('mouseover', function() { paintStars(starSpan, val); });
           star.addEventListener('mouseout',  function() { paintStars(starSpan, picked); });
           star.addEventListener('click',     function() {
@@ -125,7 +125,7 @@
     function paintStars(container, n) {
       container.querySelectorAll('i').forEach(function(s, idx) {
         s.className = idx < n ? 'fa fa-star' : 'fa fa-star-o';
-        s.style.cssText = 'color:#ca7379;font-size:20px;margin-right:5px;cursor:pointer;';
+        s.style.cssText = 'color:#44332B;font-size:20px;margin-right:5px;cursor:pointer;';
       });
     }
 
