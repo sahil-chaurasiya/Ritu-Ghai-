@@ -504,5 +504,15 @@
         <script src="/assets/scripts/navbar.js"></script>
         <script src="/assets/scripts/cart.js"></script>
         <script src="/assets/scripts/shop-products.js"></script>
+        <script>
+          (function() {
+            var cat = new URLSearchParams(window.location.search).get('category');
+            if (cat) {
+              var h1 = document.querySelector('.header-page h1');
+              if (h1) h1.textContent = cat.toUpperCase();
+              document.title = cat + ' — Ritu Ghai';
+            }
+          })();
+        </script>
 </body>
 </html>

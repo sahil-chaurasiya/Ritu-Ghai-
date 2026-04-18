@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Diaries — Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <style>
+    .cd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .cd-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .cd-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+    .cd-card-body {
+      padding: 10px 12px;
+    }
+    .cd-card-body p {
+      font-size: 12px;
+      color: #555;
+      margin: 0 0 8px;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .cd-card-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .cd-inactive-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: Montserrat, sans-serif;
+      letter-spacing: 1px;
+    }
+    .upload-box {
+      background: #fff;
+      border: 2px dashed #ddd;
+      border-radius: 6px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: border-color .2s;
+    }
+    .upload-box:hover { border-color: #aaa; }
+    .upload-box label {
+      display: block;
+      font-family: Montserrat, sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .upload-preview {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 10px auto 0;
+      display: none;
+      border-radius: 3px;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .form-row input[type="text"],
+    .form-row input[type="number"] {
+      flex: 1;
+      min-width: 140px;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      font-family: Montserrat, sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+    #upload-status {
+      margin-top: 10px;
+      font-family: Montserrat, sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+    #upload-status.success { color: #27ae60; }
+    #upload-status.error { color: #e74c3c; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+      font-family: Montserrat, sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Ritu Ghai</h1>
+      <p>Admin Panel</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="customer-diaries.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Customer Diaries
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Customer Diaries</h2>
+      <div class="topbar-right">
+        <span id="photo-count" style="font-size:13px;color:#888;"></span>
+      </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <h3>Upload Customer Photo</h3>
+      </div>
+      <div style="padding:20px;">
+        <div class="upload-box">
+          <label for="photo-file">Click to choose a photo (JPG, PNG — max 5MB)</label>
+          <input type="file" id="photo-file" accept="image/*" style="display:block;margin:0 auto;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;"/>
+          <img id="upload-preview" class="upload-preview" alt="Preview"/>
+        </div>
+        <div class="form-row">
+          <input type="text" id="photo-caption" placeholder="Caption (e.g. Priya in Lehenga)" maxlength="100"/>
+          <input type="number" id="photo-order" placeholder="Display order (0 = first)" min="0" value="0" style="max-width:180px;"/>
+        </div>
+        <button class="btn btn-primary" onclick="uploadPhoto()">Upload Photo</button>
+        <div id="upload-status"></div>
+      </div>
+    </div>
+
+    <!-- Photos Grid -->
+    <div class="card">
+      <div class="card-header">
+        <h3>All Customer Photos</h3>
+        <small style="color:#aaa;font-size:11px;letter-spacing:1px;">Click "Hide" to remove from homepage without deleting</small>
+      </div>
+      <div id="cd-grid" class="cd-grid" style="padding:16px;">
+        <div class="empty-state" id="cd-loading">Loading...</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  // Preview before upload
+  document.getElementById('photo-file').addEventListener('change', function() {
+    var preview = document.getElementById('upload-preview');
+    if (this.files && this.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(this.files[0]);
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+
+  async function uploadPhoto() {
+    var fileInput = document.getElementById('photo-file');
+    var caption = document.getElementById('photo-caption').value.trim();
+    var order = document.getElementById('photo-order').value || '0';
+    var statusEl = document.getElementById('upload-status');
+
+    if (!fileInput.files || !fileInput.files[0]) {
+      statusEl.textContent = 'Please select a photo first.';
+      statusEl.className = 'error';
+      return;
+    }
+
+    statusEl.textContent = 'Uploading...';
+    statusEl.className = '';
+
+    var formData = new FormData();
+    formData.append('photo', fileInput.files[0]);
+    formData.append('caption', caption);
+    formData.append('order', order);
+
+    try {
+      // Use Bearer token — the server uses JWT not session cookies
+      var res = await fetch('/api/customer-diaries', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + AdminAuth.token() },
+        body: formData
+      });
+      var data = await res.json();
+      if (res.status === 401) { AdminAuth.logout(); return; }
+      if (data.success) {
+        statusEl.textContent = 'Photo uploaded successfully!';
+        statusEl.className = 'success';
+        fileInput.value = '';
+        document.getElementById('upload-preview').style.display = 'none';
+        document.getElementById('photo-caption').value = '';
+        loadPhotos();
+      } else {
+        statusEl.textContent = 'Error: ' + (data.message || 'Upload failed');
+        statusEl.className = 'error';
+      }
+    } catch(e) {
+      statusEl.textContent = 'Upload failed. Please try again.';
+      statusEl.className = 'error';
+    }
+  }
+
+  async function togglePhoto(id, currentActive) {
+    try {
+      await AdminAuth.apiFetch('/api/customer-diaries/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ isActive: !currentActive })
+      });
+      loadPhotos();
+    } catch(e) { alert('Failed to update.'); }
+  }
+
+  async function deletePhoto(id) {
+    if (!confirm('Delete this photo permanently?')) return;
+    try {
+      await AdminAuth.apiFetch('/api/customer-diaries/' + id, { method: 'DELETE' });
+      loadPhotos();
+    } catch(e) { alert('Failed to delete.'); }
+  }
+
+  async function loadPhotos() {
+    var grid = document.getElementById('cd-grid');
+    var countEl = document.getElementById('photo-count');
+    grid.innerHTML = '<div class="empty-state">Loading...</div>';
+    try {
+      var data = await AdminAuth.apiFetch('/api/customer-diaries/all');
+      if (!data.success || !data.photos.length) {
+        grid.innerHTML = '<div class="empty-state">No photos uploaded yet. Upload your first customer photo above!</div>';
+        if (countEl) countEl.textContent = '0 photos';
+        return;
+      }
+      if (countEl) countEl.textContent = data.photos.length + ' photo' + (data.photos.length !== 1 ? 's' : '');
+      grid.innerHTML = data.photos.map(function(photo) {
+        return '<div class="cd-card">'
+          + '<img src="' + photo.url + '" alt="' + (photo.caption || '') + '" onerror="this.src=\'/assets/images/product-img-1.jpg\'"/>'
+          + (!photo.isActive ? '<span class="cd-inactive-badge">HIDDEN</span>' : '')
+          + '<div class="cd-card-body">'
+          + '<p>' + (photo.caption || '<em style="color:#ccc;">No caption</em>') + '</p>'
+          + '<p style="color:#bbb;">Order: ' + photo.order + '</p>'
+          + '<div class="cd-card-actions">'
+          + '<button class="btn btn-secondary btn-sm" onclick="togglePhoto(\'' + photo._id + '\',' + photo.isActive + ')">'
+          + (photo.isActive ? 'Hide' : 'Show') + '</button>'
+          + '<button class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;" onclick="deletePhoto(\'' + photo._id + '\')">Delete</button>'
+          + '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = '<div class="empty-state">Failed to load photos.</div>';
+    }
+  }
+
+  loadPhotos();
+</script>
+</body>
+</html>

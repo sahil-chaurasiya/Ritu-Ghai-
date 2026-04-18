@@ -29,6 +29,7 @@
         <link href="/assets/styles/owl.carousel.css" rel="stylesheet"/>
         <link href="/assets/styles/owl.theme.default.min.css" rel="stylesheet"/>
         <link href="/assets/styles/styles.css" rel="stylesheet"/>
+        <link href="/assets/styles/home-custom.css" rel="stylesheet"/>
         <script src="/assets/scripts/libs/prefixfree.min.js"></script>
         <script src="/assets/scripts/libs/modernizr.js"></script>
     </head>
@@ -472,5 +473,15 @@
         <script src="/assets/scripts/navbar.js"></script>
         <script src="/assets/scripts/cart.js"></script>
         <script src="/assets/scripts/shop-products.js"></script>
+        <script>
+          (function() {
+            var cat = new URLSearchParams(window.location.search).get('category');
+            if (cat) {
+              var h1 = document.querySelector('.header-page h1');
+              if (h1) h1.textContent = cat.toUpperCase();
+              document.title = cat + ' — Ritu Ghai';
+            }
+          })();
+        </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /**
  * index-products.js — dynamically loads all product sections on index.html
- * Targets: #carousel-1 (trending tabs), #carousel-2 (sale off), custom-blocks
+ * + loads customer diaries section from /api/customer-diaries
  */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   function img(p) { return (p.images && p.images[0]) ? p.images[0] : FALLBACK_IMG; }
   function img2(p) { return (p.images && p.images[1]) ? p.images[1] : img(p); }
 
-  /* ── LARGE PRODUCT CARD — matches old hardcoded HTML exactly ── */
+  /* ── LARGE PRODUCT CARD ── */
   function bigCard(p) {
     const hasDeal = p.originalPrice && p.originalPrice > p.price;
     const discount = hasDeal ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
@@ -22,7 +22,7 @@
       ? '<div class="product-new">NEW</div>'
       : (p.badge === 'sale' || hasDeal) ? '<div class="product-sale">-' + discount + '%</div>' : '';
 
-    return '<div class="col-lg-3 col-md-4 col-sm-6">'
+    return '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-6">'
       + '<div class="product-item' + (hasDeal ? ' has-deal' : '') + '" style="overflow:visible;display:block;">'
       + '<div class="product-thumb" style="display:block;position:relative;width:100%;overflow:visible;">'
       + '<div class="main-img" style="display:block;width:100%;"><a href="/single-product.html?id=' + p._id + '">'
@@ -46,7 +46,7 @@
 
   /* ── MINI PRODUCT CARD ── */
   function miniCard(p) {
-    return '<div class="col-md-12 col-sm-6">'
+    return '<div class="col-md-12 col-sm-6 col-xs-6">'
       + '<div class="media">'
       + '<div class="media-left"><div class="block-thumb">'
       + '<div class="main-img"><a href="/single-product.html?id=' + p._id + '">'
@@ -86,31 +86,23 @@
     }
   }
 
-  /**
-   * Fill each .showcase inside a carousel with products.
-   * HTML: .showcase > .row > .box-product  — cards go inside .box-product
-   */
   function fillCarousel(carouselId, products, countPerTab) {
     var carousel = document.getElementById(carouselId);
     if (!carousel) return;
-
     var showcases = carousel.querySelectorAll('.showcase');
     showcases.forEach(function(showcase, tabIndex) {
       var boxProduct = showcase.querySelector('.box-product');
       if (!boxProduct) return;
-
       var start = (tabIndex * countPerTab) % products.length;
       var slice = [];
       for (var i = 0; i < countPerTab; i++) {
         slice.push(products[(start + i) % products.length]);
       }
-
       boxProduct.innerHTML = slice.map(bigCard).join('');
       bind(boxProduct);
     });
   }
 
-  /* ── CUSTOM BLOCKS (new-in / featured / top-rated) ── */
   function fillCustomBlocks(products) {
     var blocks = document.querySelectorAll('.custom-blocks .block-item');
     if (!blocks.length) return;
@@ -124,18 +116,14 @@
     });
   }
 
-  /* ── REINIT OWL after dynamic content ── */
   function reinitOwl() {
     if (typeof $ === 'undefined' || !$.fn.owlCarousel) return;
 
     function initOwl1() {
       var owl1el = $('#carousel-1 .box-content');
       if (!owl1el.length) return;
-      try {
-        if (owl1el.data('owl.carousel')) { owl1el.trigger('destroy.owl.carousel'); }
-      } catch(e) {}
+      try { if (owl1el.data('owl.carousel')) { owl1el.trigger('destroy.owl.carousel'); } } catch(e) {}
       owl1el.owlCarousel({ loop: true, items: 1, dots: false, autoHeight: true, rtl: false });
-
       var tabHeading_1 = $('#carousel-1 .tab-heading span');
       tabHeading_1.first().addClass('active');
       owl1el.on('changed.owl.carousel', function (e) {
@@ -151,19 +139,15 @@
     function initOwl2() {
       var owl2el = $('#carousel-2 .box-content');
       if (!owl2el.length) return;
-      try {
-        if (owl2el.data('owl.carousel')) { owl2el.trigger('destroy.owl.carousel'); }
-      } catch(e) {}
+      try { if (owl2el.data('owl.carousel')) { owl2el.trigger('destroy.owl.carousel'); } } catch(e) {}
       owl2el.owlCarousel({ loop: true, items: 1, dots: false, autoHeight: true, rtl: false, smartSpeed: 1500 });
       $('#carousel-2 .next').off('click').click(function () { owl2el.trigger('next.owl.carousel'); });
       $('#carousel-2 .prev').off('click').click(function () { owl2el.trigger('prev.owl.carousel'); });
     }
 
-    // Wait for all product images to load before init so autoHeight measures correctly
     var allImgs = document.querySelectorAll('#carousel-1 img, #carousel-2 img');
     var total = allImgs.length;
     if (total === 0) { initOwl1(); initOwl2(); return; }
-
     var loaded = 0;
     function onLoad() {
       loaded++;
@@ -173,6 +157,30 @@
       if (img.complete) { onLoad(); }
       else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
     });
+  }
+
+  /* ── CUSTOMER DIARIES ── */
+  async function loadCustomerDiaries() {
+    var track = document.getElementById('customer-diaries-track');
+    if (!track) return;
+    try {
+      var res = await fetch('/api/customer-diaries');
+      var data = await res.json();
+
+      if (!data.success || !data.photos || !data.photos.length) {
+        track.innerHTML = '<div class="cd-no-photos">No customer photos yet — upload some from the admin panel!</div>';
+        return;
+      }
+
+      track.innerHTML = data.photos.map(function(photo) {
+        return '<div class="cd-photo-item">'
+          + '<img src="' + photo.url + '" alt="' + (photo.caption || 'Customer photo') + '" onerror="this.parentElement.style.display=\'none\'"/>'
+          + (photo.caption ? '<div class="cd-caption">' + photo.caption + '</div>' : '')
+          + '</div>';
+      }).join('');
+    } catch(e) {
+      track.innerHTML = '<div class="cd-no-photos">No customer photos yet — add them from the admin panel.</div>';
+    }
   }
 
   /* ── MAIN ── */
@@ -201,7 +209,6 @@
       fillCarousel('carousel-1', all, 4);
       fillCarousel('carousel-2', saleProducts.length >= 4 ? saleProducts : all, 4);
       fillCustomBlocks(all);
-
       reinitOwl();
 
     } catch (err) {
@@ -210,5 +217,8 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadHomepageProducts);
+  document.addEventListener('DOMContentLoaded', function() {
+    loadHomepageProducts();
+    loadCustomerDiaries();
+  });
 })();

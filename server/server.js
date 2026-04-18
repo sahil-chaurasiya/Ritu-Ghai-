@@ -41,6 +41,7 @@ app.use('/api/products/:productId/reviews', require('./routes/reviewRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/admin', require('./routes/authRoutes'));
+app.use('/api/customer-diaries', require('./routes/customerDiaryRoutes'));
 
 // Seed default admin on first run
 const seedAdmin = async () => {
@@ -72,7 +73,7 @@ app.get('*.html', (req, res) => {
 });
 
 app.listen(PORT, async () => {
-  console.log(`\n🚀 Zorka Shop running at http://localhost:${PORT}`);
+  console.log(`\n🚀 Ritu Ghai Shop running at http://localhost:${PORT}`);
   console.log(`📦 Admin Panel: http://localhost:${PORT}/admin`);
   await seedAdmin();
 });
