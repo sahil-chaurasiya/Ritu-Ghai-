@@ -32,7 +32,12 @@
   height: auto;
   max-height: 600px;
   object-fit: cover;
-  display: block;
+  display: none;
+}
+.banner-slide .banner-img-desktop { display: block; }
+@media (max-width: 767px) {
+  .banner-slide .banner-img-desktop { display: none; }
+  .banner-slide .banner-img-mobile  { display: block; }
 }
 .banner-dots {
   position: absolute;
@@ -79,8 +84,7 @@
 }
 .customer-diaries-scroll-wrap {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 16px;
 }
@@ -97,9 +101,17 @@
 .customer-diaries-track {
   display: flex;
   gap: 12px;
-  padding: 0 20px 0 20px;
+  padding: 0 20px;
   width: max-content;
   align-items: flex-start;
+  animation: cd-marquee 30s linear infinite;
+}
+.customer-diaries-track:hover {
+  animation-play-state: paused;
+}
+@keyframes cd-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 .cd-photo-item {
   flex: 0 0 auto;
@@ -198,6 +210,49 @@
   }
 }
 
+/* ── Features: compact horizontal pill row on mobile ── */
+@media (max-width: 767px) {
+  .features {
+    margin-bottom: 28px;
+  }
+  .features .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .features .row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin: 0;
+  }
+  .features .row > [class*="col-"] {
+    width: auto !important;
+    flex: 1;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    float: none !important;
+  }
+  .features .sale,
+  .features .giveway,
+  .features .freeship {
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .features .text-box {
+    height: 44px;
+    line-height: 44px;
+    width: 100% !important;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 0 6px;
+    float: none;
+    text-align: center;
+  }
+  .features .icon-box {
+    display: none;
+  }
+}
+
 /* ----------------------------------------------------------
    4. GENERAL RESPONSIVE HELPERS
    ---------------------------------------------------------- */
@@ -211,4 +266,39 @@
 img {
   max-width: 100%;
   height: auto;
+}
+
+
+
+/* ── Videos section ── */
+.videos-section { margin-top: 50px; }
+
+.vid-inline-item {
+  flex: 0 0 auto;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+.vid-inline-item video {
+  width: 200px;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  border-radius: 2px;
+  pointer-events: none; /* click handled by the <a> wrapper */
+}
+.vid-inline-item .cd-caption {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #888;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 575px) {
+  .vid-inline-item video { width: 140px; height: 185px; }
 }

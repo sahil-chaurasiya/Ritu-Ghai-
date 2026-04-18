@@ -178,6 +178,8 @@
           + (photo.caption ? '<div class="cd-caption">' + photo.caption + '</div>' : '')
           + '</div>';
       }).join('');
+      // Duplicate items for seamless infinite marquee loop
+      track.innerHTML += track.innerHTML;
     } catch(e) {
       track.innerHTML = '<div class="cd-no-photos">No customer photos yet — add them from the admin panel.</div>';
     }
@@ -217,8 +219,56 @@
     }
   }
 
+  /* ── VIDEOS ── */
+  async function loadVideos() {
+    var track = document.getElementById('videos-track');
+    if (!track) return;
+    try {
+      var res  = await fetch('/api/videos');
+      var data = await res.json();
+
+      if (!data.success || !data.videos || !data.videos.length) {
+        track.closest('.videos-section').style.display = 'none';
+        return;
+      }
+
+      // Build video items
+      var itemsHTML = data.videos.map(function(v) {
+        return '<a href="' + v.linkUrl + '" target="_blank" rel="noopener" class="vid-inline-item">'
+          + '<video src="' + v.videoUrl + '" muted playsinline loop preload="auto"></video>'
+          + (v.caption ? '<div class="cd-caption">' + v.caption + '</div>' : '')
+          + '</a>';
+      }).join('');
+
+      // Duplicate for seamless infinite marquee
+      track.innerHTML = itemsHTML + itemsHTML;
+
+      // IntersectionObserver — play when visible, pause when not
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          var video = entry.target.querySelector('video');
+          if (!video) return;
+          if (entry.isIntersecting) {
+            video.play().catch(function(){});
+          } else {
+            video.pause();
+          }
+        });
+      }, { threshold: 0.2 });
+
+      track.querySelectorAll('.vid-inline-item').forEach(function(item) {
+        observer.observe(item);
+      });
+
+    } catch(e) {
+      var section = document.querySelector('.videos-section');
+      if (section) section.style.display = 'none';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     loadHomepageProducts();
     loadCustomerDiaries();
+    loadVideos();
   });
 })();

@@ -42,6 +42,7 @@ app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/admin', require('./routes/authRoutes'));
 app.use('/api/customer-diaries', require('./routes/customerDiaryRoutes'));
+app.use('/api/videos', require('./routes/videoRoutes'));
 
 // Seed default admin on first run
 const seedAdmin = async () => {

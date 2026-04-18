@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
     <head>
+    <script src="/assets/scripts/navbar.js" defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home — Ritu Ghai</title>
@@ -25,13 +26,16 @@
         <div class="simple-banner">
             <div class="simple-banner-inner" id="simple-banner-inner">
                 <div class="banner-slide active">
-                    <img src="/assets/images/slideshow1.jpeg" alt="Banner 1" />
+                    <img class="banner-img-desktop" src="/assets/images/slideshow1.jpeg" alt="Banner 1" />
+                    <img class="banner-img-mobile" src="/assets/images/slideshowmob1.jpeg" alt="Banner 1" />
                 </div>
                 <div class="banner-slide">
-                    <img src="/assets/images/slideshow2.jpeg" alt="Banner 2" />
+                    <img class="banner-img-desktop" src="/assets/images/slideshow2.jpeg" alt="Banner 2" />
+                    <img class="banner-img-mobile" src="/assets/images/slideshowmob2.jpeg" alt="Banner 2" />
                 </div>
                 <div class="banner-slide">
-                    <img src="/assets/images/slideshow3.jpeg" alt="Banner 3" />
+                    <img class="banner-img-desktop" src="/assets/images/slideshow3.jpeg" alt="Banner 3" />
+                    <img class="banner-img-mobile" src="/assets/images/slideshowmob3.jpeg" alt="Banner 3" />
                 </div>
             </div>
             <div class="banner-dots" id="banner-dots">
@@ -168,6 +172,20 @@
         <!-- /.custom-blocks -->
 
         <!-- BLOG SECTION -->
+        <!-- VIDEOS SECTION -->
+        <div class="customer-diaries videos-section">
+            <div class="container">
+                <h3>OUR VIDEOS</h3>
+                <h5>Watch our latest collections</h5>
+            </div>
+            <div class="customer-diaries-scroll-wrap">
+                <div class="customer-diaries-track" id="videos-track">
+                    <div class="cd-placeholder">Loading videos...</div>
+                </div>
+            </div>
+        </div>
+        <!-- /.videos-section -->
+
         <div class="blog-post">
             <div class="container">
                 <h3>BLOG UPDATES</h3>
@@ -296,7 +314,6 @@
         <script src="/assets/scripts/libs/jquery.countdown.min.js"></script>
         <script src="/assets/scripts/libs/jquery.waypoints.min.js"></script>
         <script src="/assets/scripts/functions.js"></script>
-        <script src="/assets/scripts/navbar.js"></script>
         <script src="/assets/scripts/cart.js"></script>
         <script src="/assets/scripts/index-products.js"></script>
         <script src="/assets/scripts/simple-banner.js"></script>

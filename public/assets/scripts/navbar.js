@@ -123,6 +123,22 @@
       </div>
     </footer>`;
 
+  // ─── HIDE OLD STATIC NAV IMMEDIATELY (prevents flash) ───────────────────────
+  // This runs synchronously when the script tag is parsed — before the browser
+  // paints — so the old hardcoded topbar/header/footer are never visible.
+  (function hideStaticNav() {
+    var style = document.createElement('style');
+    style.id = 'navbar-flash-fix';
+    style.textContent = [
+      'body > .topbar { display: none !important; }',
+      'body > hr.gray-line { display: none !important; }',
+      'body > header { display: none !important; }',
+      'body > footer { display: none !important; }'
+    ].join(' ');
+    var head = document.head || document.getElementsByTagName('head')[0];
+    if (head) head.insertBefore(style, head.firstChild);
+  })();
+
   // ─── INJECT ──────────────────────────────────────────────────────────────────
   function injectNavbar() {
     const body = document.body;
@@ -132,6 +148,10 @@
     });
     const hr = document.querySelector('hr.gray-line');
     if (hr) hr.remove();
+
+    // Remove the flash-fix style now that old elements are gone
+    const flashFix = document.getElementById('navbar-flash-fix');
+    if (flashFix) flashFix.remove();
 
     const navDiv = document.createElement('div');
     navDiv.id = 'zorka-navbar';
