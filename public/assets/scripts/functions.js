@@ -106,7 +106,7 @@
         =================================== */
         if ($('#slideshow1').length) {
             $('#slideshow1').allinone_bannerRotator( {
-                skin: 'universal', width:1920, height:700, responsive:true, thumbsWrapperMarginBottom:35, showCircleTimer:false, showNavArrows:false, autoHideBottomNav:false, showPreviewThumbs:false
+                skin: 'universal', width:6000, height:1878, responsive:true, thumbsWrapperMarginBottom:35, showCircleTimer:false, showNavArrows:false, autoHideBottomNav:false, showPreviewThumbs:false
             }
             );
         }

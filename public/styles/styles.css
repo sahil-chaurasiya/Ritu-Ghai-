@@ -12335,6 +12335,12 @@ header .main-nav .current-menu-item > a {
   position: relative;
   z-index: 1;
 }
+/* Ensure home1 JPEG banners display full-width at natural ratio */
+.home1 .slideshow #slideshow1 img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
 .slideshow .content-slideshow {
   left: 0;
   top: 0;
