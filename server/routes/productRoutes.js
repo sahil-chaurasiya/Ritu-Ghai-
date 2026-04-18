@@ -1,14 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const Product = require('../models/Product');
 const { protect } = require('../middleware/auth');
 
-// Multer config: store images in public/uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../../public/uploads')),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'))
+// Cloudinary config (reads CLOUDINARY_* from .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer-Cloudinary storage: images go to the 'ritu-ghai/products' folder
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'ritu-ghai/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+  },
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -55,7 +67,7 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
   try {
     const { name, price, originalPrice, description, additionalInfo, category, stock, badge } = req.body;
     const sizes = req.body.sizes ? (Array.isArray(req.body.sizes) ? req.body.sizes : [req.body.sizes]) : [];
-    const images = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
+    const images = req.files ? req.files.map(f => f.path) : [];
     const product = await Product.create({ name, price, originalPrice, description, additionalInfo, category, stock, badge, images, sizes });
     res.status(201).json({ success: true, product });
   } catch (err) {
@@ -68,7 +80,7 @@ router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
   try {
     const { name, price, originalPrice, description, additionalInfo, category, stock, badge, existingImages } = req.body;
     const sizes = req.body.sizes ? (Array.isArray(req.body.sizes) ? req.body.sizes : [req.body.sizes]) : [];
-    const newImages = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
+    const newImages = req.files ? req.files.map(f => f.path) : [];
     const keptImages = existingImages ? (Array.isArray(existingImages) ? existingImages : [existingImages]) : [];
     const images = [...keptImages, ...newImages];
 

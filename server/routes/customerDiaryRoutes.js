@@ -1,14 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const CustomerDiary = require('../models/CustomerDiary');
 const { protect } = require('../middleware/auth');
 
-// Multer config: store in public/uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../../public/uploads')),
-  filename: (req, file, cb) => cb(null, 'cd-' + Date.now() + '-' + file.originalname.replace(/\s+/g, '_'))
+// Cloudinary config (reads CLOUDINARY_* from .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer-Cloudinary storage: photos go to 'ritu-ghai/customer-diaries' folder
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'ritu-ghai/customer-diaries',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+  },
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -37,7 +49,7 @@ router.post('/', protect, upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'Photo file is required' });
     const { caption, order } = req.body;
-    const url = '/uploads/' + req.file.filename;
+    const url = req.file.path; // full Cloudinary HTTPS URL
     const photo = await CustomerDiary.create({ url, caption: caption || '', order: order ? parseInt(order) : 0 });
     res.status(201).json({ success: true, photo });
   } catch (err) {

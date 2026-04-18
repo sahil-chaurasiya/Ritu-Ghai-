@@ -1,14 +1,26 @@
 const express  = require('express');
 const router   = express.Router();
 const multer   = require('multer');
-const path     = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const Video    = require('../models/Video');
 const { protect } = require('../middleware/auth');
 
-// Multer — store video files in public/uploads, up to 200MB
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../../public/uploads')),
-  filename:    (req, file, cb) => cb(null, 'vid-' + Date.now() + '-' + file.originalname.replace(/\s+/g, '_'))
+// Cloudinary config (reads CLOUDINARY_* from .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer-Cloudinary storage: videos go to 'ritu-ghai/videos' folder
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'ritu-ghai/videos',
+    resource_type: 'video',
+    allowed_formats: ['mp4', 'mov', 'avi', 'webm', 'mkv'],
+  },
 });
 const upload = multer({
   storage,
@@ -45,7 +57,7 @@ router.post('/', protect, upload.single('video'), async (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, message: 'Video file is required' });
     const { linkUrl, caption, order } = req.body;
     if (!linkUrl) return res.status(400).json({ success: false, message: 'Click-through link URL is required' });
-    const videoUrl = '/uploads/' + req.file.filename;
+    const videoUrl = req.file.path; // full Cloudinary HTTPS URL
     const video = await Video.create({
       videoUrl,
       linkUrl,
