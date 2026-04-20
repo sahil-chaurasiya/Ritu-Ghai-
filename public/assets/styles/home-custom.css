@@ -270,7 +270,7 @@ img {
 
 
 
-/* ── Videos section ── */
+/* ── Videos section — Instagram Reels proportions (9:16) ── */
 .videos-section { margin-top: 50px; }
 
 .vid-inline-item {
@@ -282,13 +282,13 @@ img {
 }
 .vid-inline-item video {
   width: 200px;
-  height: 260px;
+  height: 356px; /* true 9:16 reel ratio */
   object-fit: cover;
   display: block;
   border: 3px solid #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-  border-radius: 2px;
-  pointer-events: none; /* click handled by the <a> wrapper */
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  border-radius: 12px;
+  pointer-events: none;
 }
 .vid-inline-item .cd-caption {
   font-family: 'Montserrat', sans-serif;
@@ -299,8 +299,17 @@ img {
   text-transform: uppercase;
 }
 
+/* Mobile: exactly 3 reels visible at once on ~380px screen */
 @media (max-width: 575px) {
-  .vid-inline-item video { width: 140px; height: 185px; }
+  .videos-section .customer-diaries-track {
+    gap: 8px;
+    padding: 0 10px;
+  }
+  .vid-inline-item video {
+    width: 114px;
+    height: 203px; /* 114 * 16/9 ≈ 203px */
+    border-radius: 8px;
+  }
 }
 /* ── Tab heading: always single row on mobile ── */
 @media (max-width: 767px) {
@@ -409,4 +418,39 @@ img {
   .blog-card { width: 200px; }
   .blog-card-img { height: 140px; }
   .blog-marquee-track { gap: 14px; }
+}
+/* ── Trending Carousel: Load More ── */
+
+/* Extra panels sit outside OWL, below the carousel */
+#tc-loadmore {
+  margin-top: 24px;
+}
+.tc-extra-panel {
+  /* shown/hidden via JS */
+}
+.tc-extra-row {
+  margin-bottom: 0;
+}
+.tc-loadmore-wrap,
+.tc-extra-panel {
+  /* button centering */
+}
+.tc-load-more-btn {
+  display: block;
+  margin: 28px auto 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #25282c;
+  background: transparent;
+  border: 2px solid #25282c;
+  padding: 12px 36px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-transform: uppercase;
+}
+.tc-load-more-btn:hover {
+  background: #25282c;
+  color: #fff;
 }

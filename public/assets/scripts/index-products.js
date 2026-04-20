@@ -103,6 +103,94 @@
     });
   }
 
+  /* ── TRENDING CAROUSEL ──────────────────────────────────────────────────────
+   * OWL handles 4-tab switching inside #carousel-1 .box-content.
+   * Each tab's .box-product gets 8 products (2 rows of 4) — always fully rendered,
+   * no hiding, so OWL autoHeight works perfectly.
+   *
+   * Extra products + Load More button live in #tc-loadmore OUTSIDE OWL.
+   * There are 4 .tc-extra-panel divs (one per tab). Only the active tab's
+   * panel is visible. OWL's changed event keeps them in sync.
+   * ───────────────────────────────────────────────────────────────────────── */
+  function fillTrendingCarousel(products) {
+    var carousel = document.getElementById('carousel-1');
+    if (!carousel) return;
+    var showcases = carousel.querySelectorAll('.showcase');
+    var panels    = document.querySelectorAll('#tc-loadmore .tc-extra-panel');
+
+    function getSlice(startIdx, count) {
+      var slice = [];
+      for (var i = 0; i < count; i++) {
+        slice.push(products[(startIdx + i) % products.length]);
+      }
+      return slice;
+    }
+
+    showcases.forEach(function(showcase, tabIndex) {
+      var boxProduct = showcase.querySelector('.box-product');
+      var panel      = panels[tabIndex];
+      if (!boxProduct || !panel) return;
+
+      var offset = (tabIndex * 4) % products.length;
+
+      // ── OWL slide: always shows 8 products (row1 + row2) ──
+      var visible8 = getSlice(offset, 8);
+      boxProduct.innerHTML = visible8.map(bigCard).join('');
+      bind(boxProduct);
+
+      // ── Extra panel outside OWL: starts with row3 (next 8) ──
+      var poolStart = offset + 8;
+      var poolUsed  = 0;
+
+      function renderExtraRow(prods) {
+        // Wrap in .box-product so ALL existing product CSS applies correctly
+        var wrap = document.createElement('div');
+        wrap.className = 'box-product tc-extra-row';
+        var row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = prods.map(bigCard).join('');
+        wrap.appendChild(row);
+        // Insert before the button
+        var btn = panel.querySelector('.tc-load-more-btn');
+        if (btn) panel.insertBefore(wrap, btn);
+        else panel.appendChild(wrap);
+        bind(wrap);
+      }
+
+      function buildPanel() {
+        panel.innerHTML = '';
+
+        var btn = document.createElement('button');
+        btn.className = 'tc-load-more-btn';
+        btn.type = 'button';
+        btn.textContent = 'LOAD MORE';
+        panel.appendChild(btn);
+
+        btn.addEventListener('click', function() {
+          var batch = getSlice((poolStart + poolUsed) % products.length, 8);
+          poolUsed += 8;
+          renderExtraRow(batch);
+          // Never hide the button — site owner may add more products later
+          // (cycling through existing ones is fine for UX)
+        });
+      }
+
+      buildPanel();
+
+      // show tab 0 panel by default, hide rest
+      panel.style.display = (tabIndex === 0) ? 'block' : 'none';
+    });
+
+    // ── Sync panels when OWL tab changes ──
+    // Store callback so initOwl1 can hook into it after OWL is ready
+    carousel._onTabChange = function(activeTabIdx) {
+      panels.forEach(function(p, i) {
+        p.style.display = (i === activeTabIdx) ? 'block' : 'none';
+      });
+    };
+  }
+
+
   function fillCustomBlocks(products) {
     var blocks = document.querySelectorAll('.custom-blocks .block-item');
     if (!blocks.length) return;
@@ -129,6 +217,9 @@
       owl1el.on('changed.owl.carousel', function (e) {
         var tabIdx = e.item.index % e.item.count - 2;
         tabHeading_1.removeClass('active').eq(tabIdx).addClass('active');
+        // sync the extra-panel visibility outside OWL
+        var c1 = document.getElementById('carousel-1');
+        if (c1 && typeof c1._onTabChange === 'function') { c1._onTabChange(tabIdx); }
       });
       tabHeading_1.off('touchstart mousedown').on('touchstart mousedown', function (e) {
         e.preventDefault();
@@ -208,7 +299,7 @@
         return p.badge === 'sale' || (p.originalPrice && p.originalPrice > p.price);
       });
 
-      fillCarousel('carousel-1', all, 4);
+      fillTrendingCarousel(all);
       fillCarousel('carousel-2', saleProducts.length >= 4 ? saleProducts : all, 4);
       fillCustomBlocks(all);
       reinitOwl();
