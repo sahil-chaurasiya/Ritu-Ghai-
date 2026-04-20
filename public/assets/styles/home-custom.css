@@ -285,7 +285,7 @@ img {
   height: 356px; /* true 9:16 reel ratio */
   object-fit: cover;
   display: block;
-  border: 3px solid #fff;
+  border: 2px solid #fff;
   box-shadow: 0 2px 16px rgba(0,0,0,0.15);
   border-radius: 12px;
   pointer-events: none;
