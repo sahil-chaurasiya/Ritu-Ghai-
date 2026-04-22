@@ -79,6 +79,12 @@
       height: 100%; background: #44332B;
       border-radius: 2px; width: 0%; transition: width 0.2s;
     }
+
+    /* ─── Mobile ─── */
+    @media (max-width:600px) { .vid-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width:400px) { .vid-grid { grid-template-columns: 1fr; } }
+    @media (max-width:768px) { .form-row { flex-direction:column; } }
+    @media (max-width:768px) { .upload-box { padding: 18px; } }
   </style>
 </head>
 <body>
@@ -288,5 +294,6 @@
 
   loadVideos();
 </script>
+<script src="admin-mobile.js"></script>
 </body>
 </html>

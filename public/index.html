@@ -203,6 +203,9 @@
                     <div class="blog-card-placeholder" style="padding:40px 20px;color:#aaa;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:1px;">Loading...</div>
                 </div>
             </div>
+            <div class="container" style="text-align:center; padding-top:28px; padding-bottom:8px;">
+                <a id="blog-view-all" href="/blog.html" style="display:none; text-decoration:none; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:700; color:#fff; background:#1a1a1a; padding:13px 36px; transition:background .2s;">VIEW ALL POSTS</a>
+            </div>
         </div>
         <!-- /.blog-post -->
         <script>
@@ -218,7 +221,7 @@
                     function makeCard(p) {
                         var img = p.coverImage
                             ? '<img src="' + p.coverImage + '" alt="' + p.title + '" />'
-                            : '<img src="/assets/images/blog-img-1.jpg" alt="' + p.title + '" />';
+                            : '<div class="blog-card-no-img"><span>NO IMAGE</span></div>';
                         var excerpt = p.excerpt
                             ? p.excerpt.substring(0, 90) + (p.excerpt.length > 90 ? '...' : '')
                             : '';
@@ -242,6 +245,10 @@
 
                     track.innerHTML = '';
                     track.appendChild(fragment);
+
+                    // Reveal the "View All" button once posts are loaded
+                    var btn = document.getElementById('blog-view-all');
+                    if (btn) btn.style.display = 'inline-block';
                 })
                 .catch(function(){ /* silently keep loading state hidden */ });
         })();

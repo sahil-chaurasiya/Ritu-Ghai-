@@ -107,6 +107,12 @@
       font-size: 12px;
       letter-spacing: 1px;
     }
+
+    /* ─── Mobile ─── */
+    @media (max-width:600px) { .cd-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width:400px) { .cd-grid { grid-template-columns: 1fr; } }
+    @media (max-width:768px) { .form-row { flex-direction:column; } }
+    @media (max-width:768px) { .upload-box { padding: 18px; } }
   </style>
 </head>
 <body>
@@ -316,5 +322,6 @@
 
   loadPhotos();
 </script>
+<script src="admin-mobile.js"></script>
 </body>
 </html>

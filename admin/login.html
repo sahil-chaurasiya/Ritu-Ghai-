@@ -16,7 +16,11 @@
       background: #fff;
       padding: 50px 40px;
       width: 380px;
+      max-width: calc(100vw - 32px);
       box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    @media (max-width: 420px) {
+      .login-box { padding: 36px 24px; }
     }
     .login-box h1 {
       font-size: 11px;

@@ -32,10 +32,29 @@
     .empty-state { text-align:center; padding:60px 20px; color:#bbb; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; }
     .table-wrap { overflow-x:auto; }
     #posts-count { font-size:12px; color:#aaa; letter-spacing:1px; }
+
+    @media (max-width: 768px) {
+      .search-bar { flex-direction: column; }
+      .search-bar input { width: 100%; }
+      .blog-table .post-excerpt-cell { display: none; }
+      .blog-table td, .blog-table th { padding: 10px 10px; }
+      .action-btn { padding: 4px 8px; font-size: 9px; }
+    }
   </style>
 </head>
 <body>
 <div class="admin-wrapper">
+<div class="mobile-topbar">
+  <button class="hamburger" id="sidebarOpen" aria-label="Open menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="3" y1="6"  x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <span class="mobile-topbar-title">Ritu Ghai Admin</span>
+</div>
+
 
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -101,7 +120,7 @@
       </div>
       <div class="table-wrap" style="padding:0 4px 16px;">
         <div id="posts-loading" class="empty-state">Loading posts…</div>
-        <table class="blog-table" id="posts-table" style="display:none;">
+        <div class="table-wrap"><table class="blog-table" id="posts-table" style="display:none;">
           <thead>
             <tr>
               <th style="width:60px;">Cover</th>
@@ -115,7 +134,7 @@
             </tr>
           </thead>
           <tbody id="posts-tbody"></tbody>
-        </table>
+        </table></div>
         <div id="posts-empty" class="empty-state" style="display:none;">
           No posts yet. <a href="add-blog.html" style="color:#44332B;">Write your first post →</a>
         </div>
@@ -223,5 +242,8 @@
 
   loadPosts();
 </script>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<script src="admin-mobile.js"></script>
 </body>
 </html>

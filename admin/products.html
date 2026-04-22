@@ -20,6 +20,12 @@
     .confirm-box h3 { margin-bottom: 12px; font-size: 16px; }
     .confirm-box p { color: #888; font-size: 13px; margin-bottom: 24px; }
     .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+
+    @media (max-width: 480px) {
+      .confirm-box { width: calc(100vw - 40px); padding: 24px 20px; }
+      .category-filter { gap: 6px; }
+      .cat-btn { font-size: 10px; padding: 5px 10px; }
+    }
   </style>
 </head>
 <body>
@@ -81,7 +87,7 @@
       <div class="card-header">
         <h3>All Products <span id="productCount" style="color:#aaa;font-weight:400"></span></h3>
       </div>
-      <table>
+      <div class="table-wrap"><table>
         <thead>
           <tr>
             <th>Image</th>
@@ -96,7 +102,7 @@
         <tbody id="productsTable">
           <tr><td colspan="7" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
   </main>
 </div>
@@ -200,5 +206,6 @@
 
   loadProducts();
 </script>
+<script src="admin-mobile.js"></script>
 </body>
 </html>
