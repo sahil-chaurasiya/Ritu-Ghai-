@@ -3,35 +3,93 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blog Posts — Admin</title>
+  <title>New Blog Post — Admin</title>
   <link rel="stylesheet" href="admin.css"/>
+  <!-- Quill rich text editor -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
   <style>
-    .blog-table { width:100%; border-collapse:collapse; font-family:'Montserrat',sans-serif; font-size:12px; }
-    .blog-table th { background:#f9f5f2; color:#44332B; padding:10px 14px; text-align:left; letter-spacing:1px; text-transform:uppercase; border-bottom:2px solid #ede3db; font-weight:700; }
-    .blog-table td { padding:12px 14px; border-bottom:1px solid #f0ece8; vertical-align:middle; color:#555; }
-    .blog-table tr:hover td { background:#fdf9f7; }
-    .blog-table .post-title-cell { max-width:260px; }
-    .blog-table .post-title-cell a { color:#44332B; font-weight:600; text-decoration:none; }
-    .blog-table .post-title-cell a:hover { text-decoration:underline; }
-    .blog-table .post-excerpt-cell { max-width:200px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .status-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:10px; letter-spacing:1px; font-weight:700; text-transform:uppercase; }
-    .status-badge.published { background:#e8f5e9; color:#2e7d32; }
-    .status-badge.draft     { background:#fce4ec; color:#c62828; }
-    .cover-thumb { width:56px; height:40px; object-fit:cover; border-radius:3px; background:#eee; display:block; }
-    .cover-thumb-empty { width:56px; height:40px; background:#f0ece8; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:18px; }
-    .tag-chip { display:inline-block; background:#f4ece5; color:#44332B; font-size:10px; padding:2px 7px; border-radius:10px; margin:1px; letter-spacing:.5px; }
-    .action-btn { padding:4px 11px; border:none; border-radius:3px; font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:1px; cursor:pointer; font-weight:700; text-transform:uppercase; transition:opacity .15s; }
-    .action-btn:hover { opacity:.8; }
-    .btn-edit   { background:#44332B; color:#fff; }
-    .btn-delete { background:#e74c3c; color:#fff; }
-    .btn-toggle-pub { background:#e8f5e9; color:#2e7d32; }
-    .btn-toggle-dft { background:#fce4ec; color:#c62828; }
-    .search-bar { display:flex; gap:10px; align-items:center; margin-bottom:20px; }
-    .search-bar input { flex:1; padding:8px 14px; border:1px solid #ddd; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; border-radius:3px; outline:none; }
-    .search-bar input:focus { border-color:#44332B; }
-    .empty-state { text-align:center; padding:60px 20px; color:#bbb; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; }
-    .table-wrap { overflow-x:auto; }
-    #posts-count { font-size:12px; color:#aaa; letter-spacing:1px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-family: 'Montserrat', sans-serif;
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: #44332B; font-weight: 700; margin-bottom: 7px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group select {
+      width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+      font-family: 'Montserrat', sans-serif; font-size: 12px;
+      letter-spacing: .5px; border-radius: 3px; outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #44332B; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:640px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+    /* Quill editor */
+    #editor-container { border: 1px solid #ddd; border-radius: 0 0 3px 3px; min-height: 320px; font-family: 'Montserrat', sans-serif; font-size: 13px; }
+    .ql-toolbar { border: 1px solid #ddd; border-radius: 3px 3px 0 0; }
+    .ql-container { border: none; }
+    .ql-editor { min-height: 280px; }
+
+    /* Cover image preview */
+    .cover-preview-wrap { position: relative; display: inline-block; }
+    .cover-preview-wrap img { max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; display: block; margin-top: 10px; }
+    .remove-cover-btn {
+      position: absolute; top: 14px; right: 6px;
+      background: #e74c3c; color: #fff; border: none;
+      border-radius: 50%; width: 22px; height: 22px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; line-height: 1;
+    }
+    .file-upload-label {
+      display: inline-block; padding: 8px 16px; background: #f4ece5;
+      color: #44332B; border: 1px dashed #c9a98a; border-radius: 3px;
+      font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 1px;
+      cursor: pointer; font-weight: 700; transition: background .2s;
+    }
+    .file-upload-label:hover { background: #ede0d4; }
+
+    /* Tags input */
+    .tags-hint { font-size: 10px; color: #aaa; letter-spacing: .5px; margin-top: 5px; font-family: 'Montserrat', sans-serif; }
+
+    /* Status toggle */
+    .publish-toggle { display: flex; align-items: center; gap: 12px; }
+    .toggle-switch {
+      position: relative; width: 44px; height: 24px;
+      display: inline-block; flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ddd; border-radius: 24px; transition: .3s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: .3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #44332B; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .toggle-label { font-family: 'Montserrat', sans-serif; font-size: 12px; letter-spacing: 1px; color: #555; }
+
+    /* Submit area */
+    .form-actions { display: flex; gap: 12px; align-items: center; margin-top: 28px; flex-wrap: wrap; }
+    .form-actions .status-msg { font-family: 'Montserrat', sans-serif; font-size: 12px; letter-spacing: 1px; }
+    .form-actions .status-msg.success { color: #27ae60; }
+    .form-actions .status-msg.error   { color: #e74c3c; }
+    .form-actions .btn-secondary { background: #f4ece5; color: #44332B; border: 1px solid #c9a98a; padding: 9px 20px; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; cursor: pointer; border-radius: 3px; text-transform: uppercase; }
+    .form-actions .btn-secondary:hover { background: #ede0d4; }
+
+    /* Char counters */
+    .char-count { font-size: 10px; color: #bbb; font-family: 'Montserrat', sans-serif; letter-spacing: .5px; text-align: right; margin-top: 4px; }
+
+    .page-mode-badge {
+      display: inline-block; background: #f4ece5; color: #44332B;
+      font-size: 10px; letter-spacing: 2px; padding: 3px 10px;
+      border-radius: 12px; font-weight: 700; text-transform: uppercase;
+      margin-left: 10px; vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -53,11 +111,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         Add Product
       </a>
-      <a href="blogs.html" class="active">
+      <a href="blogs.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         Blog Posts
       </a>
-      <a href="add-blog.html">
+      <a href="add-blog.html" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         New Blog Post
       </a>
@@ -83,145 +141,240 @@
   <!-- Main -->
   <main class="main-content">
     <div class="topbar">
-      <h2>Blog Posts</h2>
+      <h2 id="page-heading">New Blog Post</h2>
       <div class="topbar-right">
-        <span id="posts-count"></span>
-        <a href="add-blog.html" class="btn btn-primary">+ New Post</a>
+        <a href="blogs.html" class="btn btn-secondary" style="background:#f4ece5;color:#44332B;border:1px solid #c9a98a;padding:7px 16px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1.5px;font-weight:700;text-decoration:none;border-radius:3px;">← All Posts</a>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <h3>All Posts</h3>
-      </div>
-      <div style="padding:16px 20px 0;">
-        <div class="search-bar">
-          <input type="text" id="search-input" placeholder="Search by title or tag…" oninput="filterPosts()"/>
+      <div class="card-header"><h3 id="form-heading">Write a New Post</h3></div>
+      <div style="padding:24px;">
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="post-title">Post Title *</label>
+          <input type="text" id="post-title" placeholder="Enter a compelling title…" maxlength="160"
+                 oninput="document.getElementById('title-count').textContent = this.value.length + '/160'"/>
+          <div class="char-count" id="title-count">0/160</div>
         </div>
-      </div>
-      <div class="table-wrap" style="padding:0 4px 16px;">
-        <div id="posts-loading" class="empty-state">Loading posts…</div>
-        <table class="blog-table" id="posts-table" style="display:none;">
-          <thead>
-            <tr>
-              <th style="width:60px;">Cover</th>
-              <th>Title</th>
-              <th>Excerpt</th>
-              <th>Tags</th>
-              <th>Author</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="posts-tbody"></tbody>
-        </table>
-        <div id="posts-empty" class="empty-state" style="display:none;">
-          No posts yet. <a href="add-blog.html" style="color:#44332B;">Write your first post →</a>
+
+        <!-- Author + Status -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="post-author">Author</label>
+            <input type="text" id="post-author" placeholder="Admin" value="Admin"/>
+          </div>
+          <div class="form-group">
+            <label>Publish Status</label>
+            <div class="publish-toggle" style="margin-top:10px;">
+              <label class="toggle-switch">
+                <input type="checkbox" id="post-published" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label" id="publish-label">Published</span>
+            </div>
+          </div>
         </div>
+
+        <!-- Excerpt -->
+        <div class="form-group">
+          <label for="post-excerpt">Excerpt <span style="font-weight:400;color:#aaa;">(shown on blog listing)</span></label>
+          <input type="text" id="post-excerpt" placeholder="A short summary of the post…" maxlength="300"
+                 oninput="document.getElementById('excerpt-count').textContent = this.value.length + '/300'"/>
+          <div class="char-count" id="excerpt-count">0/300</div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+          <label for="post-tags">Tags</label>
+          <input type="text" id="post-tags" placeholder="Fashion, Bridal, Lehenga"/>
+          <div class="tags-hint">Separate tags with commas. These appear on the blog page and help with filtering.</div>
+        </div>
+
+        <!-- Cover image -->
+        <div class="form-group">
+          <label>Cover Image <span style="font-weight:400;color:#aaa;">(max 5MB)</span></label>
+          <label class="file-upload-label" for="cover-input">
+            📷 Choose Cover Image
+          </label>
+          <input type="file" id="cover-input" accept="image/*" style="display:none;" onchange="previewCover(this)"/>
+          <div class="cover-preview-wrap" id="cover-preview-wrap" style="display:none;">
+            <img id="cover-preview" src="" alt="Cover preview"/>
+            <button class="remove-cover-btn" onclick="removeCover()" title="Remove cover">✕</button>
+          </div>
+          <div id="existing-cover-wrap" style="display:none;margin-top:8px;">
+            <span style="font-size:11px;color:#888;font-family:Montserrat,sans-serif;letter-spacing:.5px;">Current cover:</span>
+            <img id="existing-cover" src="" style="max-height:80px;margin-top:6px;display:block;border-radius:3px;"/>
+            <label style="margin-top:6px;" class="file-upload-label" for="cover-input">Replace Image</label>
+          </div>
+        </div>
+
+        <!-- Content editor -->
+        <div class="form-group">
+          <label>Content *</label>
+          <div id="editor-container"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="submitPost()">
+            <span id="submit-label">Publish Post</span>
+          </button>
+          <button class="btn-secondary" onclick="saveDraft()">Save as Draft</button>
+          <span class="status-msg" id="form-status"></span>
+        </div>
+
       </div>
     </div>
   </main>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script src="admin-auth.js"></script>
 <script>
   if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
 
-  let allPosts = [];
-
-  function formatDate(iso) {
-    return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-  }
-
-  function renderRow(p) {
-    const cover = p.coverImage
-      ? `<img src="${p.coverImage}" class="cover-thumb" alt="cover"/>`
-      : `<div class="cover-thumb-empty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
-    const tags = (p.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join('') || '<span style="color:#ddd;">—</span>';
-    const statusBadge = p.published
-      ? `<span class="status-badge published">Published</span>`
-      : `<span class="status-badge draft">Draft</span>`;
-    const toggleLabel = p.published ? 'Unpublish' : 'Publish';
-    const toggleClass = p.published ? 'btn-toggle-pub' : 'btn-toggle-dft';
-
-    return `<tr data-id="${p._id}">
-      <td>${cover}</td>
-      <td class="post-title-cell"><a href="/single-post.html?slug=${p.slug}" target="_blank">${p.title}</a></td>
-      <td class="post-excerpt-cell">${p.excerpt || '—'}</td>
-      <td>${tags}</td>
-      <td>${p.author || 'Admin'}</td>
-      <td style="white-space:nowrap;">${formatDate(p.createdAt)}</td>
-      <td>${statusBadge}</td>
-      <td style="white-space:nowrap;">
-        <button class="action-btn btn-edit" onclick="editPost('${p._id}')">Edit</button>
-        <button class="action-btn ${toggleClass}" onclick="togglePublish('${p._id}', ${p.published})" style="margin:0 4px;">${toggleLabel}</button>
-        <button class="action-btn btn-delete" onclick="deletePost('${p._id}')">Delete</button>
-      </td>
-    </tr>`;
-  }
-
-  function filterPosts() {
-    const q = document.getElementById('search-input').value.toLowerCase().trim();
-    const filtered = q
-      ? allPosts.filter(p => p.title.toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q)))
-      : allPosts;
-    renderTable(filtered);
-  }
-
-  function renderTable(posts) {
-    const tbody = document.getElementById('posts-tbody');
-    const table = document.getElementById('posts-table');
-    const empty = document.getElementById('posts-empty');
-    if (!posts.length) {
-      table.style.display = 'none';
-      empty.style.display = 'block';
-    } else {
-      tbody.innerHTML = posts.map(renderRow).join('');
-      table.style.display = 'table';
-      empty.style.display = 'none';
+  // ── Rich text editor ───────────────────────────────────────────────────────
+  const quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Write your blog post here…',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ align: [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        ['clean']
+      ]
     }
+  });
+
+  // ── Edit mode: load existing post ─────────────────────────────────────────
+  const editId = new URLSearchParams(window.location.search).get('edit');
+
+  if (editId) {
+    document.getElementById('page-heading').innerHTML = 'Edit Blog Post <span class="page-mode-badge">Editing</span>';
+    document.getElementById('form-heading').textContent = 'Edit Post';
+    document.getElementById('submit-label').textContent = 'Update Post';
+    document.title = 'Edit Post — Admin';
+
+    AdminAuth.apiFetch('/api/blogs/admin/all').then(data => {
+      const post = (data.blogs || []).find(p => p._id === editId);
+      if (!post) { alert('Post not found.'); return; }
+
+      document.getElementById('post-title').value   = post.title || '';
+      document.getElementById('post-author').value  = post.author || 'Admin';
+      document.getElementById('post-excerpt').value = post.excerpt || '';
+      document.getElementById('post-tags').value    = (post.tags || []).join(', ');
+      document.getElementById('post-published').checked = post.published !== false;
+      updatePublishLabel();
+
+      document.getElementById('title-count').textContent   = (post.title || '').length + '/160';
+      document.getElementById('excerpt-count').textContent = (post.excerpt || '').length + '/300';
+
+      quill.root.innerHTML = post.content || '';
+
+      if (post.coverImage) {
+        const wrap = document.getElementById('existing-cover-wrap');
+        wrap.style.display = 'block';
+        document.getElementById('existing-cover').src = post.coverImage;
+      }
+    }).catch(() => alert('Failed to load post data.'));
   }
 
-  async function loadPosts() {
-    document.getElementById('posts-loading').style.display = 'block';
-    document.getElementById('posts-table').style.display = 'none';
-    document.getElementById('posts-empty').style.display = 'none';
-    try {
-      const data = await AdminAuth.apiFetch('/api/blogs/admin/all');
-      document.getElementById('posts-loading').style.display = 'none';
-      allPosts = data.blogs || [];
-      const countEl = document.getElementById('posts-count');
-      if (countEl) countEl.textContent = allPosts.length + ' post' + (allPosts.length !== 1 ? 's' : '');
-      renderTable(allPosts);
-    } catch(e) {
-      document.getElementById('posts-loading').textContent = 'Failed to load posts.';
+  // ── Publish toggle label ──────────────────────────────────────────────────
+  document.getElementById('post-published').addEventListener('change', updatePublishLabel);
+  function updatePublishLabel() {
+    const checked = document.getElementById('post-published').checked;
+    document.getElementById('publish-label').textContent = checked ? 'Published' : 'Draft';
+  }
+
+  // ── Cover image preview ───────────────────────────────────────────────────
+  function previewCover(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('cover-preview').src = e.target.result;
+      document.getElementById('cover-preview-wrap').style.display = 'inline-block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function removeCover() {
+    document.getElementById('cover-input').value = '';
+    document.getElementById('cover-preview-wrap').style.display = 'none';
+    document.getElementById('cover-preview').src = '';
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  function setStatus(msg, type) {
+    const el = document.getElementById('form-status');
+    el.textContent = msg;
+    el.className = 'status-msg ' + (type || '');
+  }
+
+  async function submitPost(forceDraft) {
+    const title   = document.getElementById('post-title').value.trim();
+    const content = quill.root.innerHTML.trim();
+
+    if (!title)   { setStatus('Please enter a title.', 'error'); return; }
+    if (!content || content === '<p><br></p>') { setStatus('Please write some content.', 'error'); return; }
+
+    const published = forceDraft ? false : document.getElementById('post-published').checked;
+
+    const formData = new FormData();
+    formData.append('title',     title);
+    formData.append('author',    document.getElementById('post-author').value.trim() || 'Admin');
+    formData.append('excerpt',   document.getElementById('post-excerpt').value.trim());
+    formData.append('tags',      document.getElementById('post-tags').value.trim());
+    formData.append('content',   content);
+    formData.append('published', published);
+
+    const fileInput = document.getElementById('cover-input');
+    if (fileInput.files && fileInput.files[0]) {
+      formData.append('coverImage', fileInput.files[0]);
     }
-  }
 
-  async function togglePublish(id, currentlyPublished) {
+    setStatus('Saving…', '');
+    document.getElementById('submit-label').textContent = editId ? 'Updating…' : 'Publishing…';
+
     try {
-      await AdminAuth.apiFetch('/api/blogs/' + id, {
-        method: 'PUT',
-        body: JSON.stringify({ published: !currentlyPublished })
+      const url    = editId ? '/api/blogs/' + editId : '/api/blogs';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Authorization': 'Bearer ' + AdminAuth.token() },
+        body: formData
       });
-      loadPosts();
-    } catch(e) { alert('Failed to update post status.'); }
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus(editId ? '✓ Post updated!' : '✓ Post published!', 'success');
+        document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+        if (!editId) {
+          // Redirect to blogs list after short delay
+          setTimeout(() => window.location.href = 'blogs.html', 1200);
+        }
+      } else {
+        setStatus('Error: ' + (data.message || 'Something went wrong.'), 'error');
+        document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+      }
+    } catch(e) {
+      setStatus('Failed to save. Please try again.', 'error');
+      document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+    }
   }
 
-  function editPost(id) {
-    window.location.href = 'add-blog.html?edit=' + id;
+  function saveDraft() {
+    document.getElementById('post-published').checked = false;
+    updatePublishLabel();
+    submitPost(true);
   }
-
-  async function deletePost(id) {
-    if (!confirm('Delete this blog post permanently? This cannot be undone.')) return;
-    try {
-      await AdminAuth.apiFetch('/api/blogs/' + id, { method: 'DELETE' });
-      loadPosts();
-    } catch(e) { alert('Failed to delete post.'); }
-  }
-
-  loadPosts();
 </script>
 </body>
 </html>
