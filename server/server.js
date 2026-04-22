@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const connectDB = require('./config/db');
 const Admin = require('./models/Admin');
+const Category = require('./models/Category');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +41,7 @@ app.use('/api/admin', require('./routes/authRoutes'));
 app.use('/api/customer-diaries', require('./routes/customerDiaryRoutes'));
 app.use('/api/videos', require('./routes/videoRoutes'));
 app.use('/api/blogs',  require('./routes/blogRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
 
 // ── Static files ─────────────────────────────────────────────────────────────
 // Admin panel: /admin/anything.html  →  ../admin/anything.html
@@ -61,6 +63,27 @@ const seedAdmin = async () => {
   }
 };
 
+// ── Seed default categories on first run ─────────────────────────────────────
+const seedCategories = async () => {
+  try {
+    const count = await Category.countDocuments();
+    if (count === 0) {
+      const defaults = [
+        { label: 'LEHENGA',       value: 'Lehenga',       order: 1 },
+        { label: 'SAREES',        value: 'Sarees',        order: 2 },
+        { label: 'STITCHED SUIT', value: 'Stitched Suit', order: 3 },
+        { label: 'INDO WESTERN',  value: 'Indo Western',  order: 4 },
+        { label: 'GOWNS',         value: 'Gowns',         order: 5 },
+        { label: 'KURTI',         value: 'Kurti',         order: 6 },
+      ];
+      await Category.insertMany(defaults);
+      console.log('Default categories seeded.');
+    }
+  } catch (err) {
+    console.error('Category seed error:', err.message);
+  }
+};
+
 // ── Named page routes (fallback for extensionless or root admin redirect) ────
 // /admin  →  login page
 app.get('/admin', (req, res) =>
@@ -76,4 +99,5 @@ app.listen(PORT, async () => {
   console.log(`\n🚀 Ritu Ghai Shop running at http://localhost:${PORT}`);
   console.log(`📦 Admin Panel: http://localhost:${PORT}/admin`);
   await seedAdmin();
+  await seedCategories();
 });

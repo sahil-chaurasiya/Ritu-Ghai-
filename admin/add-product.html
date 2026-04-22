@@ -6,7 +6,6 @@
   <title>Add Product — Admin</title>
   <link rel="stylesheet" href="admin.css"/>
   <style>
-    /* Form actions: stack on mobile */
     .form-actions-row {
       display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;
     }
@@ -14,12 +13,10 @@
       .form-actions-row { flex-direction: column; }
       .form-actions-row .btn { width: 100%; justify-content: center; text-align: center; }
     }
-    /* Sizes grid: larger tap targets on mobile */
     .sizes-wrap { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 6px; }
     .sizes-wrap label {
       display: flex; align-items: center; gap: 8px; cursor: pointer;
-      font-size: 13px; font-weight: 400; color: #333;
-      padding: 4px 0;
+      font-size: 13px; font-weight: 400; color: #333; padding: 4px 0;
     }
     .sizes-wrap input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
   </style>
@@ -32,6 +29,7 @@
       <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="products.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Products</a>
       <a href="add-product.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Product</a>
+      <a href="categories.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>Categories</a>
       <a href="blogs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Blog Posts</a>
       <a href="add-blog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>New Blog Post</a>
       <a href="videos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Videos</a>
@@ -64,8 +62,10 @@
           </div>
           <div class="form-group">
             <label>Category *</label>
-            <input type="text" name="category" class="form-control" placeholder="e.g. Jackets, Women, Men" required />
-            <p class="form-hint">Used for category filtering on the website</p>
+            <select name="category" id="categorySelect" class="form-control" required>
+              <option value="">— Loading categories… —</option>
+            </select>
+            <p class="form-hint">Manage categories in <a href="categories.html">Categories</a></p>
           </div>
         </div>
 
@@ -140,6 +140,24 @@
 <script>
   if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
 
+  // Load categories into the dropdown
+  async function loadCategories() {
+    const sel = document.getElementById('categorySelect');
+    try {
+      const res = await AdminAuth.apiFetch('/api/categories/all');
+      const categories = (res && res.categories) ? res.categories : [];
+      if (categories.length === 0) throw new Error('empty');
+      sel.innerHTML = '<option value="">— Select a category —</option>' +
+        categories.map(c =>
+          `<option value="${c.value}"${!c.isActive ? ' style="color:#aaa"' : ''}>${c.label}${!c.isActive ? ' (inactive)' : ''}</option>`
+        ).join('');
+    } catch (e) {
+      sel.innerHTML = '<option value="">— Could not load categories —</option>';
+    }
+  }
+
+  loadCategories();
+
   document.getElementById('imageInput').addEventListener('change', function () {
     const preview = document.getElementById('imgPreview');
     preview.innerHTML = '';
@@ -175,6 +193,7 @@
         successEl.style.display = 'block';
         this.reset();
         document.getElementById('imgPreview').innerHTML = '';
+        loadCategories(); // re-populate after reset
         window.scrollTo(0, 0);
       } else {
         errorEl.textContent = data.message || 'Error saving product';

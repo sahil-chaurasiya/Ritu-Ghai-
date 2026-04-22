@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Categories — Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <style>
+    .cat-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .cat-table th, .cat-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #f0ece8;
+      font-size: 13px;
+    }
+    .cat-table th { background: #faf8f6; font-weight: 600; color: #44332B; letter-spacing: 0.5px; text-transform: uppercase; font-size: 11px; }
+    .cat-table tr:hover td { background: #fdf9f7; }
+    .cat-table td .badge-inactive {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      background: #f0ece8; color: #aaa; font-size: 11px; margin-left: 6px;
+    }
+    .cat-table td .badge-active {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      background: #e6f4ea; color: #1e7e34; font-size: 11px; margin-left: 6px;
+    }
+    .order-input {
+      width: 60px; padding: 4px 8px; border: 1px solid #ddd;
+      border-radius: 4px; font-size: 13px; text-align: center;
+    }
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 10px; padding: 32px 28px;
+      width: 100%; max-width: 460px; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .modal h3 { margin: 0 0 20px; font-size: 16px; color: #44332B; }
+    .modal .form-group { margin-bottom: 16px; }
+    .modal .form-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .modal .form-group input[type="text"],
+    .modal .form-group input[type="number"] {
+      width: 100%; padding: 9px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 13px; box-sizing: border-box;
+    }
+    .modal .form-group input:focus { outline: none; border-color: #44332B; }
+    .modal .form-row { display: flex; gap: 12px; }
+    .modal .form-row .form-group { flex: 1; }
+    .modal .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: #aaa; line-height: 1;
+    }
+    .modal-close:hover { color: #333; }
+    .toggle-switch {
+      display: flex; align-items: center; gap: 10px; margin-top: 4px;
+    }
+    .toggle-switch input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+    .toggle-label { font-size: 13px; color: #555; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; stroke: #ddd; }
+    .drag-handle { cursor: grab; color: #ccc; font-size: 16px; padding-right: 8px; }
+    .drag-handle:active { cursor: grabbing; }
+    tr.dragging { opacity: 0.4; }
+    tr.drag-over td { border-top: 2px solid #44332B; }
+    .save-order-bar {
+      display: none; align-items: center; gap: 12px;
+      background: #fff8f0; border: 1px solid #f5dfc0;
+      border-radius: 6px; padding: 10px 16px; margin-bottom: 16px;
+      font-size: 13px; color: #44332B;
+    }
+    .save-order-bar.visible { display: flex; }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Ritu Ghai</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="products.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Products</a>
+      <a href="add-product.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Product</a>
+      <a href="categories.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>Categories</a>
+      <a href="blogs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Blog Posts</a>
+      <a href="add-blog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>New Blog Post</a>
+      <a href="videos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Videos</a>
+      <a href="customer-diaries.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Customer Diaries</a>
+      <a href="/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Categories</h2>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Category</button>
+      </div>
+    </div>
+
+    <div class="alert alert-success" id="successMsg"></div>
+    <div class="alert alert-error" id="errorMsg"></div>
+
+    <div class="save-order-bar" id="saveOrderBar">
+      <span>⬆⬇ Order changed — save to apply on the website.</span>
+      <button class="btn btn-primary btn-sm" onclick="saveOrder()">Save Order</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadCategories()">Discard</button>
+    </div>
+
+    <div class="form-card" style="padding:0;overflow:hidden;">
+      <table class="cat-table">
+        <thead>
+          <tr>
+            <th style="width:32px;"></th>
+            <th>Label (shown in navbar)</th>
+            <th>Value (used in URL / filter)</th>
+            <th style="width:80px;">Order</th>
+            <th style="width:90px;">Status</th>
+            <th style="width:130px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="catTableBody">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:12px;color:#aaa;margin-top:12px;">
+      Drag rows to reorder. Changes to categories are reflected in the navbar and footer immediately after saving.
+      Inactive categories are hidden from the public site but remain visible in the admin dropdown.
+    </p>
+  </main>
+</div>
+
+<!-- Add / Edit Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle">Add Category</h3>
+
+    <div class="form-group">
+      <label>Label <span style="color:#c00">*</span></label>
+      <input type="text" id="mLabel" placeholder="e.g. LEHENGA" />
+      <p class="form-hint">Displayed in the navbar and footer (uppercase recommended)</p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Value <span style="color:#c00">*</span></label>
+        <input type="text" id="mValue" placeholder="e.g. Lehenga" />
+        <p class="form-hint">Used in URLs: ?category=<em>Value</em></p>
+      </div>
+      <div class="form-group">
+        <label>Order</label>
+        <input type="number" id="mOrder" placeholder="0" min="0" />
+        <p class="form-hint">Lower = appears first</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-switch">
+        <input type="checkbox" id="mActive" checked />
+        <label class="toggle-label" for="mActive">Active (visible on website)</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveCategory()">Save</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  let categories = [];
+  let editingId  = null;
+  let dragSrcIdx = null;
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function showMsg(type, text) {
+    const el = document.getElementById(type === 'success' ? 'successMsg' : 'errorMsg');
+    el.textContent = text;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+
+  // ── Load & render ──────────────────────────────────────────────────────────
+  async function loadCategories() {
+    document.getElementById('saveOrderBar').classList.remove('visible');
+    try {
+      const data = await AdminAuth.apiFetch('/api/categories/all');
+      categories = (data && data.categories) ? data.categories : [];
+      renderTable();
+    } catch (e) {
+      document.getElementById('catTableBody').innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">Failed to load categories.</td></tr>';
+    }
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('catTableBody');
+    if (categories.length === 0) {
+      tbody.innerHTML = `
+        <tr><td colspan="6">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            <p>No categories yet.<br/>Click <strong>+ Add Category</strong> to create one.</p>
+          </div>
+        </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = categories.map((c, i) => `
+      <tr draggable="true" data-idx="${i}" data-id="${c._id}">
+        <td class="drag-handle" title="Drag to reorder">⠿</td>
+        <td><strong>${escHtml(c.label)}</strong></td>
+        <td style="color:#888;">${escHtml(c.value)}</td>
+        <td>${c.order}</td>
+        <td>
+          ${c.isActive
+            ? '<span class="badge-active">Active</span>'
+            : '<span class="badge-inactive">Inactive</span>'}
+        </td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="openEditModal('${c._id}')">Edit</button>
+          <button class="btn btn-sm" style="background:#fff0f0;color:#c00;border:1px solid #ffd0d0;margin-left:4px;" onclick="deleteCategory('${c._id}', '${escHtml(c.label)}')">Delete</button>
+        </td>
+      </tr>`).join('');
+
+    attachDragHandlers();
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Drag-to-reorder ────────────────────────────────────────────────────────
+  function attachDragHandlers() {
+    document.querySelectorAll('#catTableBody tr[draggable]').forEach(row => {
+      row.addEventListener('dragstart', e => {
+        dragSrcIdx = parseInt(row.dataset.idx);
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        document.querySelectorAll('#catTableBody tr').forEach(r => r.classList.remove('drag-over'));
+      });
+      row.addEventListener('dragover', e => {
+        e.preventDefault();
+        document.querySelectorAll('#catTableBody tr').forEach(r => r.classList.remove('drag-over'));
+        row.classList.add('drag-over');
+      });
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        const destIdx = parseInt(row.dataset.idx);
+        if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
+        const moved = categories.splice(dragSrcIdx, 1)[0];
+        categories.splice(destIdx, 0, moved);
+        renderTable();
+        document.getElementById('saveOrderBar').classList.add('visible');
+      });
+    });
+  }
+
+  // ── Save reordered list ────────────────────────────────────────────────────
+  async function saveOrder() {
+    const btn = document.querySelector('#saveOrderBar .btn-primary');
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+    let failed = false;
+    for (let i = 0; i < categories.length; i++) {
+      try {
+        await AdminAuth.apiFetch('/api/categories/' + categories[i]._id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...categories[i], order: i + 1 })
+        });
+      } catch (e) { failed = true; }
+    }
+    btn.textContent = 'Save Order';
+    btn.disabled = false;
+    if (failed) {
+      showMsg('error', 'Some categories failed to save. Please try again.');
+    } else {
+      showMsg('success', '✓ Category order saved.');
+      loadCategories();
+    }
+  }
+
+  // ── Add modal ──────────────────────────────────────────────────────────────
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Category';
+    document.getElementById('mLabel').value  = '';
+    document.getElementById('mValue').value  = '';
+    document.getElementById('mOrder').value  = categories.length + 1;
+    document.getElementById('mActive').checked = true;
+    document.getElementById('mValue').readOnly = false;
+    document.getElementById('modalSaveBtn').textContent = 'Add Category';
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('mLabel').focus();
+  }
+
+  // Auto-populate value from label (title-case)
+  document.getElementById('mLabel').addEventListener('input', function () {
+    if (editingId) return; // don't auto-change on edit
+    const raw = this.value.trim();
+    // Title-case: first letter of each word uppercase, rest lowercase
+    document.getElementById('mValue').value = raw.replace(/\w\S*/g,
+      w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  });
+
+  // ── Edit modal ─────────────────────────────────────────────────────────────
+  function openEditModal(id) {
+    const cat = categories.find(c => c._id === id);
+    if (!cat) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Category';
+    document.getElementById('mLabel').value  = cat.label;
+    document.getElementById('mValue').value  = cat.value;
+    document.getElementById('mOrder').value  = cat.order;
+    document.getElementById('mActive').checked = cat.isActive !== false;
+    document.getElementById('mValue').readOnly = false;
+    document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('mLabel').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    editingId = null;
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('modalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── Save (create or update) ────────────────────────────────────────────────
+  async function saveCategory() {
+    const label    = document.getElementById('mLabel').value.trim();
+    const value    = document.getElementById('mValue').value.trim();
+    const order    = parseInt(document.getElementById('mOrder').value) || 0;
+    const isActive = document.getElementById('mActive').checked;
+
+    if (!label || !value) {
+      alert('Label and Value are required.');
+      return;
+    }
+
+    const btn = document.getElementById('modalSaveBtn');
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+
+    try {
+      let data;
+      if (editingId) {
+        data = await AdminAuth.apiFetch('/api/categories/' + editingId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label, value, order, isActive })
+        });
+      } else {
+        data = await AdminAuth.apiFetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label, value, order, isActive })
+        });
+      }
+
+      if (data && data.success) {
+        showMsg('success', editingId ? '✓ Category updated.' : '✓ Category added.');
+        closeModal();
+        loadCategories();
+      } else {
+        showMsg('error', (data && data.message) || 'Failed to save category.');
+      }
+    } catch (e) {
+      showMsg('error', 'Network error. Please try again.');
+    } finally {
+      btn.textContent = editingId ? 'Save Changes' : 'Add Category';
+      btn.disabled = false;
+    }
+  }
+
+  // ── Delete ─────────────────────────────────────────────────────────────────
+  async function deleteCategory(id, label) {
+    if (!confirm(`Delete category "${label}"?\n\nThis only removes the category from the navbar/dropdown. Existing products assigned to this category are NOT deleted.`)) return;
+    try {
+      const data = await AdminAuth.apiFetch('/api/categories/' + id, { method: 'DELETE' });
+      if (data && data.success) {
+        showMsg('success', `✓ "${label}" deleted.`);
+        loadCategories();
+      } else {
+        showMsg('error', (data && data.message) || 'Failed to delete.');
+      }
+    } catch (e) {
+      showMsg('error', 'Network error. Please try again.');
+    }
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  loadCategories();
+</script>
+<script src="admin-mobile.js"></script>
+</body>
+</html>

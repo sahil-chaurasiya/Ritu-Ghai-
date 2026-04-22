@@ -1,11 +1,14 @@
 /**
  * navbar.js — Injects a shared, dynamic navbar + footer into every page.
- * Updated: new categories, simple slide transition, no mega-menu.
+ * Categories are loaded dynamically from /api/categories so the admin
+ * can add, edit, or remove them from the admin panel at any time.
  */
 (function () {
   'use strict';
 
-  const CATEGORIES = [
+  // Fallback categories shown instantly while the API call resolves,
+  // and used if the API fails (keeps the nav functional offline / on error).
+  const FALLBACK_CATEGORIES = [
     { label: 'LEHENGA',       value: 'Lehenga' },
     { label: 'SAREES',        value: 'Sarees' },
     { label: 'STITCHED SUIT', value: 'Stitched Suit' },
@@ -14,8 +17,23 @@
     { label: 'KURTI',         value: 'Kurti' }
   ];
 
-  // ─── NAVBAR HTML ────────────────────────────────────────────────────────────
-  const NAVBAR_HTML = `
+  // ─── BUILD NAV HTML ─────────────────────────────────────────────────────────
+  function buildCategoryNavItems(categories) {
+    return categories.map(cat =>
+      `<li data-page="shop-${cat.value.replace(/\s+/g, '-').toLowerCase()}" data-category="${cat.value}">
+        <a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}">${cat.label}</a>
+      </li>`
+    ).join('');
+  }
+
+  function buildCategoryFooterItems(categories) {
+    return categories.map(cat =>
+      `<li><a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}">${cat.label}</a></li>`
+    ).join('');
+  }
+
+  function buildNavbarHTML(categories) {
+    return `
     <div class="topbar">
       <div class="container">
         <div class="left-topbar">WELCOME TO RITU GHAI</div>
@@ -61,11 +79,7 @@
           <div class="minimal-menu">
             <ul class="menu" id="main-menu">
               <li data-page="index.html"><a href="/index.html">HOME</a></li>
-              ${CATEGORIES.map(cat =>
-                `<li data-page="shop-${cat.value.replace(/\s+/g,'-').toLowerCase()}" data-category="${cat.value}">
-                  <a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}">${cat.label}</a>
-                </li>`
-              ).join('')}
+              ${buildCategoryNavItems(categories)}
               <li data-page="blog"><a href="/blog.html">BLOG</a></li>
               <li data-page="about"><a href="/about-company.html">ABOUT</a></li>
               <li data-page="contact"><a href="/contact1.html">CONTACT</a></li>
@@ -74,9 +88,10 @@
         </nav>
       </div>
     </header>`;
+  }
 
-  // ─── FOOTER HTML ────────────────────────────────────────────────────────────
-  const FOOTER_HTML = `
+  function buildFooterHTML(categories) {
+    return `
     <footer>
       <div class="container">
         <div class="row">
@@ -97,9 +112,7 @@
           <div class="col-md-3 col-sm-6">
             <h3>SHOP</h3>
             <ul class="list-link">
-              ${CATEGORIES.map(cat =>
-                `<li><a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}">${cat.label}</a></li>`
-              ).join('')}
+              ${buildCategoryFooterItems(categories)}
             </ul>
           </div>
           <div class="col-md-3 col-sm-6">
@@ -130,6 +143,7 @@
         </div>
       </div>
     </footer>`;
+  }
 
   // ─── WHATSAPP FLOATING WIDGET ────────────────────────────────────────────────
   const WA_PHONE   = '919999999999'; // ← replace with actual WhatsApp number
@@ -144,7 +158,6 @@
       z-index: 9999;
       font-family: 'Montserrat', sans-serif;
     }
-    /* Popup card */
     #rg-wa-popup {
       position: absolute;
       bottom: 70px;
@@ -165,7 +178,6 @@
       opacity: 1;
       pointer-events: all;
     }
-    /* Popup header */
     #rg-wa-popup .rg-wa-header {
       background: #25282c;
       padding: 18px 18px 16px;
@@ -217,7 +229,6 @@
       padding: 0 0 0 8px;
     }
     #rg-wa-popup .rg-wa-close:hover { color: #fff; }
-    /* Message bubble */
     #rg-wa-popup .rg-wa-body {
       padding: 18px 16px;
       background: #f0ece8;
@@ -247,7 +258,6 @@
       text-align: right;
       margin-top: 6px;
     }
-    /* CTA button */
     #rg-wa-popup .rg-wa-cta {
       display: block;
       margin: 0 16px 16px;
@@ -265,7 +275,6 @@
     }
     #rg-wa-popup .rg-wa-cta:hover { background: #1ebe5d; }
     #rg-wa-popup .rg-wa-cta i { margin-right: 7px; font-size: 15px; }
-    /* Floating FAB */
     #rg-wa-fab {
       width: 56px;
       height: 56px;
@@ -285,7 +294,6 @@
       box-shadow: 0 6px 22px rgba(37,211,102,0.55);
     }
     #rg-wa-fab svg { width: 28px; height: 28px; }
-    /* Pulse ring */
     #rg-wa-fab::before {
       content: '';
       position: absolute;
@@ -298,7 +306,6 @@
       0%   { transform: scale(1); opacity: 0.7; }
       100% { transform: scale(1.9); opacity: 0; }
     }
-    /* Notification dot */
     #rg-wa-notif {
       position: absolute;
       top: 2px; right: 2px;
@@ -345,7 +352,6 @@
       </div>
       <button id="rg-wa-fab" aria-label="Chat with us on WhatsApp">
         <span id="rg-wa-notif">1</span>
-        <!-- WhatsApp SVG icon -->
         <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
           <path d="M12.001 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.98-1.418A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.524 2 12.001 2zm0 1.5a8.5 8.5 0 110 17 8.5 8.5 0 010-17zm-2.4 4.05c-.2 0-.52.075-.79.375-.27.3-1.03 1.005-1.03 2.45 0 1.446 1.055 2.842 1.2 3.042.146.2 2.056 3.19 5.036 4.345 2.484.98 2.985.785 3.525.735.54-.05 1.74-.71 1.985-1.395.245-.685.245-1.27.17-1.395-.073-.123-.27-.2-.57-.35-.298-.15-1.76-.87-2.033-.97-.27-.098-.468-.147-.666.15-.2.297-.767.97-.94 1.17-.172.198-.344.223-.64.074-.297-.15-1.254-.463-2.39-1.475-.883-.79-1.48-1.764-1.653-2.062-.173-.298-.018-.46.13-.608.133-.133.297-.347.447-.52.148-.175.197-.3.297-.5.1-.2.05-.373-.025-.52-.075-.15-.662-1.608-.913-2.2-.24-.573-.484-.495-.666-.504l-.57-.01z"/>
         </svg>
@@ -369,7 +375,7 @@
   })();
 
   // ─── INJECT ──────────────────────────────────────────────────────────────────
-  function injectNavbar() {
+  function injectNavbar(categories) {
     const body = document.body;
     ['topbar', 'header', 'footer'].forEach(sel => {
       const el = document.querySelector(sel + ', .' + sel);
@@ -382,48 +388,52 @@
     const flashFix = document.getElementById('navbar-flash-fix');
     if (flashFix) flashFix.remove();
 
+    // Remove existing injected navbar if re-injecting with fresh categories
+    const existing = document.getElementById('zorka-navbar');
+    if (existing) existing.remove();
+
     const navDiv = document.createElement('div');
     navDiv.id = 'zorka-navbar';
-    navDiv.innerHTML = NAVBAR_HTML;
+    navDiv.innerHTML = buildNavbarHTML(categories);
     body.insertBefore(navDiv, body.firstChild);
 
-    const footerDiv = document.createElement('div');
-    footerDiv.innerHTML = FOOTER_HTML;
-    body.appendChild(footerDiv);
-
-    // Inject WhatsApp widget
-    const waDiv = document.createElement('div');
-    waDiv.innerHTML = WA_HTML;
-    body.appendChild(waDiv);
-
-    // Wire up WhatsApp toggle
-    const waFab   = document.getElementById('rg-wa-fab');
-    const waPopup = document.getElementById('rg-wa-popup');
-    const waClose = document.getElementById('rg-wa-close-btn');
-    const waNotif = document.getElementById('rg-wa-notif');
-
-    function openPopup() {
-      waPopup.classList.add('rg-wa-open');
-      if (waNotif) waNotif.style.display = 'none';
+    // Footer
+    let footerDiv = document.getElementById('zorka-footer');
+    if (!footerDiv) {
+      footerDiv = document.createElement('div');
+      footerDiv.id = 'zorka-footer';
+      body.appendChild(footerDiv);
     }
-    function closePopup() {
-      waPopup.classList.remove('rg-wa-open');
-    }
+    footerDiv.innerHTML = buildFooterHTML(categories);
 
-    if (waFab)   waFab.addEventListener('click', function() {
-      waPopup.classList.contains('rg-wa-open') ? closePopup() : openPopup();
-    });
-    if (waClose) waClose.addEventListener('click', function(e) {
-      e.stopPropagation();
-      closePopup();
-    });
+    // WhatsApp widget (inject once)
+    if (!document.getElementById('rg-wa-widget')) {
+      const waDiv = document.createElement('div');
+      waDiv.innerHTML = WA_HTML;
+      body.appendChild(waDiv);
 
-    // Auto-open after 4s on first visit
-    if (!sessionStorage.getItem('rg_wa_seen')) {
-      setTimeout(function() {
-        openPopup();
-        sessionStorage.setItem('rg_wa_seen', '1');
-      }, 4000);
+      const waFab   = document.getElementById('rg-wa-fab');
+      const waPopup = document.getElementById('rg-wa-popup');
+      const waClose = document.getElementById('rg-wa-close-btn');
+      const waNotif = document.getElementById('rg-wa-notif');
+
+      function openPopup()  { waPopup.classList.add('rg-wa-open'); if (waNotif) waNotif.style.display = 'none'; }
+      function closePopup() { waPopup.classList.remove('rg-wa-open'); }
+
+      if (waFab)   waFab.addEventListener('click', function () {
+        waPopup.classList.contains('rg-wa-open') ? closePopup() : openPopup();
+      });
+      if (waClose) waClose.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closePopup();
+      });
+
+      if (!sessionStorage.getItem('rg_wa_seen')) {
+        setTimeout(function () {
+          openPopup();
+          sessionStorage.setItem('rg_wa_seen', '1');
+        }, 4000);
+      }
     }
 
     setActiveNavItem();
@@ -437,7 +447,7 @@
     document.querySelectorAll('#main-menu > li').forEach(li => {
       li.classList.remove('current-menu-item');
       const datePage = li.dataset.page || '';
-      const dataCat = li.dataset.category || '';
+      const dataCat  = li.dataset.category || '';
       if (dataCat && urlCat && dataCat === urlCat) {
         li.classList.add('current-menu-item');
       } else if (!dataCat && (datePage === page || (datePage.length > 3 && page.includes(datePage)))) {
@@ -477,10 +487,33 @@
     } catch (e) { /* silent */ }
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    injectNavbar();
+  // ─── FETCH CATEGORIES & BOOT ──────────────────────────────────────────────
+  async function fetchCategories() {
+    try {
+      const res = await fetch('/api/categories');
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.categories) && data.categories.length > 0) {
+        return data.categories;
+      }
+    } catch (e) { /* fall through to fallback */ }
+    return FALLBACK_CATEGORIES;
+  }
+
+  document.addEventListener('DOMContentLoaded', async function () {
+    // Inject immediately with fallback so nav appears with zero flicker
+    injectNavbar(FALLBACK_CATEGORIES);
     reinitMinimalMenu();
     updateCounts();
+
+    // Then fetch real categories and re-inject if they differ
+    const categories = await fetchCategories();
+    const fallbackValues = FALLBACK_CATEGORIES.map(c => c.value).join(',');
+    const fetchedValues  = categories.map(c => c.value).join(',');
+    if (fetchedValues !== fallbackValues) {
+      injectNavbar(categories);
+      reinitMinimalMenu();
+    }
   });
 
   window.NavBar = { updateCounts };
