@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog Posts — Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <style>
+    .blog-table { width:100%; border-collapse:collapse; font-family:'Montserrat',sans-serif; font-size:12px; }
+    .blog-table th { background:#f9f5f2; color:#44332B; padding:10px 14px; text-align:left; letter-spacing:1px; text-transform:uppercase; border-bottom:2px solid #ede3db; font-weight:700; }
+    .blog-table td { padding:12px 14px; border-bottom:1px solid #f0ece8; vertical-align:middle; color:#555; }
+    .blog-table tr:hover td { background:#fdf9f7; }
+    .blog-table .post-title-cell { max-width:260px; }
+    .blog-table .post-title-cell a { color:#44332B; font-weight:600; text-decoration:none; }
+    .blog-table .post-title-cell a:hover { text-decoration:underline; }
+    .blog-table .post-excerpt-cell { max-width:200px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .status-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:10px; letter-spacing:1px; font-weight:700; text-transform:uppercase; }
+    .status-badge.published { background:#e8f5e9; color:#2e7d32; }
+    .status-badge.draft     { background:#fce4ec; color:#c62828; }
+    .cover-thumb { width:56px; height:40px; object-fit:cover; border-radius:3px; background:#eee; display:block; }
+    .cover-thumb-empty { width:56px; height:40px; background:#f0ece8; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:18px; }
+    .tag-chip { display:inline-block; background:#f4ece5; color:#44332B; font-size:10px; padding:2px 7px; border-radius:10px; margin:1px; letter-spacing:.5px; }
+    .action-btn { padding:4px 11px; border:none; border-radius:3px; font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:1px; cursor:pointer; font-weight:700; text-transform:uppercase; transition:opacity .15s; }
+    .action-btn:hover { opacity:.8; }
+    .btn-edit   { background:#44332B; color:#fff; }
+    .btn-delete { background:#e74c3c; color:#fff; }
+    .btn-toggle-pub { background:#e8f5e9; color:#2e7d32; }
+    .btn-toggle-dft { background:#fce4ec; color:#c62828; }
+    .search-bar { display:flex; gap:10px; align-items:center; margin-bottom:20px; }
+    .search-bar input { flex:1; padding:8px 14px; border:1px solid #ddd; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; border-radius:3px; outline:none; }
+    .search-bar input:focus { border-color:#44332B; }
+    .empty-state { text-align:center; padding:60px 20px; color:#bbb; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; }
+    .table-wrap { overflow-x:auto; }
+    #posts-count { font-size:12px; color:#aaa; letter-spacing:1px; }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Ritu Ghai</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="blogs.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Blog Posts
+      </a>
+      <a href="add-blog.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New Blog Post
+      </a>
+      <a href="videos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Videos
+      </a>
+      <a href="customer-diaries.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Customer Diaries
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="topbar">
+      <h2>Blog Posts</h2>
+      <div class="topbar-right">
+        <span id="posts-count"></span>
+        <a href="add-blog.html" class="btn btn-primary">+ New Post</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>All Posts</h3>
+      </div>
+      <div style="padding:16px 20px 0;">
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search by title or tag…" oninput="filterPosts()"/>
+        </div>
+      </div>
+      <div class="table-wrap" style="padding:0 4px 16px;">
+        <div id="posts-loading" class="empty-state">Loading posts…</div>
+        <table class="blog-table" id="posts-table" style="display:none;">
+          <thead>
+            <tr>
+              <th style="width:60px;">Cover</th>
+              <th>Title</th>
+              <th>Excerpt</th>
+              <th>Tags</th>
+              <th>Author</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="posts-tbody"></tbody>
+        </table>
+        <div id="posts-empty" class="empty-state" style="display:none;">
+          No posts yet. <a href="add-blog.html" style="color:#44332B;">Write your first post →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  let allPosts = [];
+
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+  }
+
+  function renderRow(p) {
+    const cover = p.coverImage
+      ? `<img src="${p.coverImage}" class="cover-thumb" alt="cover"/>`
+      : `<div class="cover-thumb-empty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+    const tags = (p.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join('') || '<span style="color:#ddd;">—</span>';
+    const statusBadge = p.published
+      ? `<span class="status-badge published">Published</span>`
+      : `<span class="status-badge draft">Draft</span>`;
+    const toggleLabel = p.published ? 'Unpublish' : 'Publish';
+    const toggleClass = p.published ? 'btn-toggle-pub' : 'btn-toggle-dft';
+
+    return `<tr data-id="${p._id}">
+      <td>${cover}</td>
+      <td class="post-title-cell"><a href="/single-post.html?slug=${p.slug}" target="_blank">${p.title}</a></td>
+      <td class="post-excerpt-cell">${p.excerpt || '—'}</td>
+      <td>${tags}</td>
+      <td>${p.author || 'Admin'}</td>
+      <td style="white-space:nowrap;">${formatDate(p.createdAt)}</td>
+      <td>${statusBadge}</td>
+      <td style="white-space:nowrap;">
+        <button class="action-btn btn-edit" onclick="editPost('${p._id}')">Edit</button>
+        <button class="action-btn ${toggleClass}" onclick="togglePublish('${p._id}', ${p.published})" style="margin:0 4px;">${toggleLabel}</button>
+        <button class="action-btn btn-delete" onclick="deletePost('${p._id}')">Delete</button>
+      </td>
+    </tr>`;
+  }
+
+  function filterPosts() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    const filtered = q
+      ? allPosts.filter(p => p.title.toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q)))
+      : allPosts;
+    renderTable(filtered);
+  }
+
+  function renderTable(posts) {
+    const tbody = document.getElementById('posts-tbody');
+    const table = document.getElementById('posts-table');
+    const empty = document.getElementById('posts-empty');
+    if (!posts.length) {
+      table.style.display = 'none';
+      empty.style.display = 'block';
+    } else {
+      tbody.innerHTML = posts.map(renderRow).join('');
+      table.style.display = 'table';
+      empty.style.display = 'none';
+    }
+  }
+
+  async function loadPosts() {
+    document.getElementById('posts-loading').style.display = 'block';
+    document.getElementById('posts-table').style.display = 'none';
+    document.getElementById('posts-empty').style.display = 'none';
+    try {
+      const data = await AdminAuth.apiFetch('/api/blogs/admin/all');
+      document.getElementById('posts-loading').style.display = 'none';
+      allPosts = data.blogs || [];
+      const countEl = document.getElementById('posts-count');
+      if (countEl) countEl.textContent = allPosts.length + ' post' + (allPosts.length !== 1 ? 's' : '');
+      renderTable(allPosts);
+    } catch(e) {
+      document.getElementById('posts-loading').textContent = 'Failed to load posts.';
+    }
+  }
+
+  async function togglePublish(id, currentlyPublished) {
+    try {
+      await AdminAuth.apiFetch('/api/blogs/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ published: !currentlyPublished })
+      });
+      loadPosts();
+    } catch(e) { alert('Failed to update post status.'); }
+  }
+
+  function editPost(id) {
+    window.location.href = 'add-blog.html?edit=' + id;
+  }
+
+  async function deletePost(id) {
+    if (!confirm('Delete this blog post permanently? This cannot be undone.')) return;
+    try {
+      await AdminAuth.apiFetch('/api/blogs/' + id, { method: 'DELETE' });
+      loadPosts();
+    } catch(e) { alert('Failed to delete post.'); }
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>

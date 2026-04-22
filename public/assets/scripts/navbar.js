@@ -48,6 +48,7 @@
             <li><a href="#" class="facebook"><i class="fa fa-facebook"></i></a></li>
             <li><a href="#" class="twitter"><i class="fa fa-twitter"></i></a></li>
             <li><a href="#" class="instagram"><i class="fa fa-instagram"></i></a></li>
+            <li><a href="https://youtube.com" target="_blank" rel="noopener" class="youtube"><i class="fa fa-youtube-play"></i></a></li>
           </ul>
         </div>
         <div class="top-cart">

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Blog Post — Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <!-- Quill rich text editor -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
+  <style>
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-family: 'Montserrat', sans-serif;
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: #44332B; font-weight: 700; margin-bottom: 7px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group select {
+      width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+      font-family: 'Montserrat', sans-serif; font-size: 12px;
+      letter-spacing: .5px; border-radius: 3px; outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #44332B; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:640px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+    /* Quill editor */
+    #editor-container { border: 1px solid #ddd; border-radius: 0 0 3px 3px; min-height: 320px; font-family: 'Montserrat', sans-serif; font-size: 13px; }
+    .ql-toolbar { border: 1px solid #ddd; border-radius: 3px 3px 0 0; }
+    .ql-container { border: none; }
+    .ql-editor { min-height: 280px; }
+
+    /* Cover image preview */
+    .cover-preview-wrap { position: relative; display: inline-block; }
+    .cover-preview-wrap img { max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; display: block; margin-top: 10px; }
+    .remove-cover-btn {
+      position: absolute; top: 14px; right: 6px;
+      background: #e74c3c; color: #fff; border: none;
+      border-radius: 50%; width: 22px; height: 22px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; line-height: 1;
+    }
+    .file-upload-label {
+      display: inline-block; padding: 8px 16px; background: #f4ece5;
+      color: #44332B; border: 1px dashed #c9a98a; border-radius: 3px;
+      font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 1px;
+      cursor: pointer; font-weight: 700; transition: background .2s;
+    }
+    .file-upload-label:hover { background: #ede0d4; }
+
+    /* Tags input */
+    .tags-hint { font-size: 10px; color: #aaa; letter-spacing: .5px; margin-top: 5px; font-family: 'Montserrat', sans-serif; }
+
+    /* Status toggle */
+    .publish-toggle { display: flex; align-items: center; gap: 12px; }
+    .toggle-switch {
+      position: relative; width: 44px; height: 24px;
+      display: inline-block; flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ddd; border-radius: 24px; transition: .3s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: .3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #44332B; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+    .toggle-label { font-family: 'Montserrat', sans-serif; font-size: 12px; letter-spacing: 1px; color: #555; }
+
+    /* Submit area */
+    .form-actions { display: flex; gap: 12px; align-items: center; margin-top: 28px; flex-wrap: wrap; }
+    .form-actions .status-msg { font-family: 'Montserrat', sans-serif; font-size: 12px; letter-spacing: 1px; }
+    .form-actions .status-msg.success { color: #27ae60; }
+    .form-actions .status-msg.error   { color: #e74c3c; }
+    .form-actions .btn-secondary { background: #f4ece5; color: #44332B; border: 1px solid #c9a98a; padding: 9px 20px; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; cursor: pointer; border-radius: 3px; text-transform: uppercase; }
+    .form-actions .btn-secondary:hover { background: #ede0d4; }
+
+    /* Char counters */
+    .char-count { font-size: 10px; color: #bbb; font-family: 'Montserrat', sans-serif; letter-spacing: .5px; text-align: right; margin-top: 4px; }
+
+    .page-mode-badge {
+      display: inline-block; background: #f4ece5; color: #44332B;
+      font-size: 10px; letter-spacing: 2px; padding: 3px 10px;
+      border-radius: 12px; font-weight: 700; text-transform: uppercase;
+      margin-left: 10px; vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Ritu Ghai</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="products.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Products
+      </a>
+      <a href="add-product.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </a>
+      <a href="blogs.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Blog Posts
+      </a>
+      <a href="add-blog.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New Blog Post
+      </a>
+      <a href="videos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Videos
+      </a>
+      <a href="customer-diaries.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Customer Diaries
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="topbar">
+      <h2 id="page-heading">New Blog Post</h2>
+      <div class="topbar-right">
+        <a href="blogs.html" class="btn btn-secondary" style="background:#f4ece5;color:#44332B;border:1px solid #c9a98a;padding:7px 16px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1.5px;font-weight:700;text-decoration:none;border-radius:3px;">← All Posts</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3 id="form-heading">Write a New Post</h3></div>
+      <div style="padding:24px;">
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="post-title">Post Title *</label>
+          <input type="text" id="post-title" placeholder="Enter a compelling title…" maxlength="160"
+                 oninput="document.getElementById('title-count').textContent = this.value.length + '/160'"/>
+          <div class="char-count" id="title-count">0/160</div>
+        </div>
+
+        <!-- Author + Status -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="post-author">Author</label>
+            <input type="text" id="post-author" placeholder="Admin" value="Admin"/>
+          </div>
+          <div class="form-group">
+            <label>Publish Status</label>
+            <div class="publish-toggle" style="margin-top:10px;">
+              <label class="toggle-switch">
+                <input type="checkbox" id="post-published" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label" id="publish-label">Published</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <div class="form-group">
+          <label for="post-excerpt">Excerpt <span style="font-weight:400;color:#aaa;">(shown on blog listing)</span></label>
+          <input type="text" id="post-excerpt" placeholder="A short summary of the post…" maxlength="300"
+                 oninput="document.getElementById('excerpt-count').textContent = this.value.length + '/300'"/>
+          <div class="char-count" id="excerpt-count">0/300</div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+          <label for="post-tags">Tags</label>
+          <input type="text" id="post-tags" placeholder="Fashion, Bridal, Lehenga"/>
+          <div class="tags-hint">Separate tags with commas. These appear on the blog page and help with filtering.</div>
+        </div>
+
+        <!-- Cover image -->
+        <div class="form-group">
+          <label>Cover Image <span style="font-weight:400;color:#aaa;">(max 5MB)</span></label>
+          <label class="file-upload-label" for="cover-input">
+            📷 Choose Cover Image
+          </label>
+          <input type="file" id="cover-input" accept="image/*" style="display:none;" onchange="previewCover(this)"/>
+          <div class="cover-preview-wrap" id="cover-preview-wrap" style="display:none;">
+            <img id="cover-preview" src="" alt="Cover preview"/>
+            <button class="remove-cover-btn" onclick="removeCover()" title="Remove cover">✕</button>
+          </div>
+          <div id="existing-cover-wrap" style="display:none;margin-top:8px;">
+            <span style="font-size:11px;color:#888;font-family:Montserrat,sans-serif;letter-spacing:.5px;">Current cover:</span>
+            <img id="existing-cover" src="" style="max-height:80px;margin-top:6px;display:block;border-radius:3px;"/>
+            <label style="margin-top:6px;" class="file-upload-label" for="cover-input">Replace Image</label>
+          </div>
+        </div>
+
+        <!-- Content editor -->
+        <div class="form-group">
+          <label>Content *</label>
+          <div id="editor-container"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="submitPost()">
+            <span id="submit-label">Publish Post</span>
+          </button>
+          <button class="btn-secondary" onclick="saveDraft()">Save as Draft</button>
+          <span class="status-msg" id="form-status"></span>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  // ── Rich text editor ───────────────────────────────────────────────────────
+  const quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Write your blog post here…',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ align: [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+
+  // ── Edit mode: load existing post ─────────────────────────────────────────
+  const editId = new URLSearchParams(window.location.search).get('edit');
+
+  if (editId) {
+    document.getElementById('page-heading').innerHTML = 'Edit Blog Post <span class="page-mode-badge">Editing</span>';
+    document.getElementById('form-heading').textContent = 'Edit Post';
+    document.getElementById('submit-label').textContent = 'Update Post';
+    document.title = 'Edit Post — Admin';
+
+    AdminAuth.apiFetch('/api/blogs/admin/all').then(data => {
+      const post = (data.blogs || []).find(p => p._id === editId);
+      if (!post) { alert('Post not found.'); return; }
+
+      document.getElementById('post-title').value   = post.title || '';
+      document.getElementById('post-author').value  = post.author || 'Admin';
+      document.getElementById('post-excerpt').value = post.excerpt || '';
+      document.getElementById('post-tags').value    = (post.tags || []).join(', ');
+      document.getElementById('post-published').checked = post.published !== false;
+      updatePublishLabel();
+
+      document.getElementById('title-count').textContent   = (post.title || '').length + '/160';
+      document.getElementById('excerpt-count').textContent = (post.excerpt || '').length + '/300';
+
+      quill.root.innerHTML = post.content || '';
+
+      if (post.coverImage) {
+        const wrap = document.getElementById('existing-cover-wrap');
+        wrap.style.display = 'block';
+        document.getElementById('existing-cover').src = post.coverImage;
+      }
+    }).catch(() => alert('Failed to load post data.'));
+  }
+
+  // ── Publish toggle label ──────────────────────────────────────────────────
+  document.getElementById('post-published').addEventListener('change', updatePublishLabel);
+  function updatePublishLabel() {
+    const checked = document.getElementById('post-published').checked;
+    document.getElementById('publish-label').textContent = checked ? 'Published' : 'Draft';
+  }
+
+  // ── Cover image preview ───────────────────────────────────────────────────
+  function previewCover(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('cover-preview').src = e.target.result;
+      document.getElementById('cover-preview-wrap').style.display = 'inline-block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function removeCover() {
+    document.getElementById('cover-input').value = '';
+    document.getElementById('cover-preview-wrap').style.display = 'none';
+    document.getElementById('cover-preview').src = '';
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  function setStatus(msg, type) {
+    const el = document.getElementById('form-status');
+    el.textContent = msg;
+    el.className = 'status-msg ' + (type || '');
+  }
+
+  async function submitPost(forceDraft) {
+    const title   = document.getElementById('post-title').value.trim();
+    const content = quill.root.innerHTML.trim();
+
+    if (!title)   { setStatus('Please enter a title.', 'error'); return; }
+    if (!content || content === '<p><br></p>') { setStatus('Please write some content.', 'error'); return; }
+
+    const published = forceDraft ? false : document.getElementById('post-published').checked;
+
+    const formData = new FormData();
+    formData.append('title',     title);
+    formData.append('author',    document.getElementById('post-author').value.trim() || 'Admin');
+    formData.append('excerpt',   document.getElementById('post-excerpt').value.trim());
+    formData.append('tags',      document.getElementById('post-tags').value.trim());
+    formData.append('content',   content);
+    formData.append('published', published);
+
+    const fileInput = document.getElementById('cover-input');
+    if (fileInput.files && fileInput.files[0]) {
+      formData.append('coverImage', fileInput.files[0]);
+    }
+
+    setStatus('Saving…', '');
+    document.getElementById('submit-label').textContent = editId ? 'Updating…' : 'Publishing…';
+
+    try {
+      const url    = editId ? '/api/blogs/' + editId : '/api/blogs';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Authorization': 'Bearer ' + AdminAuth.token() },
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus(editId ? '✓ Post updated!' : '✓ Post published!', 'success');
+        document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+        if (!editId) {
+          // Redirect to blogs list after short delay
+          setTimeout(() => window.location.href = 'blogs.html', 1200);
+        }
+      } else {
+        setStatus('Error: ' + (data.message || 'Something went wrong.'), 'error');
+        document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+      }
+    } catch(e) {
+      setStatus('Failed to save. Please try again.', 'error');
+      document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
+    }
+  }
+
+  function saveDraft() {
+    document.getElementById('post-published').checked = false;
+    updatePublishLabel();
+    submitPost(true);
+  }
+</script>
+</body>
+</html>

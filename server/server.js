@@ -31,11 +31,7 @@ app.use(session({
   cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 days
 }));
 
-// Static files
-app.use(express.static(path.join(__dirname, '../public')));
-app.use('/admin', express.static(path.join(__dirname, '../admin')));
-
-// API Routes
+// ── API Routes (must come BEFORE static middleware) ──────────────────────────
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/products/:productId/reviews', require('./routes/reviewRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
@@ -43,8 +39,16 @@ app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/admin', require('./routes/authRoutes'));
 app.use('/api/customer-diaries', require('./routes/customerDiaryRoutes'));
 app.use('/api/videos', require('./routes/videoRoutes'));
+app.use('/api/blogs',  require('./routes/blogRoutes'));
 
-// Seed default admin on first run
+// ── Static files ─────────────────────────────────────────────────────────────
+// Admin panel: /admin/anything.html  →  ../admin/anything.html
+app.use('/admin', express.static(path.join(__dirname, '../admin')));
+
+// Public site: /anything  →  ../public/anything
+app.use(express.static(path.join(__dirname, '../public')));
+
+// ── Seed default admin on first run ──────────────────────────────────────────
 const seedAdmin = async () => {
   try {
     const count = await Admin.countDocuments();
@@ -57,20 +61,15 @@ const seedAdmin = async () => {
   }
 };
 
-// Serve admin panel
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../admin/login.html')));
-app.get('/admin/*', (req, res) => {
-  const file = req.path.replace('/admin/', '');
-  const filePath = path.join(__dirname, '../admin', file);
-  if (fs.existsSync(filePath)) res.sendFile(filePath);
-  else res.status(404).send('Not found');
-});
+// ── Named page routes (fallback for extensionless or root admin redirect) ────
+// /admin  →  login page
+app.get('/admin', (req, res) =>
+  res.sendFile(path.join(__dirname, '../admin/login.html'))
+);
 
-// Fallback: serve public HTML pages
-app.get('*.html', (req, res) => {
-  const filePath = path.join(__dirname, '../public', req.path);
-  if (fs.existsSync(filePath)) res.sendFile(filePath);
-  else res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
+// ── 404 fallback for public pages ─────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
 });
 
 app.listen(PORT, async () => {
