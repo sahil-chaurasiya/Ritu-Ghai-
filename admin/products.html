@@ -159,17 +159,17 @@
     }
     tbody.innerHTML = products.map(p => `
       <tr>
-        <td><img class="product-img-cell" src="${p.images[0] || '/assets/images/product-img-1.jpg'}" onerror="this.src='/assets/images/product-img-1.jpg'" /></td>
-        <td><strong>${p.name}</strong></td>
-        <td>${p.category}</td>
-        <td>
+        <td data-label=""><img class="product-img-cell" src="${p.images[0] || '/assets/images/product-img-1.jpg'}" onerror="this.src='/assets/images/product-img-1.jpg'" /></td>
+        <td data-label="Name"><strong>${p.name}</strong></td>
+        <td data-label="Category">${p.category}</td>
+        <td data-label="Price">
           ${p.originalPrice ? `<span style="color:#27ae60;">${p.price.toFixed(2)}</span> <del style="color:#aaa;font-size:11px;">${p.originalPrice.toFixed(2)}</del>` : p.price.toFixed(2)} USD
         </td>
-        <td>${p.stock === 0 ? '<span style="color:#c0392b;">Out of Stock</span>' : p.stock}</td>
-        <td>
+        <td data-label="Stock">${p.stock === 0 ? '<span style="color:#c0392b;">Out of Stock</span>' : p.stock}</td>
+        <td data-label="Badge">
           ${p.badge ? `<span class="badge badge-${p.badge}">${p.badge}</span>` : '<span class="badge badge-none">—</span>'}
         </td>
-        <td>
+        <td data-label="Actions">
           <a href="edit-product.html?id=${p._id}" class="btn btn-secondary btn-sm">Edit</a>
           <button class="btn btn-danger btn-sm" onclick="confirmDelete('${p._id}')">Delete</button>
         </td>

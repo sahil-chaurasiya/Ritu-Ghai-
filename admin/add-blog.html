@@ -18,22 +18,21 @@
     .form-group input[type="url"],
     .form-group select {
       width: 100%; padding: 10px 14px; border: 1px solid #ddd;
-      font-family: 'Montserrat', sans-serif; font-size: 12px;
+      font-family: 'Montserrat', sans-serif; font-size: 13px;
       letter-spacing: .5px; border-radius: 3px; outline: none;
       transition: border-color .2s; box-sizing: border-box;
     }
     .form-group input:focus, .form-group select:focus { border-color: #44332B; }
     .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media(max-width:640px) { .form-row-2 { grid-template-columns: 1fr; } }
 
     /* Quill editor */
-    #editor-container { border: 1px solid #ddd; border-radius: 0 0 3px 3px; min-height: 320px; font-family: 'Montserrat', sans-serif; font-size: 13px; }
-    .ql-toolbar { border: 1px solid #ddd; border-radius: 3px 3px 0 0; }
-    .ql-container { border: none; }
-    .ql-editor { min-height: 280px; }
+    #editor-container { border: 1px solid #ddd; border-radius: 0 0 3px 3px; min-height: 300px; font-family: 'Montserrat', sans-serif; font-size: 13px; }
+    .ql-toolbar { border: 1px solid #ddd !important; border-radius: 3px 3px 0 0; background: #fafafa; flex-wrap: wrap; }
+    .ql-container { border: none !important; }
+    .ql-editor { min-height: 260px; font-size: 14px; }
 
     /* Cover image preview */
-    .cover-preview-wrap { position: relative; display: inline-block; }
+    .cover-preview-wrap { position: relative; display: inline-block; max-width: 100%; }
     .cover-preview-wrap img { max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; display: block; margin-top: 10px; }
     .remove-cover-btn {
       position: absolute; top: 14px; right: 6px;
@@ -90,6 +89,40 @@
       border-radius: 12px; font-weight: 700; text-transform: uppercase;
       margin-left: 10px; vertical-align: middle;
     }
+
+    /* Blog form card: full width */
+    .blog-form-card {
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.07);
+      overflow: hidden;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .blog-form-body { padding: 24px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .form-row-2 { grid-template-columns: 1fr; gap: 0; }
+      .blog-form-body { padding: 16px; }
+      .form-actions { flex-direction: column; align-items: stretch; }
+      .form-actions .btn,
+      .form-actions .btn-secondary { width: 100%; text-align: center; justify-content: center; }
+
+      /* Make Quill toolbar wrap nicely */
+      .ql-toolbar.ql-snow { padding: 6px 4px; }
+      .ql-toolbar .ql-formats { margin-right: 6px; }
+      #editor-container { min-height: 250px; }
+      .ql-editor { min-height: 210px; font-size: 15px; }
+
+      .topbar-right a { font-size: 10px; padding: 8px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .form-group input[type="text"],
+      .form-group input[type="url"],
+      .form-group select { font-size: 16px; }
+      .char-count { font-size: 10px; }
+    }
   </style>
 </head>
 <body>
@@ -143,13 +176,13 @@
     <div class="topbar">
       <h2 id="page-heading">New Blog Post</h2>
       <div class="topbar-right">
-        <a href="blogs.html" class="btn btn-secondary" style="background:#f4ece5;color:#44332B;border:1px solid #c9a98a;padding:7px 16px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1.5px;font-weight:700;text-decoration:none;border-radius:3px;">← All Posts</a>
+        <a href="blogs.html" class="btn btn-secondary" style="background:#f4ece5;color:#44332B;border:1px solid #c9a98a;padding:8px 16px;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1.5px;font-weight:700;text-decoration:none;border-radius:3px;">← All Posts</a>
       </div>
     </div>
 
-    <div class="card">
+    <div class="blog-form-card">
       <div class="card-header"><h3 id="form-heading">Write a New Post</h3></div>
-      <div style="padding:24px;">
+      <div class="blog-form-body">
 
         <!-- Title -->
         <div class="form-group">
@@ -205,8 +238,8 @@
           </div>
           <div id="existing-cover-wrap" style="display:none;margin-top:8px;">
             <span style="font-size:11px;color:#888;font-family:Montserrat,sans-serif;letter-spacing:.5px;">Current cover:</span>
-            <img id="existing-cover" src="" style="max-height:80px;margin-top:6px;display:block;border-radius:3px;"/>
-            <label style="margin-top:6px;" class="file-upload-label" for="cover-input">Replace Image</label>
+            <img id="existing-cover" src="" style="max-height:100px;max-width:100%;margin-top:6px;display:block;border-radius:3px;"/>
+            <label style="margin-top:8px;display:inline-block;" class="file-upload-label" for="cover-input">Replace Image</label>
           </div>
         </div>
 
@@ -218,7 +251,7 @@
 
         <!-- Actions -->
         <div class="form-actions">
-          <button class="btn btn-primary" onclick="submitPost()">
+          <button class="btn btn-primary" onclick="submitPost()" style="background:#44332B;border-radius:3px;">
             <span id="submit-label">Publish Post</span>
           </button>
           <button class="btn-secondary" onclick="saveDraft()">Save as Draft</button>
@@ -357,7 +390,6 @@
         setStatus(editId ? '✓ Post updated!' : '✓ Post published!', 'success');
         document.getElementById('submit-label').textContent = editId ? 'Update Post' : 'Publish Post';
         if (!editId) {
-          // Redirect to blogs list after short delay
           setTimeout(() => window.location.href = 'blogs.html', 1200);
         }
       } else {
@@ -376,5 +408,6 @@
     submitPost(true);
   }
 </script>
+<script src="admin-mobile.js"></script>
 </body>
 </html>

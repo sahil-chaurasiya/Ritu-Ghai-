@@ -11,14 +11,14 @@
     .blog-table td { padding:12px 14px; border-bottom:1px solid #f0ece8; vertical-align:middle; color:#555; }
     .blog-table tr:hover td { background:#fdf9f7; }
     .blog-table .post-title-cell { max-width:200px; }
-    .blog-table .post-title-cell a { color:#44332B; font-weight:600; text-decoration:none; }
+    .blog-table .post-title-cell a { color:#44332B; font-weight:600; text-decoration:none; font-size:13px; line-height:1.4; }
     .blog-table .post-title-cell a:hover { text-decoration:underline; }
     .blog-table .post-excerpt-cell { max-width:160px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .status-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:10px; letter-spacing:1px; font-weight:700; text-transform:uppercase; white-space:nowrap; }
     .status-badge.published { background:#e8f5e9; color:#2e7d32; }
     .status-badge.draft     { background:#fce4ec; color:#c62828; }
-    .cover-thumb { width:50px; height:36px; object-fit:cover; border-radius:3px; background:#eee; display:block; }
-    .cover-thumb-empty { width:50px; height:36px; background:#f0ece8; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#ccc; }
+    .cover-thumb { width:50px; height:50px; object-fit:cover; border-radius:4px; background:#eee; display:block; }
+    .cover-thumb-empty { width:50px; height:50px; background:#f0ece8; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#ccc; }
     .tag-chip { display:inline-block; background:#f4ece5; color:#44332B; font-size:10px; padding:2px 7px; border-radius:10px; margin:1px; letter-spacing:.5px; }
     .action-btn { padding:5px 10px; border:none; border-radius:3px; font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:1px; cursor:pointer; font-weight:700; text-transform:uppercase; transition:opacity .15s; white-space:nowrap; }
     .action-btn:hover { opacity:.8; }
@@ -35,17 +35,115 @@
     .empty-state { text-align:center; padding:60px 20px; color:#bbb; font-family:'Montserrat',sans-serif; font-size:12px; letter-spacing:1px; }
     #posts-count { font-size:12px; color:#aaa; letter-spacing:1px; }
 
-    /* Actions cell: stack on very small screens */
+    /* Actions cell */
     .actions-cell { white-space:nowrap; }
     .actions-cell .action-btn { margin:2px; }
 
-    @media (max-width:768px) {
-      .blog-table .post-excerpt-cell { display:none; }
-      .blog-table th, .blog-table td { padding:9px 10px; }
+    /* ── Mobile: proper blog cards ── */
+    @media (max-width: 700px) {
+      .blog-table thead { display: none; }
+      .blog-table, .blog-table tbody { display: block; width: 100%; }
+
+      .blog-table tbody { padding: 12px; }
+
+      .blog-table tbody tr {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        grid-template-areas:
+          "cover  title"
+          "cover  status"
+          "actions actions";
+        gap: 0;
+        align-items: start;
+        background: #fff;
+        border: 1px solid #ede3db;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      }
+      .blog-table tbody tr:last-child { margin-bottom: 0; }
+      .blog-table tbody tr:hover { background: #fdf9f7; }
+
+      /* All cells reset */
+      .blog-table tbody td {
+        display: block;
+        padding: 3px 4px;
+        border: none;
+        font-size: 12px;
+      }
+      .blog-table tbody td::before { display: none; }
+
+      /* Cover cell */
+      .blog-table tbody td:nth-child(1) {
+        grid-area: cover;
+        padding: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      .blog-table .cover-thumb,
+      .blog-table .cover-thumb-empty {
+        width: 54px;
+        height: 54px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+
+      /* Title cell */
+      .blog-table tbody td:nth-child(2) {
+        grid-area: title;
+        padding: 0 0 2px 8px;
+      }
+      .blog-table .post-title-cell a {
+        font-size: 13px;
+        line-height: 1.35;
+        display: block;
+      }
+      .blog-table .post-title-cell small {
+        font-size: 10px !important;
+        color: #bbb;
+        display: block;
+        margin-top: 2px;
+      }
+
+      /* Tags + Author cells: hidden on mobile */
+      .blog-table tbody td:nth-child(3),
+      .blog-table tbody td:nth-child(4) {
+        display: none !important;
+      }
+
+      /* Status cell */
+      .blog-table tbody td:nth-child(5) {
+        grid-area: status;
+        padding: 4px 0 0 8px;
+      }
+
+      /* Actions cell */
+      .blog-table tbody td:nth-child(6) {
+        grid-area: actions;
+        border-top: 1px solid #f0ece8;
+        margin-top: 8px;
+        padding: 8px 0 0;
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .actions-cell .action-btn {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        padding: 7px 8px;
+        font-size: 10px;
+        border-radius: 4px;
+      }
     }
-    @media (max-width:540px) {
-      .blog-table th.hide-sm, .blog-table td.hide-sm { display:none; }
-      .actions-cell { display:flex; flex-direction:column; gap:4px; align-items:flex-start; }
+
+    @media (max-width: 360px) {
+      .blog-table tbody tr { grid-template-columns: 50px 1fr; }
+      .blog-table .cover-thumb,
+      .blog-table .cover-thumb-empty { width: 46px; height: 46px; }
     }
   </style>
 </head>
@@ -116,7 +214,7 @@
         <table class="blog-table" id="posts-table" style="display:none;">
           <thead>
             <tr>
-              <th style="width:54px;">Cover</th>
+              <th style="width:58px;">Cover</th>
               <th>Title</th>
               <th class="hide-sm">Tags</th>
               <th class="hide-sm">Author</th>
@@ -156,12 +254,12 @@
     const toggleClass = p.published ? 'btn-toggle-pub' : 'btn-toggle-dft';
 
     return `<tr data-id="${p._id}">
-      <td>${cover}</td>
-      <td class="post-title-cell"><a href="/single-post.html?slug=${p.slug}" target="_blank">${p.title}</a><br><small style="color:#bbb;font-size:10px;">${formatDate(p.createdAt)}</small></td>
-      <td class="hide-sm">${tags}</td>
-      <td class="hide-sm">${p.author || 'Admin'}</td>
-      <td>${statusBadge}</td>
-      <td class="actions-cell">
+      <td data-label="">${cover}</td>
+      <td class="post-title-cell" data-label="Title"><a href="/single-post.html?slug=${p.slug}" target="_blank">${p.title}</a><br><small style="color:#bbb;font-size:10px;">${formatDate(p.createdAt)}</small></td>
+      <td class="hide-sm" data-label="Tags">${tags}</td>
+      <td class="hide-sm" data-label="Author">${p.author || 'Admin'}</td>
+      <td data-label="Status">${statusBadge}</td>
+      <td class="actions-cell" data-label="Actions">
         <button class="action-btn btn-edit" onclick="editPost('${p._id}')">Edit</button>
         <button class="action-btn ${toggleClass}" onclick="togglePublish('${p._id}', ${p.published})">${toggleLabel}</button>
         <button class="action-btn btn-delete" onclick="deletePost('${p._id}')">Delete</button>
