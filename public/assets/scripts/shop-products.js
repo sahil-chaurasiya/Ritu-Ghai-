@@ -1,5 +1,6 @@
 /**
  * shop-products.js — dynamic product loading for shop-fullwidth.html and shop-with-sidebar.html
+ * Supports filtering by category AND subcategory via URL params and sidebar.
  */
 (function () {
   'use strict';
@@ -7,6 +8,7 @@
   // ── State ────────────────────────────────────────────────────────────────
   var state = {
     category: 'all',
+    subcategory: 'all',
     sort: '',
     minPrice: null,
     maxPrice: null,
@@ -94,9 +96,14 @@
   function applyFilters() {
     var products = state.allProducts.slice();
 
-    // Category
+    // Category filter
     if (state.category && state.category !== 'all') {
       products = products.filter(function (p) { return p.category === state.category; });
+    }
+
+    // Subcategory filter
+    if (state.subcategory && state.subcategory !== 'all') {
+      products = products.filter(function (p) { return p.subcategory === state.subcategory; });
     }
 
     // Price
@@ -120,8 +127,6 @@
       products.sort(function (a, b) { return a.price - b.price; });
     } else if (state.sort === 'price_desc') {
       products.sort(function (a, b) { return b.price - a.price; });
-    } else {
-      // default: newest first (already sorted from API)
     }
 
     state.filtered = products;
@@ -147,31 +152,102 @@
     }
   }
 
-  // ── Categories sidebar ────────────────────────────────────────────────────
+  // ── Categories & Subcategories sidebar ────────────────────────────────────
   async function loadCategories() {
     var catList = document.getElementById('sidebar-categories');
     if (!catList) return;
+
     try {
-      var res  = await fetch('/api/products/categories/list');
+      // Use the full /api/categories endpoint which includes subcategories
+      var res  = await fetch('/api/categories');
       var data = await res.json();
-      if (!data.success) return;
+      if (!data.success || !data.categories) return;
 
       var cats = data.categories;
-      catList.innerHTML = '<li><a href="#" data-category="all" class="active">ALL PRODUCTS</a></li>'
-        + cats.map(function (c) {
-            return '<li><a href="#" data-category="' + escapeHtml(c) + '">' + escapeHtml(c.toUpperCase()) + '</a></li>';
-          }).join('');
 
-      catList.querySelectorAll('a').forEach(function (a) {
+      // Build: All Products + each category + its subcategories indented
+      var html = '<li><a href="#" data-category="all" data-subcategory="all" class="active">ALL PRODUCTS</a></li>';
+
+      cats.forEach(function (c) {
+        var subs = (c.subcategories || []).filter(function (s) { return s.isActive !== false; });
+        var isCatActive = state.category === c.value;
+
+        html += '<li>'
+          + '<a href="#" data-category="' + escapeHtml(c.value) + '" data-subcategory="all"'
+          + (isCatActive && state.subcategory === 'all' ? ' class="active"' : '') + '>'
+          + escapeHtml(c.label)
+          + '</a>';
+
+        if (subs.length > 0) {
+          html += '<ul style="list-style:none;padding-left:14px;margin:4px 0;">';
+          subs.forEach(function (s) {
+            var isSubActive = isCatActive && state.subcategory === s.value;
+            html += '<li><a href="#" data-category="' + escapeHtml(c.value) + '" data-subcategory="' + escapeHtml(s.value) + '"'
+              + (isSubActive ? ' class="active"' : '')
+              + ' style="font-size:10px;letter-spacing:1px;">'
+              + '↳ ' + escapeHtml(s.label)
+              + '</a></li>';
+          });
+          html += '</ul>';
+        }
+
+        html += '</li>';
+      });
+
+      catList.innerHTML = html;
+
+      // Wire all category/subcategory links
+      catList.querySelectorAll('a[data-category]').forEach(function (a) {
         a.addEventListener('click', function (e) {
           e.preventDefault();
           catList.querySelectorAll('a').forEach(function (x) { x.classList.remove('active'); });
           this.classList.add('active');
-          state.category = this.dataset.category;
+          state.category    = this.dataset.category;
+          state.subcategory = this.dataset.subcategory || 'all';
           applyFilters();
+          // Update page title to reflect active subcategory/category
+          updatePageHeading();
         });
       });
-    } catch (e) {}
+
+    } catch (e) {
+      // Fallback to simple product category list
+      try {
+        var r2   = await fetch('/api/products/categories/list');
+        var d2   = await r2.json();
+        if (!d2.success) return;
+        catList.innerHTML = '<li><a href="#" data-category="all" data-subcategory="all" class="active">ALL PRODUCTS</a></li>'
+          + d2.categories.map(function (c) {
+              return '<li><a href="#" data-category="' + escapeHtml(c) + '" data-subcategory="all">' + escapeHtml(c.toUpperCase()) + '</a></li>';
+            }).join('');
+        catList.querySelectorAll('a').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            catList.querySelectorAll('a').forEach(function (x) { x.classList.remove('active'); });
+            this.classList.add('active');
+            state.category    = this.dataset.category;
+            state.subcategory = 'all';
+            applyFilters();
+          });
+        });
+      } catch (e2) {}
+    }
+  }
+
+  // ── Update the page H1 heading when subcategory changes ──────────────────
+  function updatePageHeading() {
+    var h1 = document.querySelector('.header-page h1');
+    if (!h1) return;
+    if (state.subcategory && state.subcategory !== 'all') {
+      h1.textContent = state.subcategory.toUpperCase();
+      document.title = state.subcategory + ' — Ritu Ghai';
+    } else if (state.category && state.category !== 'all') {
+      h1.textContent = state.category.toUpperCase();
+      document.title = state.category + ' — Ritu Ghai';
+    } else {
+      h1.textContent = 'SHOP';
+      document.title = 'Shop — Ritu Ghai';
+    }
   }
 
   // ── Price slider ──────────────────────────────────────────────────────────
@@ -212,7 +288,6 @@
     var sizeList = document.getElementById('sidebar-sizes');
     if (!sizeList) return;
 
-    // Count from full unfiltered product set
     var counts = {};
     SIZE_ORDER.forEach(function (s) { counts[s] = 0; });
     state.allProducts.forEach(function (p) {
@@ -223,7 +298,6 @@
       }
     });
 
-    // Preserve currently checked state
     var checked = [];
     sizeList.querySelectorAll('input[type="checkbox"]:checked').forEach(function (c) {
       checked.push(c.value);
@@ -238,7 +312,6 @@
         + '</label></li>';
     }).join('');
 
-    // Re-bind change events after re-render
     sizeList.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
       cb.addEventListener('change', function () {
         var selected = [];
@@ -254,7 +327,7 @@
   function initSizeFilter() {
     var sizeList = document.getElementById('sidebar-sizes');
     if (!sizeList) return;
-    // Counts will be populated after products load via updateSizeCounts()
+    // Counts populated after products load via updateSizeCounts()
   }
 
   // ── Sort dropdown ─────────────────────────────────────────────────────────
@@ -272,10 +345,15 @@
 
   // ── Boot ──────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
-    // Read category from URL query param (e.g. ?category=Jackets)
     var urlParams = new URLSearchParams(window.location.search);
     var urlCat = urlParams.get('category');
+    var urlSub = urlParams.get('subcategory');
+
     if (urlCat) state.category = urlCat;
+    if (urlSub) state.subcategory = urlSub;
+
+    // Update heading from URL params immediately
+    updatePageHeading();
 
     loadCategories();
     initPriceSlider();

@@ -1,7 +1,7 @@
 /**
  * navbar.js — Injects a shared, dynamic navbar + footer into every page.
- * Categories are loaded dynamically from /api/categories so the admin
- * can add, edit, or remove them from the admin panel at any time.
+ * Categories (and their subcategories) are loaded dynamically from /api/categories
+ * so the admin can add, edit, or remove them from the admin panel at any time.
  */
 (function () {
   'use strict';
@@ -9,21 +9,108 @@
   // Fallback categories shown instantly while the API call resolves,
   // and used if the API fails (keeps the nav functional offline / on error).
   const FALLBACK_CATEGORIES = [
-    { label: 'LEHENGA',       value: 'Lehenga' },
-    { label: 'SAREES',        value: 'Sarees' },
-    { label: 'STITCHED SUIT', value: 'Stitched Suit' },
-    { label: 'INDO WESTERN',  value: 'Indo Western' },
-    { label: 'GOWNS',         value: 'Gowns' },
-    { label: 'KURTI',         value: 'Kurti' }
+    { label: 'LEHENGA',       value: 'Lehenga',       subcategories: [] },
+    { label: 'SAREES',        value: 'Sarees',         subcategories: [] },
+    { label: 'STITCHED SUIT', value: 'Stitched Suit',  subcategories: [] },
+    { label: 'INDO WESTERN',  value: 'Indo Western',   subcategories: [] },
+    { label: 'GOWNS',         value: 'Gowns',          subcategories: [] },
+    { label: 'KURTI',         value: 'Kurti',          subcategories: [] }
   ];
+
+  // ─── SUBCATEGORY DROPDOWN STYLES (injected once) ─────────────────────────────
+  const SUBCATEGORY_STYLES = `
+    /* ── Subcategory dropdown in navbar ── */
+    #main-menu > li.has-subcats { position: relative; }
+    #main-menu > li.has-subcats > a::after {
+      content: ' ▾';
+      font-size: 10px;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+    #main-menu > li.has-subcats .subcat-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 200px;
+      background: #fff;
+      border-top: 2px solid #44332B;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 9000;
+      padding: 6px 0;
+      list-style: none;
+      margin: 0;
+    }
+    #main-menu > li.has-subcats:hover .subcat-dropdown,
+    #main-menu > li.has-subcats:focus-within .subcat-dropdown {
+      display: block;
+    }
+    #main-menu > li.has-subcats .subcat-dropdown li {
+      display: block;
+    }
+    #main-menu > li.has-subcats .subcat-dropdown li a {
+      display: block;
+      padding: 9px 18px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #333;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    #main-menu > li.has-subcats .subcat-dropdown li a:hover {
+      background: #faf6f3;
+      color: #44332B;
+    }
+    #main-menu > li.has-subcats .subcat-dropdown .subcat-view-all a {
+      border-bottom: 1px solid #f0ece8;
+      margin-bottom: 4px;
+      color: #44332B;
+      font-weight: 700;
+    }
+    /* Mobile: subcats as indented items (minimal-menu handles toggling) */
+    @media (max-width: 991px) {
+      #main-menu > li.has-subcats .subcat-dropdown {
+        display: block;
+        position: static;
+        box-shadow: none;
+        border-top: none;
+        border-left: 2px solid #f0ece8;
+        margin-left: 16px;
+        padding: 0;
+      }
+      #main-menu > li.has-subcats > a::after { display: none; }
+    }
+  `;
 
   // ─── BUILD NAV HTML ─────────────────────────────────────────────────────────
   function buildCategoryNavItems(categories) {
-    return categories.map(cat =>
-      `<li data-page="shop-${cat.value.replace(/\s+/g, '-').toLowerCase()}" data-category="${cat.value}">
-        <a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}">${cat.label}</a>
-      </li>`
-    ).join('');
+    return categories.map(cat => {
+      const subs = (cat.subcategories || []).filter(s => s.isActive !== false);
+      const hasSubs = subs.length > 0;
+      const catUrl = `/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}`;
+      const pageKey = `shop-${cat.value.replace(/\s+/g, '-').toLowerCase()}`;
+
+      if (!hasSubs) {
+        return `<li data-page="${pageKey}" data-category="${cat.value}">
+          <a href="${catUrl}">${cat.label}</a>
+        </li>`;
+      }
+
+      // Category with subcategories — render dropdown
+      const subItems = subs.map(s =>
+        `<li><a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}&subcategory=${encodeURIComponent(s.value)}">${s.label}</a></li>`
+      ).join('');
+
+      return `<li class="has-subcats" data-page="${pageKey}" data-category="${cat.value}">
+        <a href="${catUrl}">${cat.label}</a>
+        <ul class="subcat-dropdown">
+          <li class="subcat-view-all"><a href="${catUrl}">All ${cat.label}</a></li>
+          ${subItems}
+        </ul>
+      </li>`;
+    }).join('');
   }
 
   function buildCategoryFooterItems(categories) {
@@ -34,6 +121,7 @@
 
   function buildNavbarHTML(categories) {
     return `
+    <style id="subcat-nav-styles">${SUBCATEGORY_STYLES}</style>
     <div class="topbar">
       <div class="container">
         <div class="left-topbar">WELCOME TO RITU GHAI</div>
@@ -384,11 +472,9 @@
     const hr = document.querySelector('hr.gray-line');
     if (hr) hr.remove();
 
-    // Remove the flash-fix style now that old elements are gone
     const flashFix = document.getElementById('navbar-flash-fix');
     if (flashFix) flashFix.remove();
 
-    // Remove existing injected navbar if re-injecting with fresh categories
     const existing = document.getElementById('zorka-navbar');
     if (existing) existing.remove();
 
@@ -443,6 +529,7 @@
     const page = window.location.pathname.split('/').pop() || 'index.html';
     const urlParams = new URLSearchParams(window.location.search);
     const urlCat = urlParams.get('category');
+    const urlSub = urlParams.get('subcategory');
 
     document.querySelectorAll('#main-menu > li').forEach(li => {
       li.classList.remove('current-menu-item');
@@ -454,6 +541,17 @@
         li.classList.add('current-menu-item');
       }
     });
+
+    // Also highlight the active subcategory link
+    if (urlSub) {
+      document.querySelectorAll('.subcat-dropdown li a').forEach(a => {
+        const href = a.getAttribute('href') || '';
+        if (href.includes('subcategory=' + encodeURIComponent(urlSub))) {
+          a.style.color = '#44332B';
+          a.style.fontWeight = '700';
+        }
+      });
+    }
   }
 
   function reinitMinimalMenu() {
@@ -468,7 +566,9 @@
       $menu.before('<label class="minimal-menu-button" for="mobile-nav"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></label><input class="minimal-menu-button" type="checkbox" id="mobile-nav" name="mobile-nav" />');
       $menu.find('ul.sub-menu').parent().addClass('submenu');
       $menu.find('div.menu-wrapper').parent().addClass('megamenu submenu');
-      $menu.find('ul.sub-menu').before('<input class="show-submenu" type="checkbox" />');
+      // Wire subcat-dropdowns as mobile sub-menus
+      $menu.find('ul.subcat-dropdown').parent().addClass('submenu');
+      $menu.find('ul.sub-menu, ul.subcat-dropdown').before('<input class="show-submenu" type="checkbox" />');
       $menu.find('div.menu-wrapper').before('<input class="show-submenu" type="checkbox" />');
     }
   }
@@ -506,14 +606,13 @@
     reinitMinimalMenu();
     updateCounts();
 
-    // Then fetch real categories and re-inject if they differ
+    // Then fetch real categories (with subcategories) and re-inject
     const categories = await fetchCategories();
     const fallbackValues = FALLBACK_CATEGORIES.map(c => c.value).join(',');
     const fetchedValues  = categories.map(c => c.value).join(',');
-    if (fetchedValues !== fallbackValues) {
-      injectNavbar(categories);
-      reinitMinimalMenu();
-    }
+    // Always re-inject after fetch to pick up subcategories even if top-level cats match
+    injectNavbar(categories);
+    reinitMinimalMenu();
   });
 
   window.NavBar = { updateCounts };

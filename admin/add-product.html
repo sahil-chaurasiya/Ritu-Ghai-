@@ -71,6 +71,24 @@
 
         <div class="form-row">
           <div class="form-group">
+            <label>Subcategory</label>
+            <select name="subcategory" id="subcategorySelect" class="form-control">
+              <option value="">— Select a category first —</option>
+            </select>
+            <p class="form-hint">Optional. Subcategories are managed in <a href="categories.html">Categories</a></p>
+          </div>
+          <div class="form-group">
+            <label>Badge</label>
+            <select name="badge" class="form-control">
+              <option value="">None</option>
+              <option value="new">New</option>
+              <option value="sale">Sale</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
             <label>Price (USD) *</label>
             <input type="number" name="price" class="form-control" placeholder="0.00" step="0.01" min="0" required />
           </div>
@@ -85,14 +103,6 @@
           <div class="form-group">
             <label>Stock Quantity *</label>
             <input type="number" name="stock" class="form-control" placeholder="0" min="0" required />
-          </div>
-          <div class="form-group">
-            <label>Badge</label>
-            <select name="badge" class="form-control">
-              <option value="">None</option>
-              <option value="new">New</option>
-              <option value="sale">Sale</option>
-            </select>
           </div>
         </div>
 
@@ -140,21 +150,47 @@
 <script>
   if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
 
-  // Load categories into the dropdown
+  let allCategories = [];
+
+  // Load categories + wire subcategory dropdown
   async function loadCategories() {
     const sel = document.getElementById('categorySelect');
     try {
       const res = await AdminAuth.apiFetch('/api/categories/all');
-      const categories = (res && res.categories) ? res.categories : [];
-      if (categories.length === 0) throw new Error('empty');
+      allCategories = (res && res.categories) ? res.categories : [];
+      if (allCategories.length === 0) throw new Error('empty');
       sel.innerHTML = '<option value="">— Select a category —</option>' +
-        categories.map(c =>
+        allCategories.map(c =>
           `<option value="${c.value}"${!c.isActive ? ' style="color:#aaa"' : ''}>${c.label}${!c.isActive ? ' (inactive)' : ''}</option>`
         ).join('');
     } catch (e) {
       sel.innerHTML = '<option value="">— Could not load categories —</option>';
     }
+    updateSubcategoryDropdown('');
   }
+
+  function updateSubcategoryDropdown(categoryValue) {
+    const subSel = document.getElementById('subcategorySelect');
+    const cat = allCategories.find(c => c.value === categoryValue);
+    const subs = cat ? (cat.subcategories || []).filter(s => s.isActive).sort((a, b) => a.order - b.order) : [];
+
+    if (!cat || subs.length === 0) {
+      subSel.innerHTML = cat
+        ? '<option value="">— No subcategories —</option>'
+        : '<option value="">— Select a category first —</option>';
+      subSel.disabled = true;
+    } else {
+      subSel.disabled = false;
+      subSel.innerHTML = '<option value="">— None (all of ' + cat.label + ') —</option>' +
+        subs.map(s =>
+          `<option value="${s.value}">${s.label}</option>`
+        ).join('');
+    }
+  }
+
+  document.getElementById('categorySelect').addEventListener('change', function () {
+    updateSubcategoryDropdown(this.value);
+  });
 
   loadCategories();
 
@@ -193,7 +229,7 @@
         successEl.style.display = 'block';
         this.reset();
         document.getElementById('imgPreview').innerHTML = '';
-        loadCategories(); // re-populate after reset
+        loadCategories();
         window.scrollTo(0, 0);
       } else {
         errorEl.textContent = data.message || 'Error saving product';

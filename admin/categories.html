@@ -6,76 +6,489 @@
   <title>Categories — Admin</title>
   <link rel="stylesheet" href="admin.css"/>
   <style>
-    .cat-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    .cat-table th, .cat-table td {
-      padding: 12px 14px;
-      text-align: left;
-      border-bottom: 1px solid #f0ece8;
+    /* ═══════════════════════════════════════════════
+       PAGE LAYOUT
+    ═══════════════════════════════════════════════ */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .page-header h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.3px;
+    }
+    .page-header p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #999;
+      letter-spacing: 0.3px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       ALERT MESSAGES
+    ═══════════════════════════════════════════════ */
+    .alert {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
       font-size: 13px;
+      margin-bottom: 16px;
+      font-weight: 500;
     }
-    .cat-table th { background: #faf8f6; font-weight: 600; color: #44332B; letter-spacing: 0.5px; text-transform: uppercase; font-size: 11px; }
-    .cat-table tr:hover td { background: #fdf9f7; }
-    .cat-table td .badge-inactive {
-      display: inline-block; padding: 2px 8px; border-radius: 20px;
-      background: #f0ece8; color: #aaa; font-size: 11px; margin-left: 6px;
+    .alert-success { background: #f0faf3; color: #1e7e34; border: 1px solid #b7e4c7; }
+    .alert-error   { background: #fff5f5; color: #c0392b; border: 1px solid #ffc0c0; }
+
+    /* ═══════════════════════════════════════════════
+       SAVE ORDER BAR
+    ═══════════════════════════════════════════════ */
+    .save-order-bar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: #fffbf0;
+      border: 1px solid #f5e4a0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #7a6000;
+      font-weight: 500;
     }
-    .cat-table td .badge-active {
-      display: inline-block; padding: 2px 8px; border-radius: 20px;
-      background: #e6f4ea; color: #1e7e34; font-size: 11px; margin-left: 6px;
+    .save-order-bar.visible { display: flex; }
+    .save-order-bar .icon { font-size: 16px; }
+
+    /* ═══════════════════════════════════════════════
+       CATEGORY CARDS (replaces table on all sizes)
+    ═══════════════════════════════════════════════ */
+    .cat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid #ede9e4;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
     }
-    .order-input {
-      width: 60px; padding: 4px 8px; border: 1px solid #ddd;
-      border-radius: 4px; font-size: 13px; text-align: center;
+
+    .cat-card {
+      border-bottom: 1px solid #f0ece8;
+      transition: background 0.15s;
     }
-    /* Modal */
+    .cat-card:last-child { border-bottom: none; }
+
+    .cat-card-main {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      cursor: default;
+    }
+
+    /* Drag handle */
+    .drag-handle {
+      cursor: grab;
+      color: #d0c8c0;
+      font-size: 18px;
+      padding: 20px 6px 20px 16px;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: color 0.15s;
+      user-select: none;
+    }
+    .drag-handle:hover { color: #44332B; }
+    .drag-handle:active { cursor: grabbing; }
+
+    /* Expand button */
+    .expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #44332B;
+      font-size: 11px;
+      padding: 20px 8px 20px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      opacity: 0.35;
+      transition: opacity 0.15s, transform 0.2s;
+    }
+    .expand-btn:hover { opacity: 0.8; }
+    .expand-btn.open  { opacity: 1; transform: rotate(90deg); }
+
+    /* Main info block */
+    .cat-info {
+      flex: 1;
+      min-width: 0;
+      padding: 16px 10px 16px 4px;
+    }
+    .cat-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cat-value {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Sub-count pill */
+    .subcount-pill {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin: 0 10px;
+    }
+    .subcount-pill.has-subs {
+      background: #f0f4ff;
+      color: #3a5fc8;
+    }
+    .subcount-pill.no-subs {
+      background: #f5f5f5;
+      color: #bbb;
+    }
+
+    /* Status badge */
+    .status-badge {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-right: 12px;
+    }
+    .status-badge.active   { background: #edf7f0; color: #1e7e34; }
+    .status-badge.inactive { background: #f5f5f5; color: #aaa; }
+
+    /* Action buttons */
+    .cat-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 16px 0 0;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #e8e3de;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #555;
+      font-size: 14px;
+    }
+    .btn-icon:hover { background: #f5f1ed; border-color: #c8bfb5; color: #44332B; }
+    .btn-icon.delete:hover { background: #fff5f5; border-color: #ffb8b8; color: #c0392b; }
+
+    /* ── Drag state ── */
+    .cat-card.dragging { opacity: 0.4; }
+    .cat-card.drag-over { border-top: 2px solid #44332B; }
+
+    /* ═══════════════════════════════════════════════
+       SUBCATEGORY PANEL
+    ═══════════════════════════════════════════════ */
+    .subcat-panel {
+      display: none;
+      background: #faf8f6;
+      border-top: 1px solid #f0ece8;
+    }
+    .subcat-panel.open { display: block; }
+
+    .subcat-panel-inner {
+      padding: 16px 16px 20px 52px;
+    }
+
+    .subcat-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .subcat-panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #44332B;
+      font-weight: 700;
+    }
+
+    /* Subcategory rows */
+    .subcat-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .subcat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #ede9e4;
+      border-radius: 8px;
+      padding: 10px 12px;
+      transition: border-color 0.15s;
+    }
+    .subcat-item:hover { border-color: #d0c8c0; }
+    .subcat-item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #44332B;
+      opacity: 0.3;
+      flex-shrink: 0;
+    }
+    .subcat-item-info { flex: 1; min-width: 0; }
+    .subcat-item-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .subcat-item-value {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 1px;
+    }
+    .subcat-item-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .subcat-empty {
+      font-size: 12px;
+      color: #bbb;
+      font-style: italic;
+      padding: 8px 0 14px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: #44332B;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #5a453b; }
+    .btn-secondary {
+      background: #fff;
+      color: #44332B;
+      border: 1px solid #d8d0c8;
+    }
+    .btn-secondary:hover { background: #faf6f3; border-color: #44332B; }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+    .btn-danger {
+      background: #fff5f5;
+      color: #c0392b;
+      border: 1px solid #ffc0c0;
+    }
+    .btn-danger:hover { background: #ffe0e0; }
+
+    /* ═══════════════════════════════════════════════
+       EMPTY STATE
+    ═══════════════════════════════════════════════ */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: #fff;
+      border: 1px solid #ede9e4;
+      border-radius: 12px;
+    }
+    .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+    .empty-state h3 { margin: 0 0 8px; font-size: 15px; color: #333; }
+    .empty-state p  { margin: 0; font-size: 13px; color: #aaa; }
+
+    /* ═══════════════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════════════ */
     .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 1000;
-      align-items: center; justify-content: center;
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: #fff; border-radius: 10px; padding: 32px 28px;
-      width: 100%; max-width: 460px; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      background: #fff;
+      border-radius: 14px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.18);
       position: relative;
+      animation: modalIn 0.2s ease;
     }
-    .modal h3 { margin: 0 0 20px; font-size: 16px; color: #44332B; }
-    .modal .form-group { margin-bottom: 16px; }
-    .modal .form-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .modal .form-group input[type="text"],
-    .modal .form-group input[type="number"] {
-      width: 100%; padding: 9px 12px; border: 1px solid #ddd;
-      border-radius: 6px; font-size: 13px; box-sizing: border-box;
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .modal .form-group input:focus { outline: none; border-color: #44332B; }
-    .modal .form-row { display: flex; gap: 12px; }
-    .modal .form-row .form-group { flex: 1; }
-    .modal .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
     .modal-close {
-      position: absolute; top: 14px; right: 16px;
-      background: none; border: none; font-size: 20px;
-      cursor: pointer; color: #aaa; line-height: 1;
+      position: absolute;
+      top: 16px; right: 18px;
+      background: none; border: none;
+      font-size: 22px; cursor: pointer;
+      color: #bbb; line-height: 1;
+      transition: color 0.15s;
     }
     .modal-close:hover { color: #333; }
-    .toggle-switch {
-      display: flex; align-items: center; gap: 10px; margin-top: 4px;
+    .modal h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      color: #1a1a1a;
+      font-weight: 700;
     }
-    .toggle-switch input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-    .toggle-label { font-size: 13px; color: #555; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
-    .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; stroke: #ddd; }
-    .drag-handle { cursor: grab; color: #ccc; font-size: 16px; padding-right: 8px; }
-    .drag-handle:active { cursor: grabbing; }
-    tr.dragging { opacity: 0.4; }
-    tr.drag-over td { border-top: 2px solid #44332B; }
-    .save-order-bar {
-      display: none; align-items: center; gap: 12px;
-      background: #fff8f0; border: 1px solid #f5dfc0;
-      border-radius: 6px; padding: 10px 16px; margin-bottom: 16px;
-      font-size: 13px; color: #44332B;
+    .modal .modal-subtitle {
+      font-size: 12px;
+      color: #999;
+      margin: 0 0 24px;
     }
-    .save-order-bar.visible { display: flex; }
+    .modal .modal-subtitle strong { color: #44332B; }
+    .modal-divider { border: none; border-top: 1px solid #f0ece8; margin: 0 -28px 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #e0dbd5;
+      border-radius: 8px;
+      font-size: 13px;
+      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #1a1a1a;
+      background: #fff;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #44332B;
+      box-shadow: 0 0 0 3px rgba(68,51,43,0.08);
+    }
+    .form-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+    .form-row { display: flex; gap: 14px; }
+    .form-row .form-group { flex: 1; }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #faf8f6;
+      border-radius: 8px;
+      border: 1.5px solid #e0dbd5;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      cursor: pointer;
+      accent-color: #44332B;
+    }
+    .toggle-row label {
+      font-size: 13px;
+      color: #444;
+      cursor: pointer;
+      margin: 0;
+      font-weight: 500;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      .subcount-pill { display: none; }
+      .status-badge  { display: none; }
+      .cat-info { padding: 14px 6px 14px 4px; }
+      .subcat-panel-inner { padding-left: 40px; }
+      .form-row { flex-direction: column; gap: 0; }
+      .modal { padding: 24px 18px; }
+      .modal-divider { margin: 0 -18px 20px; }
+      .modal-close { top: 14px; right: 14px; }
+      .drag-handle { padding: 18px 4px 18px 12px; }
+      .cat-actions { gap: 4px; padding-right: 10px; }
+    }
+    @media (max-width: 400px) {
+      .expand-btn { padding: 18px 4px; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       HINT ROW
+    ═══════════════════════════════════════════════ */
+    .page-hint {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 12px;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
   </style>
 </head>
 <body>
@@ -87,7 +500,7 @@
       <a href="products.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Products</a>
       <a href="add-product.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Product</a>
       <a href="categories.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>Categories</a>
-      <a href="blogs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Blog Posts</a>
+      <a href="blogs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Blog Posts</a>
       <a href="add-blog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>New Blog Post</a>
       <a href="videos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Videos</a>
       <a href="customer-diaries.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Customer Diaries</a>
@@ -100,82 +513,124 @@
   </aside>
 
   <main class="main-content">
-    <div class="topbar">
-      <h2>Categories</h2>
-      <div class="topbar-right">
-        <button class="btn btn-primary" onclick="openAddModal()">+ Add Category</button>
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h2>Categories</h2>
+        <p>Manage navbar categories and their subcategories</p>
       </div>
+      <button class="btn btn-primary" onclick="openAddCatModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Category
+      </button>
     </div>
 
+    <!-- Alerts -->
     <div class="alert alert-success" id="successMsg"></div>
-    <div class="alert alert-error" id="errorMsg"></div>
+    <div class="alert alert-error"   id="errorMsg"></div>
 
+    <!-- Save order bar -->
     <div class="save-order-bar" id="saveOrderBar">
-      <span>⬆⬇ Order changed — save to apply on the website.</span>
+      <span class="icon">↕</span>
+      <span>Order changed — save to apply on the website.</span>
       <button class="btn btn-primary btn-sm" onclick="saveOrder()">Save Order</button>
       <button class="btn btn-secondary btn-sm" onclick="loadCategories()">Discard</button>
     </div>
 
-    <div class="form-card" style="padding:0;overflow:hidden;">
-      <table class="cat-table">
-        <thead>
-          <tr>
-            <th style="width:32px;"></th>
-            <th>Label (shown in navbar)</th>
-            <th>Value (used in URL / filter)</th>
-            <th style="width:80px;">Order</th>
-            <th style="width:90px;">Status</th>
-            <th style="width:130px;">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="catTableBody">
-          <tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading…</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Category list -->
+    <div id="catListWrap"></div>
 
-    <p style="font-size:12px;color:#aaa;margin-top:12px;">
-      Drag rows to reorder. Changes to categories are reflected in the navbar and footer immediately after saving.
-      Inactive categories are hidden from the public site but remain visible in the admin dropdown.
+    <!-- Hint -->
+    <p class="page-hint">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Drag rows to reorder. Click ▶ to manage subcategories. Inactive categories are hidden from the public site.
     </p>
+
   </main>
 </div>
 
-<!-- Add / Edit Modal -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- ══════════════════════════════════════════════════
+     CATEGORY MODAL
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="catModalOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">&times;</button>
-    <h3 id="modalTitle">Add Category</h3>
+    <button class="modal-close" onclick="closeCatModal()">&times;</button>
+    <h3 id="catModalTitle">Add Category</h3>
+    <p class="modal-subtitle">Categories appear in the navbar and footer.</p>
+    <hr class="modal-divider"/>
 
     <div class="form-group">
       <label>Label <span style="color:#c00">*</span></label>
-      <input type="text" id="mLabel" placeholder="e.g. LEHENGA" />
-      <p class="form-hint">Displayed in the navbar and footer (uppercase recommended)</p>
+      <input type="text" id="mLabel" placeholder="e.g. LEHENGA" autocomplete="off"/>
+      <p class="form-hint">Displayed in the navbar — uppercase recommended.</p>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label>Value <span style="color:#c00">*</span></label>
-        <input type="text" id="mValue" placeholder="e.g. Lehenga" />
-        <p class="form-hint">Used in URLs: ?category=<em>Value</em></p>
+        <input type="text" id="mValue" placeholder="e.g. Lehenga" autocomplete="off"/>
+        <p class="form-hint">Used in URL: <code style="background:#f5f5f5;padding:1px 5px;border-radius:4px;">?category=Value</code></p>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="max-width:110px;">
         <label>Order</label>
-        <input type="number" id="mOrder" placeholder="0" min="0" />
-        <p class="form-hint">Lower = appears first</p>
+        <input type="number" id="mOrder" placeholder="0" min="0"/>
+        <p class="form-hint">Lower = first.</p>
       </div>
     </div>
 
     <div class="form-group">
-      <div class="toggle-switch">
-        <input type="checkbox" id="mActive" checked />
-        <label class="toggle-label" for="mActive">Active (visible on website)</label>
+      <div class="toggle-row">
+        <input type="checkbox" id="mActive" checked/>
+        <label for="mActive">Active — visible on website</label>
       </div>
     </div>
 
     <div class="modal-actions">
-      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveCategory()">Save</button>
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="catModalSaveBtn" onclick="saveCategory()">Add Category</button>
+      <button class="btn btn-secondary" onclick="closeCatModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SUBCATEGORY MODAL
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="subModalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSubModal()">&times;</button>
+    <h3 id="subModalTitle">Add Subcategory</h3>
+    <p class="modal-subtitle" id="subModalParentLabel">under <strong></strong></p>
+    <hr class="modal-divider"/>
+
+    <div class="form-group">
+      <label>Label <span style="color:#c00">*</span></label>
+      <input type="text" id="smLabel" placeholder="e.g. Bridal Lehenga" autocomplete="off"/>
+      <p class="form-hint">Shown in the dropdown menu.</p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Value <span style="color:#c00">*</span></label>
+        <input type="text" id="smValue" placeholder="e.g. Bridal Lehenga" autocomplete="off"/>
+        <p class="form-hint">Used in URL: <code style="background:#f5f5f5;padding:1px 5px;border-radius:4px;">?subcategory=Value</code></p>
+      </div>
+      <div class="form-group" style="max-width:110px;">
+        <label>Order</label>
+        <input type="number" id="smOrder" placeholder="0" min="0"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-row">
+        <input type="checkbox" id="smActive" checked/>
+        <label for="smActive">Active — visible on website</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="subModalSaveBtn" onclick="saveSubcategory()">Add Subcategory</button>
+      <button class="btn btn-secondary" onclick="closeSubModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -184,102 +639,161 @@
 <script>
   if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
 
-  let categories = [];
-  let editingId  = null;
-  let dragSrcIdx = null;
+  let categories    = [];
+  let editingCatId  = null;
+  let editingSubId  = null;
+  let subCatParentId = null;
+  let dragSrcIdx    = null;
+  let openPanels    = new Set();
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  /* ── Helpers ─────────────────────────────────────────────────────────── */
   function showMsg(type, text) {
     const el = document.getElementById(type === 'success' ? 'successMsg' : 'errorMsg');
     el.textContent = text;
     el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 4000);
+    setTimeout(() => { el.style.display = 'none'; }, 4500);
   }
 
-  // ── Load & render ──────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── SVG icons ───────────────────────────────────────────────────────── */
+  const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+
+  /* ── Load & render ───────────────────────────────────────────────────── */
   async function loadCategories() {
     document.getElementById('saveOrderBar').classList.remove('visible');
     try {
       const data = await AdminAuth.apiFetch('/api/categories/all');
       categories = (data && data.categories) ? data.categories : [];
-      renderTable();
-    } catch (e) {
-      document.getElementById('catTableBody').innerHTML =
-        '<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">Failed to load categories.</td></tr>';
-    }
+    } catch (e) { categories = []; }
+    renderList();
   }
 
-  function renderTable() {
-    const tbody = document.getElementById('catTableBody');
-    if (categories.length === 0) {
-      tbody.innerHTML = `
-        <tr><td colspan="6">
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            <p>No categories yet.<br/>Click <strong>+ Add Category</strong> to create one.</p>
-          </div>
-        </td></tr>`;
+  function renderList() {
+    const wrap = document.getElementById('catListWrap');
+
+    if (!categories.length) {
+      wrap.innerHTML = `<div class="empty-state">
+        <div class="icon">🗂️</div>
+        <h3>No categories yet</h3>
+        <p>Click <strong>+ Add Category</strong> to create your first one.</p>
+      </div>`;
       return;
     }
 
-    tbody.innerHTML = categories.map((c, i) => `
-      <tr draggable="true" data-idx="${i}" data-id="${c._id}">
-        <td class="drag-handle" title="Drag to reorder">⠿</td>
-        <td><strong>${escHtml(c.label)}</strong></td>
-        <td style="color:#888;">${escHtml(c.value)}</td>
-        <td>${c.order}</td>
-        <td>
-          ${c.isActive
-            ? '<span class="badge-active">Active</span>'
-            : '<span class="badge-inactive">Inactive</span>'}
-        </td>
-        <td>
-          <button class="btn btn-secondary btn-sm" onclick="openEditModal('${c._id}')">Edit</button>
-          <button class="btn btn-sm" style="background:#fff0f0;color:#c00;border:1px solid #ffd0d0;margin-left:4px;" onclick="deleteCategory('${c._id}', '${escHtml(c.label)}')">Delete</button>
-        </td>
-      </tr>`).join('');
+    let html = '<div class="cat-list" id="catList">';
+    categories.forEach((c, i) => {
+      const subs       = c.subcategories || [];
+      const activeSubs = subs.filter(s => s.isActive !== false);
+      const isOpen     = openPanels.has(c._id);
 
+      html += `
+      <div class="cat-card${isOpen ? ' is-open' : ''}" draggable="true" data-idx="${i}" data-id="${c._id}">
+        <div class="cat-card-main">
+          <div class="drag-handle" title="Drag to reorder">⠿</div>
+          <button class="expand-btn${isOpen ? ' open' : ''}" onclick="togglePanel('${c._id}')" title="Toggle subcategories" aria-label="Toggle subcategories">▶</button>
+          <div class="cat-info">
+            <div class="cat-label">${esc(c.label)}</div>
+            <div class="cat-value">${esc(c.value)}</div>
+          </div>
+          ${subs.length > 0
+            ? `<span class="subcount-pill has-subs">${activeSubs.length} / ${subs.length} subcats</span>`
+            : `<span class="subcount-pill no-subs">No subcats</span>`}
+          <span class="status-badge ${c.isActive !== false ? 'active' : 'inactive'}">
+            ${c.isActive !== false ? 'Active' : 'Inactive'}
+          </span>
+          <div class="cat-actions">
+            <button class="btn-icon" onclick="openEditCatModal('${c._id}')" title="Edit category">${ICON_EDIT}</button>
+            <button class="btn-icon delete" onclick="deleteCategory('${c._id}', '${esc(c.label)}')" title="Delete category">${ICON_DELETE}</button>
+          </div>
+        </div>
+        <div class="subcat-panel${isOpen ? ' open' : ''}">
+          <div class="subcat-panel-inner">
+            ${buildSubcatPanel(c)}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
     attachDragHandlers();
   }
 
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function buildSubcatPanel(cat) {
+    const subs = (cat.subcategories || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    let html = `<div class="subcat-panel-header">
+      <span class="subcat-panel-title">${esc(cat.label)} — Subcategories</span>
+      <button class="btn btn-secondary btn-sm" onclick="openAddSubModal('${cat._id}','${esc(cat.label)}')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Subcategory
+      </button>
+    </div>`;
+
+    if (!subs.length) {
+      html += `<p class="subcat-empty">No subcategories yet. Add one to create a dropdown menu for this category.</p>`;
+    } else {
+      html += `<div class="subcat-items">`;
+      subs.forEach(s => {
+        html += `
+        <div class="subcat-item">
+          <div class="subcat-item-dot" style="${s.isActive === false ? 'background:#ccc;' : ''}"></div>
+          <div class="subcat-item-info">
+            <div class="subcat-item-label">${esc(s.label)}${s.isActive === false ? ' <span style="font-size:10px;color:#bbb;font-weight:400;">(inactive)</span>' : ''}</div>
+            <div class="subcat-item-value">${esc(s.value)}</div>
+          </div>
+          <div class="subcat-item-actions">
+            <button class="btn-icon" onclick="openEditSubModal('${cat._id}','${s._id}')" title="Edit">${ICON_EDIT}</button>
+            <button class="btn-icon delete" onclick="deleteSubcategory('${cat._id}','${s._id}','${esc(s.label)}')" title="Delete">${ICON_DELETE}</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    return html;
   }
 
-  // ── Drag-to-reorder ────────────────────────────────────────────────────────
+  function togglePanel(catId) {
+    openPanels.has(catId) ? openPanels.delete(catId) : openPanels.add(catId);
+    renderList();
+  }
+
+  /* ── Drag-to-reorder ─────────────────────────────────────────────────── */
   function attachDragHandlers() {
-    document.querySelectorAll('#catTableBody tr[draggable]').forEach(row => {
-      row.addEventListener('dragstart', e => {
-        dragSrcIdx = parseInt(row.dataset.idx);
-        row.classList.add('dragging');
+    document.querySelectorAll('#catList .cat-card[draggable]').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        dragSrcIdx = parseInt(card.dataset.idx);
+        card.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
       });
-      row.addEventListener('dragend', () => {
-        row.classList.remove('dragging');
-        document.querySelectorAll('#catTableBody tr').forEach(r => r.classList.remove('drag-over'));
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('#catList .cat-card').forEach(c => c.classList.remove('drag-over'));
       });
-      row.addEventListener('dragover', e => {
+      card.addEventListener('dragover', e => {
         e.preventDefault();
-        document.querySelectorAll('#catTableBody tr').forEach(r => r.classList.remove('drag-over'));
-        row.classList.add('drag-over');
+        document.querySelectorAll('#catList .cat-card').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
       });
-      row.addEventListener('drop', e => {
+      card.addEventListener('drop', e => {
         e.preventDefault();
-        const destIdx = parseInt(row.dataset.idx);
+        const destIdx = parseInt(card.dataset.idx);
         if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
         const moved = categories.splice(dragSrcIdx, 1)[0];
         categories.splice(destIdx, 0, moved);
-        renderTable();
+        renderList();
         document.getElementById('saveOrderBar').classList.add('visible');
       });
     });
   }
 
-  // ── Save reordered list ────────────────────────────────────────────────────
   async function saveOrder() {
     const btn = document.querySelector('#saveOrderBar .btn-primary');
-    btn.textContent = 'Saving…';
-    btn.disabled = true;
+    btn.textContent = 'Saving…'; btn.disabled = true;
     let failed = false;
     for (let i = 0; i < categories.length; i++) {
       try {
@@ -290,129 +804,163 @@
         });
       } catch (e) { failed = true; }
     }
-    btn.textContent = 'Save Order';
-    btn.disabled = false;
-    if (failed) {
-      showMsg('error', 'Some categories failed to save. Please try again.');
-    } else {
-      showMsg('success', '✓ Category order saved.');
-      loadCategories();
-    }
+    btn.textContent = 'Save Order'; btn.disabled = false;
+    failed ? showMsg('error', 'Some categories failed to save.') : (showMsg('success', '✓ Order saved.'), loadCategories());
   }
 
-  // ── Add modal ──────────────────────────────────────────────────────────────
-  function openAddModal() {
-    editingId = null;
-    document.getElementById('modalTitle').textContent = 'Add Category';
-    document.getElementById('mLabel').value  = '';
-    document.getElementById('mValue').value  = '';
-    document.getElementById('mOrder').value  = categories.length + 1;
+  /* ── Category Modal ──────────────────────────────────────────────────── */
+  function openAddCatModal() {
+    editingCatId = null;
+    document.getElementById('catModalTitle').textContent = 'Add Category';
+    document.getElementById('mLabel').value   = '';
+    document.getElementById('mValue').value   = '';
+    document.getElementById('mOrder').value   = categories.length + 1;
     document.getElementById('mActive').checked = true;
-    document.getElementById('mValue').readOnly = false;
-    document.getElementById('modalSaveBtn').textContent = 'Add Category';
-    document.getElementById('modalOverlay').classList.add('open');
-    document.getElementById('mLabel').focus();
+    document.getElementById('catModalSaveBtn').textContent = 'Add Category';
+    document.getElementById('catModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('mLabel').focus(), 80);
   }
 
-  // Auto-populate value from label (title-case)
   document.getElementById('mLabel').addEventListener('input', function () {
-    if (editingId) return; // don't auto-change on edit
-    const raw = this.value.trim();
-    // Title-case: first letter of each word uppercase, rest lowercase
-    document.getElementById('mValue').value = raw.replace(/\w\S*/g,
-      w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    if (editingCatId) return;
+    document.getElementById('mValue').value = this.value.trim()
+      .replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
   });
 
-  // ── Edit modal ─────────────────────────────────────────────────────────────
-  function openEditModal(id) {
+  function openEditCatModal(id) {
     const cat = categories.find(c => c._id === id);
     if (!cat) return;
-    editingId = id;
-    document.getElementById('modalTitle').textContent = 'Edit Category';
-    document.getElementById('mLabel').value  = cat.label;
-    document.getElementById('mValue').value  = cat.value;
-    document.getElementById('mOrder').value  = cat.order;
+    editingCatId = id;
+    document.getElementById('catModalTitle').textContent = 'Edit Category';
+    document.getElementById('mLabel').value   = cat.label;
+    document.getElementById('mValue').value   = cat.value;
+    document.getElementById('mOrder').value   = cat.order || 0;
     document.getElementById('mActive').checked = cat.isActive !== false;
-    document.getElementById('mValue').readOnly = false;
-    document.getElementById('modalSaveBtn').textContent = 'Save Changes';
-    document.getElementById('modalOverlay').classList.add('open');
-    document.getElementById('mLabel').focus();
+    document.getElementById('catModalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('catModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('mLabel').focus(), 80);
   }
 
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-    editingId = null;
+  function closeCatModal() {
+    document.getElementById('catModalOverlay').classList.remove('open');
+    editingCatId = null;
   }
+  document.getElementById('catModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCatModal(); });
 
-  // Close modal on backdrop click
-  document.getElementById('modalOverlay').addEventListener('click', function (e) {
-    if (e.target === this) closeModal();
-  });
-
-  // ── Save (create or update) ────────────────────────────────────────────────
   async function saveCategory() {
     const label    = document.getElementById('mLabel').value.trim();
     const value    = document.getElementById('mValue').value.trim();
     const order    = parseInt(document.getElementById('mOrder').value) || 0;
     const isActive = document.getElementById('mActive').checked;
+    if (!label || !value) { alert('Label and Value are required.'); return; }
 
-    if (!label || !value) {
-      alert('Label and Value are required.');
-      return;
-    }
-
-    const btn = document.getElementById('modalSaveBtn');
-    btn.textContent = 'Saving…';
-    btn.disabled = true;
-
+    const btn = document.getElementById('catModalSaveBtn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
     try {
-      let data;
-      if (editingId) {
-        data = await AdminAuth.apiFetch('/api/categories/' + editingId, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ label, value, order, isActive })
-        });
-      } else {
-        data = await AdminAuth.apiFetch('/api/categories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ label, value, order, isActive })
-        });
-      }
-
+      const url    = editingCatId ? '/api/categories/' + editingCatId : '/api/categories';
+      const method = editingCatId ? 'PUT' : 'POST';
+      const data   = await AdminAuth.apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label, value, order, isActive }) });
       if (data && data.success) {
-        showMsg('success', editingId ? '✓ Category updated.' : '✓ Category added.');
-        closeModal();
+        showMsg('success', editingCatId ? '✓ Category updated.' : '✓ Category added.');
+        closeCatModal();
         loadCategories();
       } else {
-        showMsg('error', (data && data.message) || 'Failed to save category.');
+        showMsg('error', (data && data.message) || 'Failed to save.');
       }
-    } catch (e) {
-      showMsg('error', 'Network error. Please try again.');
-    } finally {
-      btn.textContent = editingId ? 'Save Changes' : 'Add Category';
-      btn.disabled = false;
-    }
+    } catch (e) { showMsg('error', 'Network error.'); }
+    finally { btn.textContent = editingCatId ? 'Save Changes' : 'Add Category'; btn.disabled = false; }
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
   async function deleteCategory(id, label) {
-    if (!confirm(`Delete category "${label}"?\n\nThis only removes the category from the navbar/dropdown. Existing products assigned to this category are NOT deleted.`)) return;
+    if (!confirm(`Delete category "${label}"?\n\nExisting products are NOT deleted.`)) return;
     try {
       const data = await AdminAuth.apiFetch('/api/categories/' + id, { method: 'DELETE' });
-      if (data && data.success) {
-        showMsg('success', `✓ "${label}" deleted.`);
-        loadCategories();
-      } else {
-        showMsg('error', (data && data.message) || 'Failed to delete.');
-      }
-    } catch (e) {
-      showMsg('error', 'Network error. Please try again.');
-    }
+      if (data && data.success) { showMsg('success', `✓ "${label}" deleted.`); openPanels.delete(id); loadCategories(); }
+      else showMsg('error', (data && data.message) || 'Failed to delete.');
+    } catch (e) { showMsg('error', 'Network error.'); }
   }
 
-  // ── Boot ───────────────────────────────────────────────────────────────────
+  /* ── Subcategory Modal ───────────────────────────────────────────────── */
+  function openAddSubModal(catId, catLabel) {
+    subCatParentId = catId; editingSubId = null;
+    const cat = categories.find(c => c._id === catId);
+    document.getElementById('subModalTitle').textContent = 'Add Subcategory';
+    document.getElementById('subModalParentLabel').innerHTML = `under <strong>${esc(catLabel)}</strong>`;
+    document.getElementById('smLabel').value   = '';
+    document.getElementById('smValue').value   = '';
+    document.getElementById('smOrder').value   = cat ? (cat.subcategories || []).length + 1 : 1;
+    document.getElementById('smActive').checked = true;
+    document.getElementById('subModalSaveBtn').textContent = 'Add Subcategory';
+    document.getElementById('subModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('smLabel').focus(), 80);
+  }
+
+  function openEditSubModal(catId, subId) {
+    const cat = categories.find(c => c._id === catId);
+    if (!cat) return;
+    const sub = (cat.subcategories || []).find(s => s._id === subId);
+    if (!sub) return;
+    subCatParentId = catId; editingSubId = subId;
+    document.getElementById('subModalTitle').textContent = 'Edit Subcategory';
+    document.getElementById('subModalParentLabel').innerHTML = `under <strong>${esc(cat.label)}</strong>`;
+    document.getElementById('smLabel').value   = sub.label;
+    document.getElementById('smValue').value   = sub.value;
+    document.getElementById('smOrder').value   = sub.order || 0;
+    document.getElementById('smActive').checked = sub.isActive !== false;
+    document.getElementById('subModalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('subModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('smLabel').focus(), 80);
+  }
+
+  document.getElementById('smLabel').addEventListener('input', function () {
+    if (editingSubId) return;
+    document.getElementById('smValue').value = this.value.trim()
+      .replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  });
+
+  function closeSubModal() {
+    document.getElementById('subModalOverlay').classList.remove('open');
+    subCatParentId = null; editingSubId = null;
+  }
+  document.getElementById('subModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
+
+  async function saveSubcategory() {
+    const label    = document.getElementById('smLabel').value.trim();
+    const value    = document.getElementById('smValue').value.trim();
+    const order    = parseInt(document.getElementById('smOrder').value) || 0;
+    const isActive = document.getElementById('smActive').checked;
+    if (!label || !value) { alert('Label and Value are required.'); return; }
+
+    const btn = document.getElementById('subModalSaveBtn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    try {
+      const url    = editingSubId
+        ? `/api/categories/${subCatParentId}/subcategories/${editingSubId}`
+        : `/api/categories/${subCatParentId}/subcategories`;
+      const method = editingSubId ? 'PUT' : 'POST';
+      const data   = await AdminAuth.apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label, value, order, isActive }) });
+      if (data && data.success) {
+        showMsg('success', editingSubId ? '✓ Subcategory updated.' : '✓ Subcategory added.');
+        closeSubModal();
+        openPanels.add(subCatParentId);
+        loadCategories();
+      } else {
+        showMsg('error', (data && data.message) || 'Failed to save.');
+      }
+    } catch (e) { showMsg('error', 'Network error.'); }
+    finally { btn.textContent = editingSubId ? 'Save Changes' : 'Add Subcategory'; btn.disabled = false; }
+  }
+
+  async function deleteSubcategory(catId, subId, label) {
+    if (!confirm(`Delete subcategory "${label}"?\n\nExisting products are NOT deleted.`)) return;
+    try {
+      const data = await AdminAuth.apiFetch(`/api/categories/${catId}/subcategories/${subId}`, { method: 'DELETE' });
+      if (data && data.success) { showMsg('success', `✓ "${label}" deleted.`); openPanels.add(catId); loadCategories(); }
+      else showMsg('error', (data && data.message) || 'Failed to delete.');
+    } catch (e) { showMsg('error', 'Network error.'); }
+  }
+
+  /* ── Boot ────────────────────────────────────────────────────────────── */
   loadCategories();
 </script>
 <script src="admin-mobile.js"></script>

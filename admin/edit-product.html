@@ -66,6 +66,24 @@
 
         <div class="form-row">
           <div class="form-group">
+            <label>Subcategory</label>
+            <select name="subcategory" id="fSubcategory" class="form-control">
+              <option value="">— Select a category first —</option>
+            </select>
+            <p class="form-hint">Optional. Subcategories are managed in <a href="categories.html">Categories</a></p>
+          </div>
+          <div class="form-group">
+            <label>Badge</label>
+            <select name="badge" id="fBadge" class="form-control">
+              <option value="">None</option>
+              <option value="new">New</option>
+              <option value="sale">Sale</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
             <label>Price (USD) *</label>
             <input type="number" name="price" id="fPrice" class="form-control" step="0.01" min="0" required />
           </div>
@@ -80,14 +98,6 @@
           <div class="form-group">
             <label>Stock Quantity *</label>
             <input type="number" name="stock" id="fStock" class="form-control" min="0" required />
-          </div>
-          <div class="form-group">
-            <label>Badge</label>
-            <select name="badge" id="fBadge" class="form-control">
-              <option value="">None</option>
-              <option value="new">New</option>
-              <option value="sale">Sale</option>
-            </select>
           </div>
         </div>
 
@@ -145,34 +155,75 @@
   const productId = new URLSearchParams(window.location.search).get('id');
   if (!productId) window.location.href = 'products.html';
 
+  let allCategories = [];
   let removedImages = new Set();
 
-  // Load categories into the dropdown, then select the product's current value
-  async function loadCategories(currentValue) {
-    const sel = document.getElementById('fCategory');
+  // Load categories and wire subcategory dropdown
+  async function loadCategories(currentCatValue, currentSubValue) {
+    const sel    = document.getElementById('fCategory');
+    const subSel = document.getElementById('fSubcategory');
     try {
       const res = await AdminAuth.apiFetch('/api/categories/all');
-      const categories = (res && res.categories) ? res.categories : [];
-      if (categories.length === 0) throw new Error('empty');
+      allCategories = (res && res.categories) ? res.categories : [];
+      if (allCategories.length === 0) throw new Error('empty');
       sel.innerHTML = '<option value="">— Select a category —</option>' +
-        categories.map(c =>
+        allCategories.map(c =>
           `<option value="${c.value}"${!c.isActive ? ' style="color:#aaa"' : ''}>${c.label}${!c.isActive ? ' (inactive)' : ''}</option>`
         ).join('');
     } catch (e) {
-      // Fallback: add the product's own category so saving still works
-      sel.innerHTML = `<option value="${currentValue}">${currentValue}</option>`;
+      sel.innerHTML = `<option value="${currentCatValue}">${currentCatValue}</option>`;
     }
-    if (currentValue) sel.value = currentValue;
-    // If not found in list (category was deleted), add it as a warning option
-    if (currentValue && sel.value !== currentValue) {
+
+    if (currentCatValue) sel.value = currentCatValue;
+
+    // Handle orphaned category (deleted from category list)
+    if (currentCatValue && sel.value !== currentCatValue) {
       const orphan = document.createElement('option');
-      orphan.value = currentValue;
-      orphan.textContent = currentValue + ' (not in category list)';
+      orphan.value = currentCatValue;
+      orphan.textContent = currentCatValue + ' (not in category list)';
       orphan.style.color = '#c00';
       sel.insertBefore(orphan, sel.firstChild);
-      sel.value = currentValue;
+      sel.value = currentCatValue;
+    }
+
+    updateSubcategoryDropdown(currentCatValue, currentSubValue);
+  }
+
+  function updateSubcategoryDropdown(categoryValue, selectedSubValue) {
+    const subSel = document.getElementById('fSubcategory');
+    const cat = allCategories.find(c => c.value === categoryValue);
+    const subs = cat ? (cat.subcategories || []).filter(s => s.isActive).sort((a, b) => a.order - b.order) : [];
+
+    if (!cat || subs.length === 0) {
+      subSel.innerHTML = cat
+        ? '<option value="">— No subcategories —</option>'
+        : '<option value="">— Select a category first —</option>';
+      subSel.disabled = !cat;
+    } else {
+      subSel.disabled = false;
+      subSel.innerHTML = '<option value="">— None —</option>' +
+        subs.map(s =>
+          `<option value="${s.value}">${s.label}</option>`
+        ).join('');
+
+      // Handle orphaned subcategory
+      if (selectedSubValue) {
+        subSel.value = selectedSubValue;
+        if (subSel.value !== selectedSubValue) {
+          const orphan = document.createElement('option');
+          orphan.value = selectedSubValue;
+          orphan.textContent = selectedSubValue + ' (not in subcategory list)';
+          orphan.style.color = '#c00';
+          subSel.insertBefore(orphan, subSel.firstChild);
+          subSel.value = selectedSubValue;
+        }
+      }
     }
   }
+
+  document.getElementById('fCategory').addEventListener('change', function () {
+    updateSubcategoryDropdown(this.value, '');
+  });
 
   async function loadProduct() {
     const data = await AdminAuth.apiFetch('/api/products/' + productId);
@@ -207,8 +258,8 @@
       existing.innerHTML = '<p style="color:#aaa;font-size:13px;">No images uploaded.</p>';
     }
 
-    // Load categories and pre-select current one
-    await loadCategories(p.category);
+    // Load categories and pre-select current category + subcategory
+    await loadCategories(p.category, p.subcategory || '');
 
     document.getElementById('loadingMsg').style.display = 'none';
     document.getElementById('formContainer').style.display = 'block';
