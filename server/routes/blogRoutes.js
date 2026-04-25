@@ -3,20 +3,24 @@ const router  = express.Router();
 const Blog    = require('../models/Blog');
 const { protect } = require('../middleware/auth');
 const multer  = require('multer');
-const path    = require('path');
-const fs      = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-// ── Multer setup for blog cover images ──────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../../public/uploads/blogs');
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+// Cloudinary config (reads CLOUDINARY_* from .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer-Cloudinary storage: images go to the 'ritu-ghai/blogs' folder
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'ritu-ghai/blogs',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
   },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, 'blog-' + Date.now() + ext);
-  }
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -73,7 +77,7 @@ router.get('/:slug', async (req, res) => {
 router.post('/', protect, upload.single('coverImage'), async (req, res) => {
   try {
     const { title, excerpt, content, tags, author, published } = req.body;
-    const coverImage = req.file ? '/uploads/blogs/' + req.file.filename : '';
+    const coverImage = req.file ? req.file.path : '';
 
     const blog = await Blog.create({
       title,
@@ -104,7 +108,7 @@ router.put('/:id', protect, upload.single('coverImage'), async (req, res) => {
     if (tags !== undefined) blog.tags = tags.split(',').map(t => t.trim()).filter(Boolean);
     if (author)  blog.author = author;
     if (published !== undefined) blog.published = published === 'true' || published === true;
-    if (req.file) blog.coverImage = '/uploads/blogs/' + req.file.filename;
+    if (req.file) blog.coverImage = req.file.path;
 
     await blog.save();
     res.json({ success: true, blog });
