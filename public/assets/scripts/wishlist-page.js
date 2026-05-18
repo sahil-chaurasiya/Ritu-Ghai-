@@ -27,7 +27,7 @@
           <td class="product-name">
             <a href="/single-product.html?id=${item.productId}">${item.name}</a>
           </td>
-          <td class="product-price">${item.price.toFixed(2)} USD</td>
+          <td class="product-price">${item.price.toFixed(2)} INR</td>
           <td class="product-stock">
             <span class="${item.stock > 0 ? 'highlight' : ''}">${item.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK'}</span>
           </td>

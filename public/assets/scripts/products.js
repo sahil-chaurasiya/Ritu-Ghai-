@@ -195,9 +195,9 @@
       var priceEl = document.querySelector('.summary .price, .product .price');
       if (priceEl) {
         if (p.originalPrice && p.originalPrice > p.price) {
-          priceEl.innerHTML = '<ins>' + p.price.toFixed(2) + ' USD</ins> <del style="color:#aaa;font-size:0.8em">' + p.originalPrice.toFixed(2) + ' USD</del>';
+          priceEl.innerHTML = '<ins>' + p.price.toFixed(2) + ' INR</ins> <del style="color:#aaa;font-size:0.8em">' + p.originalPrice.toFixed(2) + ' INR</del>';
         } else {
-          priceEl.textContent = p.price.toFixed(2) + ' USD';
+          priceEl.textContent = p.price.toFixed(2) + ' INR';
         }
       }
 
@@ -316,7 +316,7 @@
           + '<a href="/single-product.html?id=' + p._id + '" class="details"><i class="pe-7s-search"></i></a>'
           + '</div>'
           + '<h4 class="product-name"><a href="/single-product.html?id=' + p._id + '">' + escapeHtml(p.name) + '</a></h4>'
-          + '<p class="product-price">' + p.price.toFixed(2) + ' USD</p>'
+          + '<p class="product-price">' + p.price.toFixed(2) + ' INR</p>'
           + '<div class="group-buttons">'
           + '<button type="button" class="add-to-cart btn-cart" data-id="' + p._id + '" data-toggle="tooltip" title="Add to Cart"><span>Add to Cart</span></button>'
           + '<button type="button" class="btn-wishlist" data-id="' + p._id + '" data-toggle="tooltip" title="Add to Wishlist"><i class="pe-7s-like"></i></button>'

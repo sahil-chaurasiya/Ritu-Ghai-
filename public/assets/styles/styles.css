@@ -850,7 +850,7 @@ th {
 .glyphicon-pushpin:before {
   content: "\e146";
 }
-.glyphicon-usd:before {
+.glyphicon-INR:before {
   content: "\e148";
 }
 .glyphicon-gbp:before {
@@ -14689,8 +14689,9 @@ header .main-nav .current-menu-item > a {
   }
 }
 .box-product .product-item {
-  overflow: hidden;
-  display: inline-block;
+  overflow: visible;
+  display: block;
+  width: 100%;
   margin-bottom: 30px;
 }
 .box-product .product-item:hover .product-thumb .overlay-img,
@@ -14806,6 +14807,10 @@ header .main-nav .current-menu-item > a {
   margin: 25px 0 15px;
   text-align: center;
   text-transform: uppercase;
+  min-height: 2.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .box-product .product-item .product-name a {
   color: #222;

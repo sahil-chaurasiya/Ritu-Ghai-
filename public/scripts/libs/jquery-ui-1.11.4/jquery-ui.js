@@ -1252,7 +1252,7 @@ $.fn.position = function( options ) {
 			elemHeight = elem.outerHeight(),
 			marginLeft = parseCss( this, "marginLeft" ),
 			marginTop = parseCss( this, "marginTop" ),
-			collisionWidth = elemWidth + marginLeft + parseCss( this, "marginRight" ) + scrollInfo.width,
+			collisionWidth = elemWidth + marginLeft + parseCss( this, "margINRight" ) + scrollInfo.width,
 			collisionHeight = elemHeight + marginTop + parseCss( this, "marginBottom" ) + scrollInfo.height,
 			position = $.extend( {}, basePosition ),
 			myOffset = getOffsets( offsets.my, elem.outerWidth(), elem.outerHeight() );
@@ -5448,7 +5448,7 @@ $.extend(Datepicker.prototype, {
 			this._get(inst, "closeText") + "</button>" : "");
 
 		buttonPanel = (showButtonPanel) ? "<div class='ui-datepicker-buttonpane ui-widget-content'>" + (isRTL ? controls : "") +
-			(this._isInRange(inst, gotoDate) ? "<button type='button' class='ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all' data-handler='today' data-event='click'" +
+			(this._isINRange(inst, gotoDate) ? "<button type='button' class='ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all' data-handler='today' data-event='click'" +
 			">" + currentText + "</button>" : "") + (isRTL ? "" : controls) + "</div>" : "";
 
 		firstDay = parseInt(this._get(inst, "firstDay"),10);
@@ -5692,11 +5692,11 @@ $.extend(Datepicker.prototype, {
 		if (offset < 0) {
 			date.setDate(this._getDaysInMonth(date.getFullYear(), date.getMonth()));
 		}
-		return this._isInRange(inst, date);
+		return this._isINRange(inst, date);
 	},
 
 	/* Is the given date in the accepted range? */
-	_isInRange: function(inst, date) {
+	_isINRange: function(inst, date) {
 		var yearSplit, currentYear,
 			minDate = this._getMinMaxDate(inst, "min"),
 			maxDate = this._getMinMaxDate(inst, "max"),
@@ -6281,7 +6281,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		this.margins = {
 			left: (parseInt(this.element.css("marginLeft"), 10) || 0),
 			top: (parseInt(this.element.css("marginTop"), 10) || 0),
-			right: (parseInt(this.element.css("marginRight"), 10) || 0),
+			right: (parseInt(this.element.css("margINRight"), 10) || 0),
 			bottom: (parseInt(this.element.css("marginBottom"), 10) || 0)
 		};
 	},
@@ -7060,13 +7060,13 @@ $.widget("ui.resizable", $.ui.mouse, {
 			this.element.css({
 				marginLeft: this.originalElement.css("marginLeft"),
 				marginTop: this.originalElement.css("marginTop"),
-				marginRight: this.originalElement.css("marginRight"),
+				margINRight: this.originalElement.css("margINRight"),
 				marginBottom: this.originalElement.css("marginBottom")
 			});
 			this.originalElement.css({
 				marginLeft: 0,
 				marginTop: 0,
-				marginRight: 0,
+				margINRight: 0,
 				marginBottom: 0
 			});
 			// support: Safari
@@ -11310,7 +11310,7 @@ var effectSize = $.effects.effect.size = function( o, done ) {
 
 		// Add margins/font-size
 		vProps = vProps.concat([ "marginTop", "marginBottom" ]).concat(cProps);
-		hProps = hProps.concat([ "marginLeft", "marginRight" ]);
+		hProps = hProps.concat([ "marginLeft", "margINRight" ]);
 		props2 = props0.concat(vProps).concat(hProps);
 
 		el.find( "*[width]" ).each( function() {

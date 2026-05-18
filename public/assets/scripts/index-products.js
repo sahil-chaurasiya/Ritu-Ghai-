@@ -16,8 +16,8 @@
     const hasDeal = p.originalPrice && p.originalPrice > p.price;
     const discount = hasDeal ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
     const priceHtml = hasDeal
-      ? '<ins><span class="amount">' + p.price.toFixed(2) + ' USD</span></ins> <del><span class="amount">' + p.originalPrice.toFixed(2) + ' USD</span></del>'
-      : p.price.toFixed(2) + ' USD';
+      ? '<ins><span class="amount">' + p.price.toFixed(2) + ' INR</span></ins> <del><span class="amount">' + p.originalPrice.toFixed(2) + ' INR</span></del>'
+      : p.price.toFixed(2) + ' INR';
     const badge = p.badge === 'new'
       ? '<div class="product-new">NEW</div>'
       : (p.badge === 'sale' || hasDeal) ? '<div class="product-sale">-' + discount + '%</div>' : '';
@@ -58,7 +58,7 @@
       + '</div></div>'
       + '<div class="media-body">'
       + '<h4><a href="/single-product.html?id=' + p._id + '">' + p.name + '</a></h4>'
-      + '<p class="price">' + p.price.toFixed(2) + ' USD</p>'
+      + '<p class="price">' + p.price.toFixed(2) + ' INR</p>'
       + '<div class="group-buttons">'
       + '<button type="button" class="btn-dyn-cart" data-id="' + p._id + '" data-toggle="tooltip" data-placement="top" title="Add to Cart"><i class="pe-7s-cart"></i></button>'
       + '<button type="button" class="btn-dyn-wish" data-id="' + p._id + '" data-toggle="tooltip" data-placement="top" title="Add to Wishlist"><i class="pe-7s-like"></i></button>'

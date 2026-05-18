@@ -28,7 +28,7 @@
             </a>
           </td>
           <td class="product-name"><a href="/single-product.html?id=${item.productId}">${item.name}</a></td>
-          <td class="product-price"><span class="amount">${item.price.toFixed(2)} USD</span></td>
+          <td class="product-price"><span class="amount">${item.price.toFixed(2)} INR</span></td>
           <td class="product-quantity">
             <div class="quantity">
               <button class="minus-btn qty-btn" data-id="${item.productId}" data-action="minus"><i class="fa fa-minus"></i></button>
@@ -36,7 +36,7 @@
               <button class="plus-btn qty-btn" data-id="${item.productId}" data-action="plus"><i class="fa fa-plus"></i></button>
             </div>
           </td>
-          <td class="product-subtotal"><span class="amount">${item.subtotal.toFixed(2)} USD</span></td>
+          <td class="product-subtotal"><span class="amount">${item.subtotal.toFixed(2)} INR</span></td>
         </tr>`).join('') + `
         <tr class="cart-action">
           <td colspan="3">
@@ -58,7 +58,7 @@
   }
 
   function updateTotals(total) {
-    var formatted = parseFloat(total || 0).toFixed(2) + ' USD';
+    var formatted = parseFloat(total || 0).toFixed(2) + ' INR';
     var subtotalEl = document.querySelector('.cart-subtotal');
     var orderEl    = document.querySelector('.order-total');
     if (subtotalEl) subtotalEl.textContent = formatted;

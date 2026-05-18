@@ -33,14 +33,14 @@
 
     var priceHtml = '';
     if (p.originalPrice && p.originalPrice > p.price) {
-      priceHtml = '<ins><span class="amount">' + p.price.toFixed(2) + ' USD</span></ins> '
-                + '<del><span class="amount">' + p.originalPrice.toFixed(2) + ' USD</span></del>';
+      priceHtml = '<ins><span class="amount">' + p.price.toFixed(2) + ' INR</span></ins> '
+                + '<del><span class="amount">' + p.originalPrice.toFixed(2) + ' INR</span></del>';
     } else {
-      priceHtml = p.price.toFixed(2) + ' USD';
+      priceHtml = p.price.toFixed(2) + ' INR';
     }
 
     return '<div class="col-lg-3 col-md-4 col-sm-6">'
-      + '<div class="product-item' + (p.badge ? ' has-deal' : '') + '">'
+      + '<div class="product-item' + (p.badge ? ' has-deal' : '') + '" style="display:block;width:100%;overflow:visible;">'
       + '<div class="product-thumb">'
       + '<div class="main-img"><a href="/single-product.html?id=' + p._id + '">'
       + '<img class="img-responsive" src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" onerror="this.src=\'/assets/images/product-img-1.jpg\'"/>'

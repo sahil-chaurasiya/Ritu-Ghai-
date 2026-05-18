@@ -3390,7 +3390,7 @@ jQuery.support = (function( support ) {
 	support.pixelPosition = false;
 	support.deleteExpando = true;
 	support.noCloneEvent = true;
-	support.reliableMarginRight = true;
+	support.reliableMargINRight = true;
 	support.boxSizingReliable = true;
 
 	// Make sure checked status is properly cloned
@@ -3519,11 +3519,11 @@ jQuery.support = (function( support ) {
 			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
 			marginDiv = div.appendChild( document.createElement("div") );
 			marginDiv.style.cssText = div.style.cssText = divReset;
-			marginDiv.style.marginRight = marginDiv.style.width = "0";
+			marginDiv.style.margINRight = marginDiv.style.width = "0";
 			div.style.width = "1px";
 
-			support.reliableMarginRight =
-				!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight );
+			support.reliableMargINRight =
+				!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).margINRight );
 		}
 
 		if ( typeof div.style.zoom !== core_strundefined ) {
@@ -7378,14 +7378,14 @@ if ( !jQuery.support.opacity ) {
 // These hooks cannot be added until DOM ready because the support test
 // for it is not run until after DOM ready
 jQuery(function() {
-	if ( !jQuery.support.reliableMarginRight ) {
-		jQuery.cssHooks.marginRight = {
+	if ( !jQuery.support.reliableMargINRight ) {
+		jQuery.cssHooks.margINRight = {
 			get: function( elem, computed ) {
 				if ( computed ) {
 					// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
 					// Work around by temporarily setting element display to inline-block
 					return jQuery.swap( elem, { "display": "inline-block" },
-						curCSS, [ elem, "marginRight" ] );
+						curCSS, [ elem, "margINRight" ] );
 				}
 			}
 		};
