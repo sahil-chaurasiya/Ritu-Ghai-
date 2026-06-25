@@ -19,6 +19,83 @@
       font-size: 13px; font-weight: 400; color: #333; padding: 4px 0;
     }
     .sizes-wrap input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+
+    /* Drag-to-reorder image grid */
+    #imgPreview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .img-thumb {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+    .img-thumb:active { cursor: grabbing; }
+    .img-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .img-thumb .img-order-badge {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      padding: 2px 6px;
+      pointer-events: none;
+    }
+    .img-thumb .img-order-badge.first {
+      background: #c9a050;
+    }
+    .img-thumb .img-remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .img-thumb:hover .img-remove-btn { opacity: 1; }
+    .img-thumb.drag-over {
+      border-color: #c9a050;
+      box-shadow: 0 0 0 3px rgba(201,160,80,0.25);
+    }
+    .img-thumb.dragging {
+      opacity: 0.4;
+      border-color: #bbb;
+    }
+    .img-drag-hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -132,9 +209,10 @@
 
         <div class="form-group">
           <label>Product Images (up to 5)</label>
-          <input type="file" name="images" class="form-control" multiple accept="image/*" id="imageInput" />
-          <p class="form-hint">First image = main display image. Second image = hover image.</p>
-          <div class="img-preview" id="imgPreview"></div>
+          <input type="file" class="form-control" multiple accept="image/*" id="imageInput" />
+          <p class="form-hint">First image = main display image. Second image = hover image. <strong>Drag thumbnails to reorder.</strong></p>
+          <div id="imgPreview"></div>
+          <p class="img-drag-hint" id="imgDragHint" style="display:none;">&#8596; Drag to reorder &middot; hover thumbnail to remove</p>
         </div>
 
         <div class="form-actions-row">
@@ -194,18 +272,86 @@
 
   loadCategories();
 
-  document.getElementById('imageInput').addEventListener('change', function () {
+  // ── Drag-to-reorder image logic ──────────────────────────────────────────
+  let orderedFiles = [];
+  let dragSrcIndex = null;
+
+  function renderPreviews() {
     const preview = document.getElementById('imgPreview');
+    const hint = document.getElementById('imgDragHint');
     preview.innerHTML = '';
-    Array.from(this.files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const div = document.createElement('div');
-        div.innerHTML = `<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border:1px solid #eee;" />`;
-        preview.appendChild(div);
-      };
-      reader.readAsDataURL(file);
+    hint.style.display = orderedFiles.length > 1 ? 'block' : 'none';
+
+    orderedFiles.forEach((file, idx) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'img-thumb';
+      thumb.draggable = true;
+      thumb.dataset.index = idx;
+
+      const badge = document.createElement('span');
+      badge.className = 'img-order-badge' + (idx === 0 ? ' first' : '');
+      badge.textContent = idx === 0 ? 'Main' : '#' + (idx + 1);
+      thumb.appendChild(badge);
+
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+      thumb.appendChild(img);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'img-remove-btn';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remove image';
+      removeBtn.addEventListener('click', () => {
+        orderedFiles.splice(idx, 1);
+        renderPreviews();
+      });
+      thumb.appendChild(removeBtn);
+
+      // Drag events
+      thumb.addEventListener('dragstart', (e) => {
+        dragSrcIndex = idx;
+        thumb.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      thumb.addEventListener('dragend', () => {
+        thumb.classList.remove('dragging');
+        preview.querySelectorAll('.img-thumb').forEach(t => t.classList.remove('drag-over'));
+      });
+      thumb.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        preview.querySelectorAll('.img-thumb').forEach(t => t.classList.remove('drag-over'));
+        if (dragSrcIndex !== idx) thumb.classList.add('drag-over');
+      });
+      thumb.addEventListener('dragleave', () => {
+        thumb.classList.remove('drag-over');
+      });
+      thumb.addEventListener('drop', (e) => {
+        e.preventDefault();
+        thumb.classList.remove('drag-over');
+        if (dragSrcIndex === null || dragSrcIndex === idx) return;
+        const moved = orderedFiles.splice(dragSrcIndex, 1)[0];
+        orderedFiles.splice(idx, 0, moved);
+        dragSrcIndex = null;
+        renderPreviews();
+      });
+
+      preview.appendChild(thumb);
     });
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  document.getElementById('imageInput').addEventListener('change', function () {
+    // Merge newly selected files into orderedFiles (no duplicates by name+size)
+    const existing = new Set(orderedFiles.map(f => f.name + f.size));
+    Array.from(this.files).forEach(f => {
+      if (!existing.has(f.name + f.size)) orderedFiles.push(f);
+    });
+    if (orderedFiles.length > 5) orderedFiles = orderedFiles.slice(0, 5);
+    renderPreviews();
   });
 
   document.getElementById('productForm').addEventListener('submit', async function (e) {
@@ -219,6 +365,8 @@
     btn.disabled = true;
     try {
       const formData = new FormData(this);
+      // Append images in the user-defined drag order
+      orderedFiles.forEach(f => formData.append('images', f));
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + AdminAuth.token() },
@@ -228,7 +376,8 @@
       if (data.success) {
         successEl.style.display = 'block';
         this.reset();
-        document.getElementById('imgPreview').innerHTML = '';
+        orderedFiles = [];
+        renderPreviews();
         loadCategories();
         window.scrollTo(0, 0);
       } else {
