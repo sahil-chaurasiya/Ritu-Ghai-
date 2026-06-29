@@ -5,6 +5,7 @@ const MongoStore = require('connect-mongo');
 const path = require('path');
 const fs = require('fs');
 const connectDB = require('./config/db');
+const multer = require('multer');
 const Admin = require('./models/Admin');
 const Category = require('./models/Category');
 
@@ -93,6 +94,34 @@ app.get('/admin', (req, res) =>
 // ── 404 fallback for public pages ─────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
+});
+
+// ── Global error handler ──────────────────────────────────────────────────────
+// Without this, errors thrown by Multer (e.g. file too large) or anything else
+// that happens before a route's own try/catch runs would fall through to
+// Express's default handler, which sends back an HTML error page. Every admin
+// fetch() call does `await res.json()`, so an HTML response makes that throw a
+// SyntaxError — which then gets swallowed by the page's generic catch block and
+// shown to the user as "Network error", hiding the real problem. This handler
+// guarantees every error response is JSON with a real message instead.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+
+  if (err instanceof multer.MulterError) {
+    let message = err.message;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'File too large. Each file must be under 10MB.';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE' || err.code === 'LIMIT_FILE_COUNT') {
+      message = 'Too many files uploaded.';
+    }
+    return res.status(400).json({ success: false, message });
+  }
+
+  console.error('Unhandled error:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Something went wrong on the server.'
+  });
 });
 
 app.listen(PORT, async () => {

@@ -22,7 +22,7 @@ const storage = new CloudinaryStorage({
     transformation: [{ quality: 'auto', fetch_format: 'auto' }],
   },
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // GET /api/products  – public
 router.get('/', async (req, res) => {
