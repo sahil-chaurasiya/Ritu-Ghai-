@@ -12005,7 +12005,9 @@ body {
 4.8 HEADER
 ----------------------------------------- */
 header {
-  height: 185px;
+  height: auto;
+  min-height: 185px;
+  padding-bottom: 22px;
   /* ---------------------------------------
     4.8.1 LOGO
     ----------------------------------------- */
@@ -12024,7 +12026,9 @@ header {
 }
 @media (max-width: 767px) {
   header {
-    height: 85px;
+    height: auto;
+    min-height: 85px;
+    padding-bottom: 0;
   }
 }
 header .container {
@@ -12139,9 +12143,9 @@ header .wrap-search .search-form button[type="submit"] {
   width: 40px;
 }
 header .main-nav {
-  position: absolute;
+  position: relative;
   text-align: center;
-  top: 130px;
+  margin-top: 130px;
   left: 0;
   right: 0;
 }
@@ -12150,6 +12154,7 @@ header .main-nav {
     position: relative;
     width: auto;
     text-align: left;
+    margin-top: 0;
     top: auto;
     left: auto;
   }
@@ -12187,11 +12192,17 @@ header .main-nav {
     left: 0;
     right: 0;
   }
+  header .main-nav .minimal-menu > ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
   header .main-nav .minimal-menu > ul > li {
-    margin: 0 25px;
+    margin: 6px 25px;
   }
   header .main-nav .minimal-menu > ul > li:last-child {
-    margin: 0 0 0 5px;
+    margin: 6px 0 6px 5px;
   }
   header .main-nav .minimal-menu > ul > li > a {
     padding: 0 0 8px;
