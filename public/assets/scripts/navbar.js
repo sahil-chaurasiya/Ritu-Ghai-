@@ -8,13 +8,66 @@
 
   // Fallback categories shown instantly while the API call resolves,
   // and used if the API fails (keeps the nav functional offline / on error).
+  // Mirrors the seeded categories (see server/utils/seedCategories.js) so
+  // the nav looks the same whether it's serving fallback or live data.
   const FALLBACK_CATEGORIES = [
-    { label: 'LEHENGA',       value: 'Lehenga',       subcategories: [] },
-    { label: 'SAREES',        value: 'Sarees',         subcategories: [] },
-    { label: 'STITCHED SUIT', value: 'Stitched Suit',  subcategories: [] },
-    { label: 'INDO WESTERN',  value: 'Indo Western',   subcategories: [] },
-    { label: 'GOWNS',         value: 'Gowns',          subcategories: [] },
-    { label: 'KURTI',         value: 'Kurti',          subcategories: [] }
+    { label: 'NEW ARRIVALS', value: 'New Arrivals', subcategories: [
+      { label: 'Just In', value: 'Just In', isActive: true },
+      { label: 'Trending Now', value: 'Trending Now', isActive: true },
+      { label: 'Best Sellers', value: 'Best Sellers', isActive: true }
+    ] },
+    { label: 'WOMEN', value: 'Women', subcategories: [
+      { label: 'Lehengas', value: 'Lehengas', isActive: true },
+      { label: 'Sarees', value: 'Sarees', isActive: true },
+      { label: 'Suit Sets', value: 'Suit Sets', isActive: true },
+      { label: 'Indo-Western', value: 'Indo-Western', isActive: true },
+      { label: 'Kurtas & Kurtis', value: 'Kurtas & Kurtis', isActive: true },
+      { label: 'Dresses & Gowns', value: 'Dresses & Gowns', isActive: true },
+      { label: 'Co-ord Sets', value: 'Co-ord Sets', isActive: true },
+      { label: 'Kaftans', value: 'Kaftans', isActive: true },
+      { label: 'Tops & Tunics', value: 'Tops & Tunics', isActive: true },
+      { label: 'Bottom Wear', value: 'Bottom Wear', isActive: true },
+      { label: 'Dupattas', value: 'Dupattas', isActive: true },
+      { label: 'Jackets', value: 'Jackets', isActive: true }
+    ] },
+    { label: 'SHOP BY OCCASION', value: 'Shop by Occasion', subcategories: [
+      { label: 'Bridal Collection', value: 'Bridal Collection', isActive: true },
+      { label: 'Wedding Guest', value: 'Wedding Guest', isActive: true },
+      { label: 'Engagement', value: 'Engagement', isActive: true },
+      { label: 'Reception', value: 'Reception', isActive: true },
+      { label: 'Haldi', value: 'Haldi', isActive: true },
+      { label: 'Mehendi', value: 'Mehendi', isActive: true },
+      { label: 'Sangeet', value: 'Sangeet', isActive: true },
+      { label: 'Cocktail Party', value: 'Cocktail Party', isActive: true },
+      { label: 'Festive Wear', value: 'Festive Wear', isActive: true },
+      { label: 'Pooja Collection', value: 'Pooja Collection', isActive: true },
+      { label: 'Summer Brunch', value: 'Summer Brunch', isActive: true },
+      { label: 'Office Wear', value: 'Office Wear', isActive: true },
+      { label: 'Vacation Edit', value: 'Vacation Edit', isActive: true }
+    ] },
+    { label: 'COLLECTIONS', value: 'Collections', subcategories: [
+      { label: 'Wedding Collection', value: 'Wedding Collection', isActive: true },
+      { label: 'Festive Collection', value: 'Festive Collection', isActive: true },
+      { label: 'Heritage Collection', value: 'Heritage Collection', isActive: true },
+      { label: 'Summer Collection', value: 'Summer Collection', isActive: true },
+      { label: 'Luxury Collection', value: 'Luxury Collection', isActive: true },
+      { label: 'Designer Edit', value: 'Designer Edit', isActive: true }
+    ] },
+    { label: 'READY TO SHIP', value: 'Ready to Ship', subcategories: [
+      { label: '48 Hours Dispatch', value: '48 Hours Dispatch', isActive: true },
+      { label: 'Ready to Wear', value: 'Ready to Wear', isActive: true }
+    ] },
+    { label: 'ACCESSORIES', value: 'Accessories', subcategories: [
+      { label: 'Dupattas', value: 'Dupattas', isActive: true },
+      { label: 'Potli Bags', value: 'Potli Bags', isActive: true },
+      { label: 'Belts', value: 'Belts', isActive: true },
+      { label: 'Jewellery', value: 'Jewellery', isActive: true }
+    ] },
+    { label: 'SALE', value: 'Sale', subcategories: [
+      { label: 'Up to 30% Off', value: 'Up to 30% Off', isActive: true },
+      { label: 'Up to 50% Off', value: 'Up to 50% Off', isActive: true },
+      { label: 'Clearance', value: 'Clearance', isActive: true }
+    ] }
   ];
 
   // ─── SUBCATEGORY DROPDOWN STYLES (injected once) ─────────────────────────────
@@ -81,6 +134,32 @@
         padding: 0;
       }
       #main-menu > li.has-subcats > a::after { display: none; }
+    }
+
+    /* ── Keep the whole main menu on a single row (like Aura by Anamika) ── */
+    @media (min-width: 768px) {
+      nav.main-nav #main-menu {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: center;
+        align-items: center;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      nav.main-nav #main-menu::-webkit-scrollbar { display: none; }
+      nav.main-nav #main-menu > li {
+        flex: 0 0 auto;
+        margin: 0 10px !important;
+      }
+      nav.main-nav #main-menu > li > a {
+        padding: 0 0 8px !important;
+        font-size: 11px !important;
+        letter-spacing: 1px !important;
+      }
     }
   `;
 
