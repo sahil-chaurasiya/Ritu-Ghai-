@@ -12007,7 +12007,8 @@ body {
 header {
   height: auto;
   min-height: 185px;
-  padding-bottom: 22px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eee;
   /* ---------------------------------------
     4.8.1 LOGO
     ----------------------------------------- */
@@ -12193,19 +12194,22 @@ header .main-nav {
     right: 0;
   }
   header .main-nav .minimal-menu > ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+    justify-items: center;
     align-items: center;
+    column-gap: 6px;
+    row-gap: 16px;
+    max-width: 1180px;
+    margin: 0 auto;
   }
   header .main-nav .minimal-menu > ul > li {
-    margin: 6px 25px;
-  }
-  header .main-nav .minimal-menu > ul > li:last-child {
-    margin: 6px 0 6px 5px;
+    margin: 0;
   }
   header .main-nav .minimal-menu > ul > li > a {
     padding: 0 0 8px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
   }
   header .main-nav .minimal-menu > ul > li > a:hover,
   header .main-nav .minimal-menu > ul > li > a:focus {
@@ -12322,6 +12326,7 @@ header .main-nav {
 header .main-nav a {
   color: #25292c;
   font-size: 12px;
+  text-transform: uppercase;
 }
 @media (max-width: 767px) {
   header .main-nav a {
