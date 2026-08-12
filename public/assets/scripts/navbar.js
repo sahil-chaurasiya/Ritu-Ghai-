@@ -187,13 +187,19 @@
     }
 
     /* ── Mega menu (categories whose subcategories have their own children,
-       e.g. Women → Lehengas → Bridal Lehengas) — multi-column dropdown ── */
+       e.g. Women → Lehengas → Bridal Lehengas) — multi-column dropdown ──
+       Positioning: left/transform below are just a fallback. The real
+       horizontal position is computed in JS (see clampSubmenuPosition())
+       on hover/focus, because a fixed "center under the item" position
+       overflows off-screen for items near the left or right edge of the
+       nav (e.g. "Women" is close to the left edge, so a ~1100px-wide
+       centered panel pushed off the left side of the viewport). */
     #main-menu > li.has-mega .subcat-mega {
       display: none;
       position: absolute;
       top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      transform: none;
       width: min(94vw, 1100px);
       background: #fff;
       border-top: 2px solid #44332B;
@@ -227,10 +233,35 @@
       border-bottom: 1px solid #f0ece8;
     }
     .subcat-col-heading:hover { color: #23180f; }
-    .subcat-col ul {
+    /* The base theme (minimal-menu.css) hides EVERY nested <ul> inside the
+       nav by default (opacity:0, visibility:hidden, position:absolute) and
+       only reveals it via ".minimal-menu ul li:hover > ul" — a DIRECT CHILD
+       selector. Our mega-menu item lists sit inside .subcat-mega-inner >
+       .subcat-col wrapper divs, so they're never a direct child of the
+       hovered <li> and that reveal rule never matches, leaving them stuck
+       invisible. These overrides neutralize the theme's hidden state for
+       our specific structure (higher specificity + !important needed to
+       beat the theme rule, which is more specific than a plain ".subcat-col ul").
+       This is what makes the item lists (e.g. "Bridal Lehengas") actually show. */
+    #main-menu .subcat-mega .subcat-col ul {
+      position: static !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      top: auto !important;
+      left: auto !important;
+      height: auto !important;
       list-style: none;
       margin: 0;
       padding: 0;
+    }
+    #main-menu .subcat-mega .subcat-col ul li {
+      display: block !important;
+      overflow: visible !important;
+      height: auto !important;
+      padding: 0 !important;
     }
     .subcat-col ul li a {
       display: block;
@@ -782,6 +813,7 @@
     }
 
     setActiveNavItem();
+    setupMegaMenuPositioning();
 
     // Fit after layout settles, and again once web fonts finish loading
     // (font metrics can change measured widths after the initial paint).
@@ -789,6 +821,53 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(fitMenuToOneLine).catch(function () {});
     }
+  }
+
+  // ─── MEGA MENU POSITIONING ──────────────────────────────────────────────
+  // The mega panel is centered/left-aligned via CSS as a static fallback,
+  // but that overflows off-screen for items near the edges of the nav bar
+  // (e.g. "Women" sits close to the left edge — a ~1100px-wide panel
+  // centered under it pushes off the left of the viewport). This computes
+  // the real pixel position on hover/focus so the panel always stays fully
+  // within the viewport, however wide it is and wherever its <li> sits.
+  function positionMegaPanel(li) {
+    const panel = li.querySelector(':scope > .subcat-mega');
+    if (!panel || window.innerWidth < 768) return;
+
+    // Reset to measure the panel's natural width unaffected by any
+    // previous positioning.
+    panel.style.left = '0px';
+    panel.style.transform = 'none';
+
+    const margin = 12;
+    const liRect = li.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth;
+
+    // Default: center the panel under the nav item.
+    let left = (liRect.width / 2) - (panelWidth / 2);
+    let viewportLeft = liRect.left + left;
+    let viewportRight = viewportLeft + panelWidth;
+
+    if (viewportLeft < margin) {
+      left += (margin - viewportLeft);
+    } else if (viewportRight > window.innerWidth - margin) {
+      left -= (viewportRight - (window.innerWidth - margin));
+    }
+
+    panel.style.left = left + 'px';
+  }
+
+  function setupMegaMenuPositioning() {
+    const items = document.querySelectorAll('#main-menu > li.has-mega');
+    items.forEach(li => {
+      li.addEventListener('mouseenter', () => positionMegaPanel(li));
+      li.addEventListener('focusin', () => positionMegaPanel(li));
+    });
+    window.addEventListener('resize', () => {
+      items.forEach(li => {
+        if (li.matches(':hover, :focus-within')) positionMegaPanel(li);
+      });
+    });
   }
 
   // ─── AUTO-FIT MENU TO ONE LINE ─────────────────────────────────────────────
