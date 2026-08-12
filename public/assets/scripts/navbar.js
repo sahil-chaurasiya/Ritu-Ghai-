@@ -313,6 +313,29 @@
        .nav-menu-scroll class, added by JS, and ONLY in the rare case the
        row still doesn't fit even at the smallest readable size. */
     @media (min-width: 768px) {
+      /* header .container is capped at a fixed width (1200px at large
+         sizes) by Bootstrap, which left huge empty gutters on wide
+         screens while the menu below still triggered nav-menu-scroll
+         needlessly. Break nav.main-nav out of that container so it uses
+         the real screen width (padded against the screen edges, not
+         squeezed into the 1200px box) before the scroll fallback is
+         ever needed. Logo/social/cart stay put — they're positioned off
+         header .container, which is untouched. */
+      nav.main-nav {
+        left: 50% !important;
+        right: auto !important;
+        width: 100vw !important;
+        max-width: 1800px !important;
+        transform: translateX(-50%);
+        padding: 0 40px;
+        box-sizing: border-box;
+        /* transform above creates a new stacking context, which traps the
+           mega-menu dropdown's z-index:9000 inside it — without this, a
+           later sibling with no z-index of its own (e.g. the homepage's
+           .simple-banner) paints over the whole nav, dropdown included.
+           Explicit z-index here lifts that whole stacking context above it. */
+        z-index: 30;
+      }
       nav.main-nav #main-menu {
         display: flex !important;
         flex-wrap: nowrap !important;
