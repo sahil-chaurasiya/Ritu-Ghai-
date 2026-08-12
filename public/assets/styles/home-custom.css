@@ -500,6 +500,25 @@ img {
   text-decoration: none;
 }
 
+/* Force all three cards to match the height of the tallest one, so a
+   two-line subtitle (e.g. "Best Sellers") doesn't make its card taller
+   than the others. */
+@media (min-width: 768px) {
+  .features .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .features .row > [class*="col-"] {
+    display: flex;
+  }
+  .features .feature-card {
+    width: 100%;
+  }
+  .features .feature-card > a {
+    height: 100%;
+  }
+}
+
 .features .feature-card .feature-icon {
   display: inline-flex;
   align-items: center;
