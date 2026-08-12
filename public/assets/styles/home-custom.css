@@ -475,3 +475,126 @@ img {
   background: #25282c;
   color: #fff;
 }
+
+/* ── Homepage feature cards (New Arrivals / Sales & Offers / Best Sellers) ──
+   Redesigned from the original flat 70px colour strip into a taller,
+   editorial card: an icon, a bold title, a short line of copy, and a
+   "Shop Now" link that animates on hover. Colours are unchanged from the
+   original theme (dark brown / tan / blue-grey) so the palette still
+   matches the rest of the site. */
+.features .feature-card {
+  overflow: hidden;
+}
+.features .sale.feature-card { background-color: #44332B; }
+.features .giveway.feature-card { background-color: #c1ac91; }
+.features .freeship.feature-card { background-color: #8090a1; }
+
+.features .feature-card > a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 250px;
+  padding: 40px 26px 32px;
+  text-decoration: none;
+}
+
+.features .feature-card .feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 26px;
+  color: #fff;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.features .feature-card:hover .feature-icon {
+  transform: scale(1.08);
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.features .feature-card .feature-title {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.features .feature-card .feature-sub {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 220px;
+  margin: 0 auto 24px;
+}
+
+.features .feature-card .feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #fff;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+  transition: border-color 0.3s ease;
+}
+.features .feature-card .feature-cta i {
+  font-size: 13px;
+  transition: transform 0.3s ease;
+}
+.features .feature-card:hover .feature-cta {
+  border-color: #fff;
+}
+.features .feature-card:hover .feature-cta i {
+  transform: translateX(4px);
+}
+
+/* The tan "Sales & Offers" card is a light colour, so its text uses a dark
+   brown instead of white to keep proper contrast/legibility. */
+.features .giveway.feature-card .feature-icon {
+  border-color: rgba(58, 47, 34, 0.4);
+  color: #3a2f22;
+}
+.features .giveway.feature-card:hover .feature-icon {
+  background-color: rgba(58, 47, 34, 0.1);
+}
+.features .giveway.feature-card .feature-title,
+.features .giveway.feature-card .feature-cta {
+  color: #3a2f22;
+}
+.features .giveway.feature-card .feature-sub {
+  color: rgba(58, 47, 34, 0.75);
+}
+.features .giveway.feature-card .feature-cta {
+  border-bottom-color: rgba(58, 47, 34, 0.45);
+}
+.features .giveway.feature-card:hover .feature-cta {
+  border-color: #3a2f22;
+}
+
+@media (max-width: 991px) {
+  .features .feature-card > a { min-height: 220px; }
+}
+@media (max-width: 767px) {
+  .features .feature-card > a {
+    min-height: 190px;
+    padding: 32px 20px 26px;
+  }
+  .features .feature-card .feature-title { font-size: 17px; letter-spacing: 1.5px; }
+  .features .feature-card .feature-icon { width: 54px; height: 54px; font-size: 22px; }
+}

@@ -336,14 +336,104 @@
       nav.main-nav #main-menu.nav-menu-scroll::-webkit-scrollbar-thumb { background: #d8d0c8; border-radius: 4px; }
       nav.main-nav #main-menu > li {
         flex: 0 0 auto;
-        margin: 0 var(--nav-gap, 10px) !important;
+        margin: 0 var(--nav-gap, 16px) !important;
       }
       nav.main-nav #main-menu > li > a {
         padding: 0 0 8px !important;
-        font-size: var(--nav-font-size, 11px) !important;
+        font-size: var(--nav-font-size, 14px) !important;
         letter-spacing: 0.5px !important;
         white-space: nowrap;
       }
+    }
+  `;
+
+  // ─── TOP SEARCH STYLES (injected once) ───────────────────────────────────
+  const TOP_SEARCH_STYLES = `
+    /* ── Header search icon + expanding input, sits left of the cart ──
+       The cart icon and search icon are unified to the same fixed-size,
+       flex-centered box (34px, line-height:1) so their glyphs line up on
+       the same vertical center regardless of the icon font's own metrics
+       — relying on "top" position alone isn't enough because the two
+       icons don't share the same natural line-height. */
+    header .top-search,
+    header .top-cart {
+      display: flex;
+      align-items: center;
+    }
+    header .top-search {
+      position: absolute;
+      right: 62px;
+      top: 50px;
+      height: 34px;
+      z-index: 20;
+    }
+    header .top-search .search-toggle {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      color: #444444;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+    }
+    header .top-search .search-toggle:hover,
+    header .top-search .search-toggle:focus {
+      color: #44332B;
+      outline: none;
+    }
+    header .top-cart a {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      line-height: 1 !important;
+    }
+    header .top-search .top-search-form {
+      position: absolute;
+      top: -8px;
+      right: 32px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      width: 0;
+      opacity: 0;
+      visibility: hidden;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #e5e0da;
+      border-radius: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      transition: width 0.28s ease, opacity 0.2s ease;
+    }
+    header .top-search.active .top-search-form {
+      width: 230px;
+      opacity: 1;
+      visibility: visible;
+    }
+    header .top-search .top-search-form input[type="text"] {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      padding: 10px 14px;
+      font-family: Montserrat, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      color: #444;
+    }
+    @media (max-width: 767px) {
+      header .top-search { right: 48px; top: 10px; height: 28px; }
+      header .top-search .search-toggle { font-size: 22px; width: 28px; height: 28px; }
+      header .top-cart a { width: 28px; height: 28px; }
+      header .top-search .top-search-form { right: 26px; }
+      header .top-search.active .top-search-form { width: 160px; }
     }
   `;
 
@@ -412,6 +502,7 @@
   function buildNavbarHTML(categories) {
     return `
     <style id="subcat-nav-styles">${SUBCATEGORY_STYLES}</style>
+    <style id="top-search-styles">${TOP_SEARCH_STYLES}</style>
     <div class="topbar">
       <div class="container">
         <div class="left-topbar">WELCOME TO RITU GHAI</div>
@@ -437,7 +528,7 @@
     <header>
       <div class="container">
         <a class="logo" href="/index.html">
-          <img src="/assets/images/logo.png" alt="Ritu Ghai" style="width:200px;height:auto;" />
+          <img src="/assets/images/logo.png" alt="Ritu Ghai" style="width:230px;height:auto;" />
         </a>
         <div class="header-social">
           <ul class="list-social">
@@ -446,6 +537,14 @@
             <li><a href="#" class="instagram"><i class="fa fa-instagram"></i></a></li>
             <li><a href="https://youtube.com" target="_blank" rel="noopener" class="youtube"><i class="fa fa-youtube-play"></i></a></li>
           </ul>
+        </div>
+        <div class="top-search" id="top-search">
+          <button type="button" class="search-toggle" id="search-toggle-btn" aria-label="Search" aria-expanded="false">
+            <i class="pe-7s-search"></i>
+          </button>
+          <form class="top-search-form" action="/shop-fullwidth.html" method="get" autocomplete="off">
+            <input type="text" name="search" id="nav-search-input" placeholder="Search products, colour, size…" />
+          </form>
         </div>
         <div class="top-cart">
           <a href="/shopping-cart.html">
@@ -814,6 +913,7 @@
 
     setActiveNavItem();
     setupMegaMenuPositioning();
+    setupTopSearch();
 
     // Fit after layout settles, and again once web fonts finish loading
     // (font metrics can change measured widths after the initial paint).
@@ -821,6 +921,44 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(fitMenuToOneLine).catch(function () {});
     }
+  }
+
+  // ─── TOP SEARCH (icon toggle + expanding input) ──────────────────────────
+  function setupTopSearch() {
+    const wrap  = document.getElementById('top-search');
+    const btn   = document.getElementById('search-toggle-btn');
+    const input = document.getElementById('nav-search-input');
+    if (!wrap || !btn || !input) return;
+
+    // Pre-fill with the current search term (e.g. when already on the
+    // shop page after a search) so the box reflects what's being shown.
+    try {
+      const q = new URLSearchParams(window.location.search).get('search');
+      if (q) input.value = q;
+    } catch (e) { /* ignore */ }
+
+    function openSearch() {
+      wrap.classList.add('active');
+      btn.setAttribute('aria-expanded', 'true');
+      setTimeout(() => input.focus(), 50);
+    }
+    function closeSearch() {
+      wrap.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      wrap.classList.contains('active') ? closeSearch() : openSearch();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) closeSearch();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSearch();
+    });
   }
 
   // ─── MEGA MENU POSITIONING ──────────────────────────────────────────────
@@ -878,8 +1016,8 @@
     const menu = document.getElementById('main-menu');
     if (!menu || window.innerWidth < 768) return;
 
-    const MAX_FONT = 11, MIN_FONT = 8.5, FONT_STEP = 0.25;
-    const MAX_GAP  = 10, MIN_GAP  = 4,   GAP_STEP  = 0.5;
+    const MAX_FONT = 14, MIN_FONT = 14, FONT_STEP = 0.25;
+    const MAX_GAP  = 16, MIN_GAP  = 6,   GAP_STEP  = 0.5;
 
     let fontSize = MAX_FONT;
     let gap = MAX_GAP;

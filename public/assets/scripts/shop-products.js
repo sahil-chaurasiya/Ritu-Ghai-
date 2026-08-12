@@ -13,6 +13,7 @@
     minPrice: null,
     maxPrice: null,
     sizes: [],
+    search: '',
     allProducts: [],
     filtered: []
   };
@@ -119,6 +120,23 @@
       products = products.filter(function (p) {
         if (!p.sizes || !p.sizes.length) return false;
         return state.sizes.some(function (s) { return p.sizes.indexOf(s) !== -1; });
+      });
+    }
+
+    // Free-text search — matches against name, description, additional
+    // info, category, subcategory, sizes and badge, so a search for a
+    // colour ("red"), a size ("medium"), a fabric, an occasion, etc. all
+    // work as long as that word appears anywhere in the product's text.
+    // (There's no dedicated "colour" field in the product data yet — this
+    // searches whatever text the product actually has.)
+    if (state.search && state.search.trim()) {
+      var terms = state.search.trim().toLowerCase().split(/\s+/);
+      products = products.filter(function (p) {
+        var haystack = [
+          p.name, p.description, p.additionalInfo, p.category, p.subcategory,
+          (p.sizes || []).join(' '), p.badge
+        ].join(' ').toLowerCase();
+        return terms.every(function (t) { return haystack.indexOf(t) !== -1; });
       });
     }
 
@@ -238,7 +256,10 @@
   function updatePageHeading() {
     var h1 = document.querySelector('.header-page h1');
     if (!h1) return;
-    if (state.subcategory && state.subcategory !== 'all') {
+    if (state.search && state.search.trim()) {
+      h1.textContent = 'SEARCH RESULTS FOR "' + state.search.trim().toUpperCase() + '"';
+      document.title = 'Search: ' + state.search.trim() + ' — Ritu Ghai';
+    } else if (state.subcategory && state.subcategory !== 'all') {
       h1.textContent = state.subcategory.toUpperCase();
       document.title = state.subcategory + ' — Ritu Ghai';
     } else if (state.category && state.category !== 'all') {
@@ -348,9 +369,11 @@
     var urlParams = new URLSearchParams(window.location.search);
     var urlCat = urlParams.get('category');
     var urlSub = urlParams.get('subcategory');
+    var urlSearch = urlParams.get('search');
 
     if (urlCat) state.category = urlCat;
     if (urlSub) state.subcategory = urlSub;
+    if (urlSearch) state.search = urlSearch;
 
     // Update heading from URL params immediately
     updatePageHeading();
