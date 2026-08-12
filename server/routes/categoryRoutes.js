@@ -14,10 +14,11 @@ router.get('/', async (req, res) => {
         .filter(s => s.isActive)
         .sort((a, b) => a.order - b.order || a.createdAt - b.createdAt)
         .map(s => ({
-          ...s,
+          ...s.toObject(),
           subcategories: (s.subcategories || [])
             .filter(g => g.isActive)
             .sort((a, b) => a.order - b.order || a.createdAt - b.createdAt)
+            .map(g => g.toObject())
         }))
     }));
     res.json({ success: true, categories: result });
