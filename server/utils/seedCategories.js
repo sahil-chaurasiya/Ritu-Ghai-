@@ -1,108 +1,54 @@
 /**
  * Standalone seed script for the storefront navbar categories.
  *
- * Mirrors the "Aura by Anamika" navbar structure (New Arrivals, Women,
- * Shop by Occasion, Collections, Ready to Ship, Accessories, Sale) into
- * Ritu Ghai's Category collection, which navbar.js reads from
- * (GET /api/categories) to build the main menu.
+ * Wipes the Category collection and recreates it from the shared list in
+ * server/data/defaultCategories.js (kept in sync with server.js's
+ * auto-seed — see that file for why this matters).
  *
  * Home, Blog, About and Contact are NOT part of this seed — they stay
  * exactly where they already are, hard-coded in navbar.js.
  *
- * Note: Ritu Ghai's Category schema only supports two levels
- * (category -> subcategories), while Aura's "Women" menu item has a
- * third level (e.g. Lehengas -> Bridal Lehengas). To fit this schema,
- * each of Aura's second-level items becomes a Ritu subcategory and the
- * third level is not carried over.
+ * ⚠️  THIS DELETES ALL EXISTING CATEGORIES in whatever database MONGO_URI
+ * points to. If you've added categories by hand in the admin panel
+ * (e.g. "Women's Ethnic Wear", "Kids", "Designer Sharara Suit Set", etc.)
+ * running this WILL permanently remove them and replace them with the
+ * Aura-style list below. Make sure that's what you want before running it
+ * against your production database.
  *
  * Run with:   npm run seed:categories   (from project root)
  * or:         node server/utils/seedCategories.js
  */
 const path = require('path');
-// Resolve .env relative to THIS file's location (server/.env), not the
-// current working directory -- avoids silently connecting to the wrong
-// database when the script is run from a different folder.
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// Resolve .env relative to the PROJECT ROOT (same place server.js loads it
+// from), not this file's folder — this project keeps .env at the repo root
+// (zorka-app/.env), not inside server/.
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 const mongoose = require('mongoose');
 const Category = require('../models/Category');
+const categories = require('../data/defaultCategories');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/zorka_shop';
 
-// Helper to quickly build a subcategory
-const sub = (label, order) => ({ label, value: label, order, isActive: true });
-
-// Helper to build a category with its subcategories
-const cat = (label, order, subLabels = []) => ({
-  label,
-  value: label,
-  order,
-  isActive: true,
-  subcategories: subLabels.map((s, i) => sub(s, i)),
-});
-
-const categories = [
-  cat('New Arrivals', 0, ['Just In', 'Trending Now', 'Best Sellers']),
-
-  cat('Women', 1, [
-    'Lehengas',
-    'Sarees',
-    'Suit Sets',
-    'Indo-Western',
-    'Kurtas & Kurtis',
-    'Dresses & Gowns',
-    'Co-ord Sets',
-    'Kaftans',
-    'Tops & Tunics',
-    'Bottom Wear',
-    'Dupattas',
-    'Jackets',
-  ]),
-
-  cat('Shop by Occasion', 2, [
-    'Bridal Collection',
-    'Wedding Guest',
-    'Engagement',
-    'Reception',
-    'Haldi',
-    'Mehendi',
-    'Sangeet',
-    'Cocktail Party',
-    'Festive Wear',
-    'Pooja Collection',
-    'Summer Brunch',
-    'Office Wear',
-    'Vacation Edit',
-  ]),
-
-  cat('Collections', 3, [
-    'Wedding Collection',
-    'Festive Collection',
-    'Heritage Collection',
-    'Summer Collection',
-    'Luxury Collection',
-    'Designer Edit',
-  ]),
-
-  cat('Ready to Ship', 4, ['48 Hours Dispatch', 'Ready to Wear']),
-
-  cat('Accessories', 5, ['Dupattas', 'Potli Bags', 'Belts', 'Jewellery']),
-
-  cat('Sale', 6, ['Up to 30% Off', 'Up to 50% Off', 'Clearance']),
-];
-
 const seedCategories = async () => {
   console.log('🔌 Connecting using MONGO_URI:', MONGO_URI);
-  await mongoose.connect(MONGO_URI);
-  console.log('✅ Connected to MongoDB');
+  const conn = await mongoose.connect(MONGO_URI);
+  console.log(`✅ Connected to MongoDB — host: ${conn.connection.host}, db: ${conn.connection.name}`);
+  console.log('   👆 Double-check this is the SAME database your live site/admin panel uses.');
+  console.log('   If your site is deployed (Render/Railway/Vercel/etc.), MONGO_URI there is set');
+  console.log('   in that host\'s dashboard, NOT from the .env file on your machine — running this');
+  console.log('   script locally without that same value will seed a database nobody is reading from.');
 
-  // Wipe and recreate so any stale/old categories don't linger mixed in
-  // with the new set.
+  const existingCount = await Category.countDocuments();
+  console.log(`\n🗑️  Deleting ${existingCount} existing categor${existingCount === 1 ? 'y' : 'ies'}...`);
   await Category.deleteMany({});
   await Category.insertMany(categories);
 
   console.log(`🧭 Seeded ${categories.length} categories (New Arrivals → Sale) with their sub-categories.`);
   console.log('   Home, Blog, About and Contact were left untouched in navbar.js.');
   console.log('\n✅ Category seeding complete! Visit /admin/categories.html to edit further.');
+  console.log('   (If the admin panel or live navbar still show old data after this, hard-refresh');
+  console.log('   the page — Ctrl/Cmd+Shift+R — and confirm the running server was restarted after');
+  console.log('   the seed finished.)');
   process.exit(0);
 };
 

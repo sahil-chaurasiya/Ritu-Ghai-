@@ -17,18 +17,75 @@
       { label: 'Best Sellers', value: 'Best Sellers', isActive: true }
     ] },
     { label: 'WOMEN', value: 'Women', subcategories: [
-      { label: 'Lehengas', value: 'Lehengas', isActive: true },
-      { label: 'Sarees', value: 'Sarees', isActive: true },
-      { label: 'Suit Sets', value: 'Suit Sets', isActive: true },
-      { label: 'Indo-Western', value: 'Indo-Western', isActive: true },
-      { label: 'Kurtas & Kurtis', value: 'Kurtas & Kurtis', isActive: true },
-      { label: 'Dresses & Gowns', value: 'Dresses & Gowns', isActive: true },
-      { label: 'Co-ord Sets', value: 'Co-ord Sets', isActive: true },
-      { label: 'Kaftans', value: 'Kaftans', isActive: true },
-      { label: 'Tops & Tunics', value: 'Tops & Tunics', isActive: true },
-      { label: 'Bottom Wear', value: 'Bottom Wear', isActive: true },
-      { label: 'Dupattas', value: 'Dupattas', isActive: true },
-      { label: 'Jackets', value: 'Jackets', isActive: true }
+      { label: 'Lehengas', value: 'Lehengas', isActive: true, subcategories: [
+        { label: 'Bridal Lehengas', value: 'Bridal Lehengas', isActive: true },
+        { label: 'Bridesmaid Lehengas', value: 'Bridesmaid Lehengas', isActive: true },
+        { label: 'Designer Lehengas', value: 'Designer Lehengas', isActive: true },
+        { label: 'Festive Lehengas', value: 'Festive Lehengas', isActive: true },
+        { label: 'Reception Lehengas', value: 'Reception Lehengas', isActive: true }
+      ] },
+      { label: 'Sarees', value: 'Sarees', isActive: true, subcategories: [
+        { label: 'Banarasi Sarees', value: 'Banarasi Sarees', isActive: true },
+        { label: 'Chanderi Sarees', value: 'Chanderi Sarees', isActive: true },
+        { label: 'Silk Sarees', value: 'Silk Sarees', isActive: true },
+        { label: 'Organza Sarees', value: 'Organza Sarees', isActive: true },
+        { label: 'Tissue Sarees', value: 'Tissue Sarees', isActive: true },
+        { label: 'Designer Sarees', value: 'Designer Sarees', isActive: true },
+        { label: 'Printed Sarees', value: 'Printed Sarees', isActive: true },
+        { label: 'Everyday Sarees', value: 'Everyday Sarees', isActive: true }
+      ] },
+      { label: 'Suit Sets', value: 'Suit Sets', isActive: true, subcategories: [
+        { label: 'Kurta Sets', value: 'Kurta Sets', isActive: true },
+        { label: 'Anarkali Sets', value: 'Anarkali Sets', isActive: true },
+        { label: 'Sharara Sets', value: 'Sharara Sets', isActive: true },
+        { label: 'Gharara Sets', value: 'Gharara Sets', isActive: true },
+        { label: 'Palazzo Sets', value: 'Palazzo Sets', isActive: true },
+        { label: 'Straight Suit Sets', value: 'Straight Suit Sets', isActive: true }
+      ] },
+      { label: 'Indo-Western', value: 'Indo-Western', isActive: true, subcategories: [
+        { label: 'Indo-Western Gowns', value: 'Indo-Western Gowns', isActive: true },
+        { label: 'Draped Dresses', value: 'Draped Dresses', isActive: true },
+        { label: 'Jacket Sets', value: 'Jacket Sets', isActive: true },
+        { label: 'Fusion Wear', value: 'Fusion Wear', isActive: true },
+        { label: 'Salwar Suits', value: 'Salwar Suits', isActive: true }
+      ] },
+      { label: 'Kurtas & Kurtis', value: 'Kurtas & Kurtis', isActive: true, subcategories: [
+        { label: 'Designer Kurtis', value: 'Designer Kurtis', isActive: true },
+        { label: 'Short Kurtis', value: 'Short Kurtis', isActive: true },
+        { label: 'Long Kurtis', value: 'Long Kurtis', isActive: true },
+        { label: 'Printed Kurtis', value: 'Printed Kurtis', isActive: true },
+        { label: 'Embroidered Kurtis', value: 'Embroidered Kurtis', isActive: true }
+      ] },
+      { label: 'Dresses & Gowns', value: 'Dresses & Gowns', isActive: true, subcategories: [
+        { label: 'Evening Gowns', value: 'Evening Gowns', isActive: true },
+        { label: 'Party Dresses', value: 'Party Dresses', isActive: true },
+        { label: 'Maxi Dresses', value: 'Maxi Dresses', isActive: true }
+      ] },
+      { label: 'Co-ord Sets', value: 'Co-ord Sets', isActive: true, subcategories: [] },
+      { label: 'Kaftans', value: 'Kaftans', isActive: true, subcategories: [] },
+      { label: 'Tops & Tunics', value: 'Tops & Tunics', isActive: true, subcategories: [
+        { label: 'Tops', value: 'Tops', isActive: true },
+        { label: 'Tunics', value: 'Tunics', isActive: true },
+        { label: 'Shirts', value: 'Shirts', isActive: true }
+      ] },
+      { label: 'Bottom Wear', value: 'Bottom Wear', isActive: true, subcategories: [
+        { label: 'Pants', value: 'Pants', isActive: true },
+        { label: 'Palazzo', value: 'Palazzo', isActive: true },
+        { label: 'Skirts', value: 'Skirts', isActive: true },
+        { label: 'Sharara', value: 'Sharara', isActive: true },
+        { label: 'Cigarette Pants', value: 'Cigarette Pants', isActive: true }
+      ] },
+      { label: 'Dupattas', value: 'Dupattas', isActive: true, subcategories: [
+        { label: 'Wedding Collection', value: 'Wedding Collection', isActive: true },
+        { label: 'Banarasi Dupattas', value: 'Banarasi Dupattas', isActive: true },
+        { label: 'Organza Dupattas', value: 'Organza Dupattas', isActive: true },
+        { label: 'Chanderi Dupattas', value: 'Chanderi Dupattas', isActive: true },
+        { label: 'Embroidered Dupattas', value: 'Embroidered Dupattas', isActive: true }
+      ] },
+      { label: 'Jackets', value: 'Jackets', isActive: true, subcategories: [
+        { label: 'Ethnic Jackets', value: 'Ethnic Jackets', isActive: true },
+        { label: 'Cape Jackets', value: 'Cape Jackets', isActive: true }
+      ] }
     ] },
     { label: 'SHOP BY OCCASION', value: 'Shop by Occasion', subcategories: [
       { label: 'Bridal Collection', value: 'Bridal Collection', isActive: true },
@@ -67,6 +124,12 @@
       { label: 'Up to 30% Off', value: 'Up to 30% Off', isActive: true },
       { label: 'Up to 50% Off', value: 'Up to 50% Off', isActive: true },
       { label: 'Clearance', value: 'Clearance', isActive: true }
+    ] },
+    { label: 'CUSTOM SERVICES', value: 'Custom Services', subcategories: [
+      { label: 'Custom Stitching', value: 'Custom Stitching', isActive: true },
+      { label: 'Size Guide', value: 'Size Guide', isActive: true },
+      { label: 'Bridal Consultation', value: 'Bridal Consultation', isActive: true },
+      { label: 'Personal Styling', value: 'Personal Styling', isActive: true }
     ] }
   ];
 
@@ -122,6 +185,80 @@
       color: #44332B;
       font-weight: 700;
     }
+
+    /* ── Mega menu (categories whose subcategories have their own children,
+       e.g. Women → Lehengas → Bridal Lehengas) — multi-column dropdown ── */
+    #main-menu > li.has-mega .subcat-mega {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(94vw, 1100px);
+      background: #fff;
+      border-top: 2px solid #44332B;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 9000;
+      padding: 24px 30px;
+    }
+    #main-menu > li.has-mega:hover .subcat-mega,
+    #main-menu > li.has-mega:focus-within .subcat-mega {
+      display: block;
+    }
+    .subcat-mega-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 28px;
+    }
+    .subcat-col {
+      flex: 1 1 170px;
+      min-width: 150px;
+    }
+    .subcat-col-heading {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #44332B;
+      text-decoration: none;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f0ece8;
+    }
+    .subcat-col-heading:hover { color: #23180f; }
+    .subcat-col ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .subcat-col ul li a {
+      display: block;
+      padding: 5px 0;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      text-transform: none;
+      color: #555;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .subcat-col ul li a:hover { color: #44332B; text-decoration: underline; }
+    /* Mobile: mega menu collapses to stacked full-width groups */
+    @media (max-width: 991px) {
+      #main-menu > li.has-mega .subcat-mega {
+        display: block;
+        position: static;
+        transform: none;
+        width: auto;
+        box-shadow: none;
+        border-top: none;
+        padding: 0;
+        margin-left: 16px;
+      }
+      .subcat-mega-inner { flex-direction: column; gap: 0; }
+      .subcat-col { border-left: 2px solid #f0ece8; padding-left: 12px; margin-bottom: 10px; }
+      #main-menu > li.has-mega > a::after { display: none; }
+    }
     /* Mobile: subcats as indented items (minimal-menu handles toggling) */
     @media (max-width: 991px) {
       #main-menu > li.has-subcats .subcat-dropdown {
@@ -136,7 +273,14 @@
       #main-menu > li.has-subcats > a::after { display: none; }
     }
 
-    /* ── Keep the whole main menu on a single row (like Aura by Anamika) ── */
+    /* ── Keep the whole main menu on a single row (like Aura by Anamika) ──
+       Font size + item gap shrink automatically (see fitMenuToOneLine())
+       until every item fits without wrapping. Overflow stays "visible" by
+       default (not "auto") — mixing overflow-x:auto with overflow-y:visible
+       makes browsers silently force overflow-y to auto too, which clips
+       dropdown submenus. Horizontal scrolling is only switched on via the
+       .nav-menu-scroll class, added by JS, and ONLY in the rare case the
+       row still doesn't fit even at the smallest readable size. */
     @media (min-width: 768px) {
       nav.main-nav #main-menu {
         display: flex !important;
@@ -144,21 +288,30 @@
         justify-content: center;
         align-items: center;
         white-space: nowrap;
+        width: 100%;
         max-width: 100%;
-        overflow-x: auto;
-        overflow-y: visible;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+        overflow: visible;
       }
-      nav.main-nav #main-menu::-webkit-scrollbar { display: none; }
+      nav.main-nav #main-menu.nav-menu-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: #d8d0c8 transparent;
+      }
+      nav.main-nav #main-menu.nav-menu-scroll::-webkit-scrollbar { height: 4px; }
+      nav.main-nav #main-menu.nav-menu-scroll::-webkit-scrollbar-track { background: transparent; }
+      nav.main-nav #main-menu.nav-menu-scroll::-webkit-scrollbar-thumb { background: #d8d0c8; border-radius: 4px; }
       nav.main-nav #main-menu > li {
         flex: 0 0 auto;
-        margin: 0 10px !important;
+        margin: 0 var(--nav-gap, 10px) !important;
       }
       nav.main-nav #main-menu > li > a {
         padding: 0 0 8px !important;
-        font-size: 11px !important;
-        letter-spacing: 1px !important;
+        font-size: var(--nav-font-size, 11px) !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap;
       }
     }
   `;
@@ -177,7 +330,34 @@
         </li>`;
       }
 
-      // Category with subcategories — render dropdown
+      // A "mega" category is one where at least one subcategory has its own
+      // children (e.g. Women → Lehengas → Bridal Lehengas) — rendered as
+      // multi-column groups instead of a flat one-level dropdown list.
+      const isMega = subs.some(s => (s.subcategories || []).filter(g => g.isActive !== false).length > 0);
+
+      if (isMega) {
+        const columns = subs.map(s => {
+          const grandchildren = (s.subcategories || []).filter(g => g.isActive !== false);
+          const groupHeadHref = `/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}&subcategory=${encodeURIComponent(s.value)}`;
+          const groupHead = `<a href="${groupHeadHref}" class="subcat-col-heading">${s.label}</a>`;
+          const items = grandchildren.map(g =>
+            `<li><a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}&subcategory=${encodeURIComponent(s.value)}&childcategory=${encodeURIComponent(g.value)}">${g.label}</a></li>`
+          ).join('');
+          return `<div class="subcat-col">
+            ${groupHead}
+            ${items ? `<ul>${items}</ul>` : ''}
+          </div>`;
+        }).join('');
+
+        return `<li class="has-subcats has-mega" data-page="${pageKey}" data-category="${cat.value}">
+          <a href="${catUrl}">${cat.label}</a>
+          <div class="subcat-mega">
+            <div class="subcat-mega-inner">${columns}</div>
+          </div>
+        </li>`;
+      }
+
+      // Category with flat subcategories (no third level) — simple dropdown
       const subItems = subs.map(s =>
         `<li><a href="/shop-fullwidth.html?category=${encodeURIComponent(cat.value)}&subcategory=${encodeURIComponent(s.value)}">${s.label}</a></li>`
       ).join('');
@@ -602,7 +782,65 @@
     }
 
     setActiveNavItem();
+
+    // Fit after layout settles, and again once web fonts finish loading
+    // (font metrics can change measured widths after the initial paint).
+    requestAnimationFrame(fitMenuToOneLine);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(fitMenuToOneLine).catch(function () {});
+    }
   }
+
+  // ─── AUTO-FIT MENU TO ONE LINE ─────────────────────────────────────────────
+  // Shrinks font-size, then item gap, until #main-menu's content actually
+  // fits inside its own box on a single row. This is what stops items from
+  // being invisibly clipped/scrolled-off — it makes them fit for real.
+  function fitMenuToOneLine() {
+    const menu = document.getElementById('main-menu');
+    if (!menu || window.innerWidth < 768) return;
+
+    const MAX_FONT = 11, MIN_FONT = 8.5, FONT_STEP = 0.25;
+    const MAX_GAP  = 10, MIN_GAP  = 4,   GAP_STEP  = 0.5;
+
+    let fontSize = MAX_FONT;
+    let gap = MAX_GAP;
+
+    const apply = () => {
+      menu.style.setProperty('--nav-font-size', fontSize + 'px');
+      menu.style.setProperty('--nav-gap', gap + 'px');
+    };
+    apply();
+
+    // Shrink in small steps until everything fits on one row, or we hit
+    // the readability floor.
+    let guard = 0;
+    while (menu.scrollWidth > menu.clientWidth + 1 && guard < 60) {
+      if (fontSize > MIN_FONT) fontSize = Math.max(MIN_FONT, fontSize - FONT_STEP);
+      else if (gap > MIN_GAP) gap = Math.max(MIN_GAP, gap - GAP_STEP);
+      else break;
+      apply();
+      guard++;
+    }
+
+    // Only as a last resort — if it still doesn't fit even at the smallest
+    // readable size — fall back to horizontal scrolling. This is rare, and
+    // deliberately NOT the default: overflow-x:auto also forces overflow-y
+    // to auto (a real CSS quirk), which would clip dropdown submenus that
+    // render below each nav item. Keeping this off by default is what
+    // fixes dropdowns disappearing.
+    if (menu.scrollWidth > menu.clientWidth + 1) {
+      menu.classList.add('nav-menu-scroll');
+    } else {
+      menu.classList.remove('nav-menu-scroll');
+    }
+  }
+
+  let fitResizeTimer = null;
+  function scheduleFitMenu() {
+    clearTimeout(fitResizeTimer);
+    fitResizeTimer = setTimeout(fitMenuToOneLine, 120);
+  }
+  window.addEventListener('resize', scheduleFitMenu);
 
   function setActiveNavItem() {
     const page = window.location.pathname.split('/').pop() || 'index.html';

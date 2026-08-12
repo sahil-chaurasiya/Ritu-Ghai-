@@ -65,20 +65,15 @@ const seedAdmin = async () => {
 };
 
 // ── Seed default categories on first run ─────────────────────────────────────
+// Uses the SAME list as `npm run seed:categories` (server/data/defaultCategories.js)
+// so a brand-new/empty database and a manually-reseeded one never disagree.
+const defaultCategories = require('./data/defaultCategories');
 const seedCategories = async () => {
   try {
     const count = await Category.countDocuments();
     if (count === 0) {
-      const defaults = [
-        { label: 'LEHENGA',       value: 'Lehenga',       order: 1 },
-        { label: 'SAREES',        value: 'Sarees',        order: 2 },
-        { label: 'STITCHED SUIT', value: 'Stitched Suit', order: 3 },
-        { label: 'INDO WESTERN',  value: 'Indo Western',  order: 4 },
-        { label: 'GOWNS',         value: 'Gowns',         order: 5 },
-        { label: 'KURTI',         value: 'Kurti',         order: 6 },
-      ];
-      await Category.insertMany(defaults);
-      console.log('Default categories seeded.');
+      await Category.insertMany(defaultCategories);
+      console.log(`Default categories seeded (${defaultCategories.length}).`);
     }
   } catch (err) {
     console.error('Category seed error:', err.message);

@@ -289,6 +289,87 @@
     }
 
     /* ═══════════════════════════════════════════════
+       CHILD (3RD LEVEL) PANEL — nested under a subcategory,
+       e.g. Women → Lehengas → Bridal Lehengas
+    ═══════════════════════════════════════════════ */
+    .subcat-item-wrap { display: flex; flex-direction: column; }
+    .subcat-item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #ede9e4;
+      border-radius: 8px;
+      padding: 10px 12px;
+      transition: border-color 0.15s;
+    }
+    .subcat-item-row:hover { border-color: #d0c8c0; }
+    .child-expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #44332B;
+      font-size: 9px;
+      padding: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      opacity: 0.35;
+      transition: opacity 0.15s, transform 0.2s;
+    }
+    .child-expand-btn:hover { opacity: 0.8; }
+    .child-expand-btn.open { opacity: 1; transform: rotate(90deg); }
+    .child-expand-btn.spacer { visibility: hidden; }
+    .child-count-pill {
+      flex-shrink: 0;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      background: #f0f4ff;
+      color: #3a5fc8;
+    }
+    .child-panel {
+      display: none;
+      padding: 10px 0 4px 30px;
+    }
+    .child-panel.open { display: block; }
+    .child-items {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .child-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #faf8f6;
+      border: 1px solid #f0ece8;
+      border-radius: 7px;
+      padding: 7px 10px;
+    }
+    .child-item-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #44332B;
+      opacity: 0.3;
+      flex-shrink: 0;
+    }
+    .child-item-info { flex: 1; min-width: 0; }
+    .child-item-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .child-item-value { font-size: 10px; color: #bbb; margin-top: 1px; }
+    .child-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .child-item-actions .btn-icon { width: 26px; height: 26px; font-size: 12px; }
+
+    /* ═══════════════════════════════════════════════
        BUTTONS
     ═══════════════════════════════════════════════ */
     .btn {
@@ -544,7 +625,7 @@
     <!-- Hint -->
     <p class="page-hint">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      Drag rows to reorder. Click ▶ to manage subcategories. Inactive categories are hidden from the public site.
+      Drag rows to reorder. Click ▶ to manage subcategories, and again to manage their own items (e.g. Women → Lehengas → Bridal Lehengas). Inactive categories are hidden from the public site.
     </p>
 
   </main>
@@ -635,6 +716,48 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════
+     THIRD-LEVEL ("CHILD") MODAL — e.g. "Bridal Lehengas" under "Lehengas"
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="childModalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeChildModal()">&times;</button>
+    <h3 id="childModalTitle">Add Item</h3>
+    <p class="modal-subtitle" id="childModalParentLabel">under <strong></strong></p>
+    <hr class="modal-divider"/>
+
+    <div class="form-group">
+      <label>Label <span style="color:#c00">*</span></label>
+      <input type="text" id="cmLabel" placeholder="e.g. Bridal Lehengas" autocomplete="off"/>
+      <p class="form-hint">Shown in the mega-menu dropdown column.</p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Value <span style="color:#c00">*</span></label>
+        <input type="text" id="cmValue" placeholder="e.g. Bridal Lehengas" autocomplete="off"/>
+        <p class="form-hint">Used in URL: <code style="background:#f5f5f5;padding:1px 5px;border-radius:4px;">?childcategory=Value</code></p>
+      </div>
+      <div class="form-group" style="max-width:110px;">
+        <label>Order</label>
+        <input type="number" id="cmOrder" placeholder="0" min="0"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-row">
+        <input type="checkbox" id="cmActive" checked/>
+        <label for="cmActive">Active — visible on website</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="childModalSaveBtn" onclick="saveChild()">Add Item</button>
+      <button class="btn btn-secondary" onclick="closeChildModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin-auth.js"></script>
 <script>
   if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
@@ -645,6 +768,11 @@
   let subCatParentId = null;
   let dragSrcIdx    = null;
   let openPanels    = new Set();
+  let openChildPanels = new Set();
+  // Third-level (child) modal state
+  let childCatId    = null;
+  let childSubId    = null;
+  let editingChildId = null;
 
   /* ── Helpers ─────────────────────────────────────────────────────────── */
   function showMsg(type, text) {
@@ -739,22 +867,68 @@
     } else {
       html += `<div class="subcat-items">`;
       subs.forEach(s => {
+        const children = s.subcategories || [];
+        const childKey = cat._id + ':' + s._id;
+        const childOpen = openChildPanels.has(childKey);
         html += `
-        <div class="subcat-item">
-          <div class="subcat-item-dot" style="${s.isActive === false ? 'background:#ccc;' : ''}"></div>
-          <div class="subcat-item-info">
-            <div class="subcat-item-label">${esc(s.label)}${s.isActive === false ? ' <span style="font-size:10px;color:#bbb;font-weight:400;">(inactive)</span>' : ''}</div>
-            <div class="subcat-item-value">${esc(s.value)}</div>
+        <div class="subcat-item-wrap">
+          <div class="subcat-item-row">
+            <button class="child-expand-btn${childOpen ? ' open' : ''}${children.length === 0 && !childOpen ? '' : ''}" onclick="toggleChildPanel('${cat._id}','${s._id}')" title="Toggle third-level items" aria-label="Toggle third-level items">▶</button>
+            <div class="subcat-item-dot" style="${s.isActive === false ? 'background:#ccc;' : ''}"></div>
+            <div class="subcat-item-info">
+              <div class="subcat-item-label">${esc(s.label)}${s.isActive === false ? ' <span style="font-size:10px;color:#bbb;font-weight:400;">(inactive)</span>' : ''}</div>
+              <div class="subcat-item-value">${esc(s.value)}</div>
+            </div>
+            ${children.length > 0 ? `<span class="child-count-pill">${children.length}</span>` : ''}
+            <div class="subcat-item-actions">
+              <button class="btn-icon" onclick="openEditSubModal('${cat._id}','${s._id}')" title="Edit">${ICON_EDIT}</button>
+              <button class="btn-icon delete" onclick="deleteSubcategory('${cat._id}','${s._id}','${esc(s.label)}')" title="Delete">${ICON_DELETE}</button>
+            </div>
           </div>
-          <div class="subcat-item-actions">
-            <button class="btn-icon" onclick="openEditSubModal('${cat._id}','${s._id}')" title="Edit">${ICON_EDIT}</button>
-            <button class="btn-icon delete" onclick="deleteSubcategory('${cat._id}','${s._id}','${esc(s.label)}')" title="Delete">${ICON_DELETE}</button>
+          <div class="child-panel${childOpen ? ' open' : ''}">
+            ${buildChildPanel(cat, s)}
           </div>
         </div>`;
       });
       html += `</div>`;
     }
     return html;
+  }
+
+  function buildChildPanel(cat, sub) {
+    const children = (sub.subcategories || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    let html = `<button class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="openAddChildModal('${cat._id}','${sub._id}','${esc(cat.label)}','${esc(sub.label)}')">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Item
+    </button>`;
+
+    if (!children.length) {
+      html += `<p class="subcat-empty" style="padding:0 0 6px;">No third-level items yet (e.g. "Bridal Lehengas" under "Lehengas").</p>`;
+    } else {
+      html += `<div class="child-items">`;
+      children.forEach(g => {
+        html += `
+        <div class="child-item">
+          <div class="child-item-dot" style="${g.isActive === false ? 'background:#ccc;' : ''}"></div>
+          <div class="child-item-info">
+            <div class="child-item-label">${esc(g.label)}${g.isActive === false ? ' <span style="font-size:10px;color:#bbb;font-weight:400;">(inactive)</span>' : ''}</div>
+            <div class="child-item-value">${esc(g.value)}</div>
+          </div>
+          <div class="child-item-actions">
+            <button class="btn-icon" onclick="openEditChildModal('${cat._id}','${sub._id}','${g._id}','${esc(cat.label)}','${esc(sub.label)}')" title="Edit">${ICON_EDIT}</button>
+            <button class="btn-icon delete" onclick="deleteChild('${cat._id}','${sub._id}','${g._id}','${esc(g.label)}')" title="Delete">${ICON_DELETE}</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    return html;
+  }
+
+  function toggleChildPanel(catId, subId) {
+    const key = catId + ':' + subId;
+    openChildPanels.has(key) ? openChildPanels.delete(key) : openChildPanels.add(key);
+    renderList();
   }
 
   function togglePanel(catId) {
@@ -957,6 +1131,92 @@
       const data = await AdminAuth.apiFetch(`/api/categories/${catId}/subcategories/${subId}`, { method: 'DELETE' });
       if (data && data.success) { showMsg('success', `✓ "${label}" deleted.`); openPanels.add(catId); loadCategories(); }
       else showMsg('error', (data && data.message) || 'Failed to delete.');
+    } catch (e) { showMsg('error', 'Network error.'); }
+  }
+
+  /* ── Third-level (child) modal — e.g. "Bridal Lehengas" under "Lehengas" ── */
+  function openAddChildModal(catId, subId, catLabel, subLabel) {
+    childCatId = catId; childSubId = subId; editingChildId = null;
+    const cat = categories.find(c => c._id === catId);
+    const sub = cat ? (cat.subcategories || []).find(s => s._id === subId) : null;
+    document.getElementById('childModalTitle').textContent = 'Add Item';
+    document.getElementById('childModalParentLabel').innerHTML = `under <strong>${esc(catLabel)} → ${esc(subLabel)}</strong>`;
+    document.getElementById('cmLabel').value   = '';
+    document.getElementById('cmValue').value   = '';
+    document.getElementById('cmOrder').value   = sub ? (sub.subcategories || []).length + 1 : 1;
+    document.getElementById('cmActive').checked = true;
+    document.getElementById('childModalSaveBtn').textContent = 'Add Item';
+    document.getElementById('childModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('cmLabel').focus(), 80);
+  }
+
+  function openEditChildModal(catId, subId, childId, catLabel, subLabel) {
+    const cat = categories.find(c => c._id === catId);
+    const sub = cat ? (cat.subcategories || []).find(s => s._id === subId) : null;
+    const child = sub ? (sub.subcategories || []).find(g => g._id === childId) : null;
+    if (!child) return;
+    childCatId = catId; childSubId = subId; editingChildId = childId;
+    document.getElementById('childModalTitle').textContent = 'Edit Item';
+    document.getElementById('childModalParentLabel').innerHTML = `under <strong>${esc(catLabel)} → ${esc(subLabel)}</strong>`;
+    document.getElementById('cmLabel').value   = child.label;
+    document.getElementById('cmValue').value   = child.value;
+    document.getElementById('cmOrder').value   = child.order || 0;
+    document.getElementById('cmActive').checked = child.isActive !== false;
+    document.getElementById('childModalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('childModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('cmLabel').focus(), 80);
+  }
+
+  document.getElementById('cmLabel').addEventListener('input', function () {
+    if (editingChildId) return;
+    document.getElementById('cmValue').value = this.value.trim()
+      .replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  });
+
+  function closeChildModal() {
+    document.getElementById('childModalOverlay').classList.remove('open');
+    childCatId = null; childSubId = null; editingChildId = null;
+  }
+  document.getElementById('childModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeChildModal(); });
+
+  async function saveChild() {
+    const label    = document.getElementById('cmLabel').value.trim();
+    const value    = document.getElementById('cmValue').value.trim();
+    const order    = parseInt(document.getElementById('cmOrder').value) || 0;
+    const isActive = document.getElementById('cmActive').checked;
+    if (!label || !value) { alert('Label and Value are required.'); return; }
+
+    const btn = document.getElementById('childModalSaveBtn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    try {
+      const url    = editingChildId
+        ? `/api/categories/${childCatId}/subcategories/${childSubId}/children/${editingChildId}`
+        : `/api/categories/${childCatId}/subcategories/${childSubId}/children`;
+      const method = editingChildId ? 'PUT' : 'POST';
+      const data   = await AdminAuth.apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label, value, order, isActive }) });
+      if (data && data.success) {
+        showMsg('success', editingChildId ? '✓ Item updated.' : '✓ Item added.');
+        closeChildModal();
+        openPanels.add(childCatId);
+        openChildPanels.add(childCatId + ':' + childSubId);
+        loadCategories();
+      } else {
+        showMsg('error', (data && data.message) || 'Failed to save.');
+      }
+    } catch (e) { showMsg('error', 'Network error.'); }
+    finally { btn.textContent = editingChildId ? 'Save Changes' : 'Add Item'; btn.disabled = false; }
+  }
+
+  async function deleteChild(catId, subId, childId, label) {
+    if (!confirm(`Delete "${label}"?\n\nExisting products are NOT deleted.`)) return;
+    try {
+      const data = await AdminAuth.apiFetch(`/api/categories/${catId}/subcategories/${subId}/children/${childId}`, { method: 'DELETE' });
+      if (data && data.success) {
+        showMsg('success', `✓ "${label}" deleted.`);
+        openPanels.add(catId);
+        openChildPanels.add(catId + ':' + subId);
+        loadCategories();
+      } else showMsg('error', (data && data.message) || 'Failed to delete.');
     } catch (e) { showMsg('error', 'Network error.'); }
   }
 
