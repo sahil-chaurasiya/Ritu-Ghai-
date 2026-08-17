@@ -12005,10 +12005,7 @@ body {
 4.8 HEADER
 ----------------------------------------- */
 header {
-  height: auto;
-  min-height: 185px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #eee;
+  height: 185px;
   /* ---------------------------------------
     4.8.1 LOGO
     ----------------------------------------- */
@@ -12027,9 +12024,7 @@ header {
 }
 @media (max-width: 767px) {
   header {
-    height: auto;
-    min-height: 85px;
-    padding-bottom: 0;
+    height: 85px;
   }
 }
 header .container {
@@ -12040,14 +12035,15 @@ header .logo {
   margin: auto;
   position: absolute;
   right: 0;
-  top: 30px;
-  width: 120px;
+  top: 28px;
+  width: 240px;
 }
 @media (max-width: 767px) {
   header .logo {
     left: 10px;
     right: auto;
     top: 10px;
+    width: 150px;
   }
 }
 header .header-social {
@@ -12144,9 +12140,9 @@ header .wrap-search .search-form button[type="submit"] {
   width: 40px;
 }
 header .main-nav {
-  position: relative;
+  position: absolute;
   text-align: center;
-  margin-top: 130px;
+  top: 130px;
   left: 0;
   right: 0;
 }
@@ -12155,7 +12151,6 @@ header .main-nav {
     position: relative;
     width: auto;
     text-align: left;
-    margin-top: 0;
     top: auto;
     left: auto;
   }
@@ -12193,23 +12188,14 @@ header .main-nav {
     left: 0;
     right: 0;
   }
-  header .main-nav .minimal-menu > ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
-    justify-items: center;
-    align-items: center;
-    column-gap: 6px;
-    row-gap: 16px;
-    max-width: 1180px;
-    margin: 0 auto;
-  }
   header .main-nav .minimal-menu > ul > li {
-    margin: 0;
+    margin: 0 25px;
+  }
+  header .main-nav .minimal-menu > ul > li:last-child {
+    margin: 0 0 0 5px;
   }
   header .main-nav .minimal-menu > ul > li > a {
     padding: 0 0 8px;
-    letter-spacing: 0.5px;
-    font-weight: 600;
   }
   header .main-nav .minimal-menu > ul > li > a:hover,
   header .main-nav .minimal-menu > ul > li > a:focus {
@@ -12326,7 +12312,6 @@ header .main-nav {
 header .main-nav a {
   color: #25292c;
   font-size: 12px;
-  text-transform: uppercase;
 }
 @media (max-width: 767px) {
   header .main-nav a {
@@ -12350,6 +12335,12 @@ header .main-nav .current-menu-item > a {
   margin-bottom: 30px;
   position: relative;
   z-index: 1;
+}
+/* Ensure home1 JPEG banners display full-width at natural ratio */
+.home1 .slideshow #slideshow1 img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 .slideshow .content-slideshow {
   left: 0;
@@ -14705,9 +14696,8 @@ header .main-nav .current-menu-item > a {
   }
 }
 .box-product .product-item {
-  overflow: visible;
-  display: block;
-  width: 100%;
+  overflow: hidden;
+  display: inline-block;
   margin-bottom: 30px;
 }
 .box-product .product-item:hover .product-thumb .overlay-img,
@@ -14823,10 +14813,6 @@ header .main-nav .current-menu-item > a {
   margin: 25px 0 15px;
   text-align: center;
   text-transform: uppercase;
-  min-height: 2.8em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .box-product .product-item .product-name a {
   color: #222;
@@ -19754,6 +19740,41 @@ body > footer:nth-of-type(2) { display: none !important; }
 .sale-off .showcase .row {
   margin-left: -15px;
   margin-right: -15px;
+}
+
+/* ── TRENDY CLOTHING GRID FIX: force reliable 4-per-row layout ──
+   Product cards are direct children of .box-product (there is no
+   .row nested inside it — the .row div is the PARENT of .box-product).
+   NOTE: an existing rule "#carousel-1 .box-product { display:block; }"
+   uses an ID selector, which beats a plain class selector on
+   specificity regardless of source order — so this needs !important
+   to actually win and turn .box-product into a flex container. */
+.trending-clothing .box-product {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+.trending-clothing .box-product > [class*="col-"] {
+  float: none !important;
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+@media (max-width: 1199px) and (min-width: 992px) {
+  .trending-clothing .box-product > [class*="col-"] {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+}
+@media (max-width: 991px) and (min-width: 768px) {
+  .trending-clothing .box-product > [class*="col-"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+@media (max-width: 767px) {
+  .trending-clothing .box-product > [class*="col-"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
 }
 
 /* ── Brand logos carousel: ensure images display correctly ── */
