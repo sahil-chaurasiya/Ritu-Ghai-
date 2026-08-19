@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Banners — Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <style>
+    /* ═══════════════════════════════════════════════
+       PAGE LAYOUT
+    ═══════════════════════════════════════════════ */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .page-header h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.3px;
+    }
+    .page-header p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #999;
+      letter-spacing: 0.3px;
+    }
+    .page-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: #aaa;
+      margin: 18px 2px 0;
+      line-height: 1.6;
+    }
+    .page-hint svg { flex-shrink: 0; margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════
+       ALERT MESSAGES
+    ═══════════════════════════════════════════════ */
+    .alert {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+    .alert-success { background: #f0faf3; color: #1e7e34; border: 1px solid #b7e4c7; }
+    .alert-error   { background: #fff5f5; color: #c0392b; border: 1px solid #ffc0c0; }
+
+    /* ═══════════════════════════════════════════════
+       SAVE ORDER BAR
+    ═══════════════════════════════════════════════ */
+    .save-order-bar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: #fffbf0;
+      border: 1px solid #f5e4a0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #7a6000;
+      font-weight: 500;
+    }
+    .save-order-bar.visible { display: flex; }
+    .save-order-bar .icon { font-size: 16px; }
+
+    /* ═══════════════════════════════════════════════
+       BANNER LIST
+    ═══════════════════════════════════════════════ */
+    .banner-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .banner-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid #ede9e4;
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      cursor: grab;
+    }
+    .banner-card.dragging { opacity: 0.4; }
+    .banner-card .drag-handle {
+      color: #ccc;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0 2px;
+      user-select: none;
+    }
+    .banner-card .thumb {
+      width: 160px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f4f1ee;
+      flex-shrink: 0;
+    }
+    .banner-card .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .banner-card .meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .banner-card .meta .alt-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .banner-card .meta .sub {
+      font-size: 11px;
+      color: #999;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    .status-badge.active   { background: #f0faf3; color: #1e7e34; }
+    .status-badge.inactive { background: #f5f5f5; color: #999; }
+    .banner-card .actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      border: 1.5px solid #e0dbd5;
+      background: #fff;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { border-color: #44332B; color: #44332B; }
+    .icon-btn.danger:hover { border-color: #c0392b; color: #c0392b; background: #fff5f5; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      border: 1px dashed #e0dbd5;
+      border-radius: 12px;
+    }
+    .empty-state p { margin: 0; font-size: 13px; color: #aaa; }
+
+    /* ═══════════════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+      position: relative;
+      animation: modalIn 0.2s ease;
+      margin: auto;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 18px;
+      background: none; border: none;
+      font-size: 22px; cursor: pointer;
+      color: #bbb; line-height: 1;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: #333; }
+    .modal h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      color: #1a1a1a;
+      font-weight: 700;
+    }
+    .modal .modal-subtitle {
+      font-size: 12px;
+      color: #999;
+      margin: 0 0 24px;
+    }
+    .modal-divider { border: none; border-top: 1px solid #f0ece8; margin: 0 -28px 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #e0dbd5;
+      border-radius: 8px;
+      font-size: 13px;
+      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #1a1a1a;
+      background: #fff;
+    }
+    .form-group input[type="file"] { padding: 8px; font-size: 12px; }
+    .form-group input:focus {
+      outline: none;
+      border-color: #44332B;
+      box-shadow: 0 0 0 3px rgba(68,51,43,0.08);
+    }
+    .form-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+    .img-preview-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .img-preview-row .preview-box {
+      width: 100px;
+      height: 55px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f4f1ee;
+      border: 1px solid #e0dbd5;
+    }
+    .img-preview-row .preview-box img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #faf8f6;
+      border-radius: 8px;
+      border: 1.5px solid #e0dbd5;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      cursor: pointer;
+      accent-color: #44332B;
+    }
+    .toggle-row label {
+      font-size: 13px;
+      color: #444;
+      cursor: pointer;
+      margin: 0;
+      font-weight: 500;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .modal-actions .btn { flex: 1; }
+  </style>
+</head>
+<body>
+<div class="admin-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>Ritu Ghai</h1><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="products.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Products</a>
+      <a href="add-product.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Product</a>
+      <a href="categories.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>Categories</a>
+      <a href="banners.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Banners</a>
+      <a href="blogs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Blog Posts</a>
+      <a href="add-blog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>New Blog Post</a>
+      <a href="videos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Videos</a>
+      <a href="customer-diaries.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Customer Diaries</a>
+      <a href="/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Logged in as <strong id="adminUser">Admin</strong></p>
+      <a href="#" onclick="AdminAuth.logout()">Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h2>Banners</h2>
+        <p>Manage the homepage banner slideshow</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Banner
+      </button>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alert alert-success" id="successMsg"></div>
+    <div class="alert alert-error"   id="errorMsg"></div>
+
+    <!-- Save order bar -->
+    <div class="save-order-bar" id="saveOrderBar">
+      <span class="icon">↕</span>
+      <span>Order changed — save to apply on the website.</span>
+      <button class="btn btn-primary btn-sm" onclick="saveOrder()">Save Order</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadBanners()">Discard</button>
+    </div>
+
+    <!-- Banner list -->
+    <div id="bannerListWrap"></div>
+
+    <!-- Hint -->
+    <p class="page-hint">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Drag cards to reorder — the top card shows first on the homepage. Inactive banners are hidden from the public site. Recommended size: 1600×600px landscape for desktop, and a landscape (not portrait) crop around 1000×500–550px for mobile — a tall/portrait mobile image gets heavily cropped by the banner strip.
+    </p>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BANNER MODAL
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="bannerModalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle">Add Banner</h3>
+    <p class="modal-subtitle">This appears as a slide in the homepage banner.</p>
+    <hr class="modal-divider"/>
+
+    <div class="form-group">
+      <label>Desktop Image <span style="color:#c00" id="desktopRequiredMark">*</span></label>
+      <input type="file" id="mImageDesktop" accept="image/*" onchange="previewFile(this, 'previewDesktop')"/>
+      <p class="form-hint">Shown on screens wider than 767px. Wide banners work best (e.g. 1600×600px).</p>
+      <div class="img-preview-row" id="previewDesktopRow" style="display:none;">
+        <div class="preview-box"><img id="previewDesktop" src="" alt="Preview"/></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Mobile Image <span style="font-weight:400; text-transform:none; color:#bbb;">(optional)</span></label>
+      <input type="file" id="mImageMobile" accept="image/*" onchange="previewFile(this, 'previewMobile')"/>
+      <p class="form-hint">Shown on screens 767px and narrower. Falls back to the desktop image if left blank. Keep it <strong>landscape</strong> (wider than tall) — around 1.8:1–2:1 works well (e.g. 1000×550px). A portrait/tall image will get cropped hard by the banner strip on phones.</p>
+      <div class="img-preview-row" id="previewMobileRow" style="display:none;">
+        <div class="preview-box"><img id="previewMobile" src="" alt="Preview"/></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Alt Text</label>
+      <input type="text" id="mAlt" placeholder="e.g. The Evening Edit — Sophisticated styles" autocomplete="off"/>
+      <p class="form-hint">Describes the banner for accessibility and search engines.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Link <span style="font-weight:400; text-transform:none; color:#bbb;">(optional)</span></label>
+      <input type="text" id="mLink" placeholder="e.g. /shop-fullwidth.html" autocomplete="off"/>
+      <p class="form-hint">If set, clicking the banner takes visitors here.</p>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="mIsActive" checked/>
+      <label for="mIsActive">Active — visible on the homepage</label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveBanner()">Add Banner</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-auth.js"></script>
+<script>
+  if (!AdminAuth.requireAuth()) throw new Error('Unauthorized');
+
+  let banners = [];
+  let editingId = null;
+  let dragSrcIdx = null;
+
+  /* ── Helpers ─────────────────────────────────────────────────────────── */
+  function showMsg(type, text) {
+    const el = document.getElementById(type === 'success' ? 'successMsg' : 'errorMsg');
+    el.textContent = text;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4500);
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function previewFile(input, previewId) {
+    const file = input.files && input.files[0];
+    const row = document.getElementById(previewId + 'Row');
+    const img = document.getElementById(previewId);
+    if (!file) { row.style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; row.style.display = 'flex'; };
+    reader.readAsDataURL(file);
+  }
+
+  const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+
+  /* ── Load & render ───────────────────────────────────────────────────── */
+  async function loadBanners() {
+    document.getElementById('saveOrderBar').classList.remove('visible');
+    try {
+      const data = await AdminAuth.apiFetch('/api/banners/all');
+      banners = (data && data.banners) ? data.banners : [];
+      render();
+    } catch (e) {
+      showMsg('error', 'Could not load banners.');
+    }
+  }
+
+  function render() {
+    const wrap = document.getElementById('bannerListWrap');
+    if (!banners.length) {
+      wrap.innerHTML = `<div class="empty-state"><p>No banners yet. Click "Add Banner" to create the first homepage slide.</p></div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="banner-list" id="bannerList">` +
+      banners.map((b, i) => `
+        <div class="banner-card" draggable="true" data-id="${b._id}" data-idx="${i}"
+             ondragstart="dragStart(event,${i})" ondragover="dragOver(event)" ondrop="drop(event,${i})" ondragend="dragEnd(event)">
+          <span class="drag-handle">⠿⠿</span>
+          <div class="thumb"><img src="${esc(b.image)}" alt="${esc(b.alt)}"/></div>
+          <div class="meta">
+            <div class="alt-text">${esc(b.alt || 'Untitled banner')}</div>
+            <div class="sub">${b.link ? 'Links to ' + esc(b.link) : 'No link'}</div>
+            <span class="status-badge ${b.isActive !== false ? 'active' : 'inactive'}">${b.isActive !== false ? 'Active' : 'Inactive'}</span>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" title="Edit" onclick="openEditModal('${b._id}')">${ICON_EDIT}</button>
+            <button class="icon-btn danger" title="Delete" onclick="deleteBanner('${b._id}','${esc(b.alt || 'this banner').replace(/'/g,"\\'")}')">${ICON_DELETE}</button>
+          </div>
+        </div>
+      `).join('') +
+      `</div>`;
+  }
+
+  /* ── Drag to reorder ─────────────────────────────────────────────────── */
+  function dragStart(e, idx) {
+    dragSrcIdx = idx;
+    e.currentTarget.classList.add('dragging');
+  }
+  function dragOver(e) { e.preventDefault(); }
+  function dragEnd(e) { e.currentTarget.classList.remove('dragging'); }
+  function drop(e, idx) {
+    e.preventDefault();
+    if (dragSrcIdx === null || dragSrcIdx === idx) return;
+    const moved = banners.splice(dragSrcIdx, 1)[0];
+    banners.splice(idx, 0, moved);
+    dragSrcIdx = null;
+    render();
+    document.getElementById('saveOrderBar').classList.add('visible');
+  }
+
+  async function saveOrder() {
+    const order = banners.map((b, i) => ({ _id: b._id, order: i }));
+    try {
+      const data = await AdminAuth.apiFetch('/api/banners/order/save', {
+        method: 'PUT',
+        body: JSON.stringify({ order })
+      });
+      if (data && data.success) {
+        showMsg('success', '✓ Order saved.');
+        loadBanners();
+      } else {
+        showMsg('error', (data && data.message) || 'Could not save order.');
+      }
+    } catch (e) {
+      showMsg('error', 'Network error while saving order.');
+    }
+  }
+
+  /* ── Add / Edit modal ────────────────────────────────────────────────── */
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Banner';
+    document.getElementById('modalSaveBtn').textContent = 'Add Banner';
+    document.getElementById('desktopRequiredMark').style.display = 'inline';
+    document.getElementById('mImageDesktop').value = '';
+    document.getElementById('mImageMobile').value = '';
+    document.getElementById('previewDesktopRow').style.display = 'none';
+    document.getElementById('previewMobileRow').style.display = 'none';
+    document.getElementById('mAlt').value = '';
+    document.getElementById('mLink').value = '';
+    document.getElementById('mIsActive').checked = true;
+    document.getElementById('bannerModalOverlay').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const b = banners.find(x => x._id === id);
+    if (!b) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Banner';
+    document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('desktopRequiredMark').style.display = 'none';
+    document.getElementById('mImageDesktop').value = '';
+    document.getElementById('mImageMobile').value = '';
+    document.getElementById('previewDesktop').src = b.image;
+    document.getElementById('previewDesktopRow').style.display = 'flex';
+    if (b.mobileImage) {
+      document.getElementById('previewMobile').src = b.mobileImage;
+      document.getElementById('previewMobileRow').style.display = 'flex';
+    } else {
+      document.getElementById('previewMobileRow').style.display = 'none';
+    }
+    document.getElementById('mAlt').value = b.alt || '';
+    document.getElementById('mLink').value = b.link || '';
+    document.getElementById('mIsActive').checked = b.isActive !== false;
+    document.getElementById('bannerModalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('bannerModalOverlay').classList.remove('open');
+  }
+
+  async function saveBanner() {
+    const desktopFile = document.getElementById('mImageDesktop').files[0];
+    const mobileFile = document.getElementById('mImageMobile').files[0];
+
+    if (!editingId && !desktopFile) {
+      showMsg('error', 'A desktop image is required.');
+      return;
+    }
+
+    const formData = new FormData();
+    if (desktopFile) formData.append('image', desktopFile);
+    if (mobileFile) formData.append('mobileImage', mobileFile);
+    formData.append('alt', document.getElementById('mAlt').value.trim());
+    formData.append('link', document.getElementById('mLink').value.trim());
+    formData.append('isActive', document.getElementById('mIsActive').checked);
+    if (!editingId) formData.append('order', banners.length);
+
+    const btn = document.getElementById('modalSaveBtn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+      const data = await AdminAuth.apiFetch(
+        editingId ? `/api/banners/${editingId}` : '/api/banners',
+        { method: editingId ? 'PUT' : 'POST', body: formData }
+      );
+      if (data && data.success) {
+        showMsg('success', editingId ? '✓ Banner updated.' : '✓ Banner added.');
+        closeModal();
+        loadBanners();
+      } else {
+        showMsg('error', (data && data.message) || 'Could not save banner.');
+      }
+    } catch (e) {
+      showMsg('error', 'Network error while saving.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  async function deleteBanner(id, alt) {
+    if (!confirm(`Delete banner "${alt}"?\n\nThis cannot be undone.`)) return;
+    try {
+      const data = await AdminAuth.apiFetch(`/api/banners/${id}`, { method: 'DELETE' });
+      if (data && data.success) {
+        showMsg('success', '✓ Banner deleted.');
+        loadBanners();
+      } else {
+        showMsg('error', (data && data.message) || 'Could not delete banner.');
+      }
+    } catch (e) {
+      showMsg('error', 'Network error while deleting.');
+    }
+  }
+
+  loadBanners();
+</script>
+</body>
+</html>

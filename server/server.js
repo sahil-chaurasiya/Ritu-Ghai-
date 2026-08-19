@@ -8,6 +8,7 @@ const connectDB = require('./config/db');
 const multer = require('multer');
 const Admin = require('./models/Admin');
 const Category = require('./models/Category');
+const Banner = require('./models/Banner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,6 +44,7 @@ app.use('/api/customer-diaries', require('./routes/customerDiaryRoutes'));
 app.use('/api/videos', require('./routes/videoRoutes'));
 app.use('/api/blogs',  require('./routes/blogRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/banners', require('./routes/bannerRoutes'));
 
 // ── Static files ─────────────────────────────────────────────────────────────
 // Admin panel: /admin/anything.html  →  ../admin/anything.html
@@ -77,6 +79,38 @@ const seedCategories = async () => {
     }
   } catch (err) {
     console.error('Category seed error:', err.message);
+  }
+};
+
+// ── Seed default homepage banners on first run ────────────────────────────────
+// Uses the two images already shipped in /public/assets/images so the site
+// never shows an empty banner on a fresh database. Admins can replace these
+// from the admin panel (Banners) at any time — this only runs when the
+// Banner collection is completely empty, so it's safe to re-deploy.
+const seedBanners = async () => {
+  try {
+    const count = await Banner.countDocuments();
+    if (count === 0) {
+      await Banner.insertMany([
+        {
+          image: '/assets/images/banner-evening-edit.jpg',
+          mobileImage: '/assets/images/banner-evening-edit-mobile.jpg',
+          alt: 'The Evening Edit — Sophisticated styles for every celebration',
+          order: 0,
+          isActive: true
+        },
+        {
+          image: '/assets/images/banner-festive-edit.jpg',
+          mobileImage: '/assets/images/banner-festive-edit-mobile.jpg',
+          alt: 'The Festive Edit — Elegant dresses for every occasion',
+          order: 1,
+          isActive: true
+        }
+      ]);
+      console.log('Default banners seeded (2).');
+    }
+  } catch (err) {
+    console.error('Banner seed error:', err.message);
   }
 };
 
@@ -124,4 +158,5 @@ app.listen(PORT, async () => {
   console.log(`📦 Admin Panel: http://localhost:${PORT}/admin`);
   await seedAdmin();
   await seedCategories();
+  await seedBanners();
 });

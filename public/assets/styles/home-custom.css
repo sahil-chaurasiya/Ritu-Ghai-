@@ -8,13 +8,13 @@
 .simple-banner {
   position: relative;
   width: 100%;
-  overflow: hidden;
-  background: #1a1a1a;
+  background: #fff;
   margin-bottom: 30px;
 }
 .simple-banner-inner {
   position: relative;
   width: 100%;
+  overflow: hidden; /* clips the slide image only — dots live outside this box now */
 }
 .banner-slide {
   display: none;
@@ -39,25 +39,31 @@
   .banner-slide .banner-img-desktop { display: none; }
   .banner-slide .banner-img-mobile  { display: block; }
 }
+/* Dots sit in their own row BELOW the image, never on top of it — this is what
+   was causing the "floating button" glitch on mobile: with the dots
+   overlaid on the image, a short banner + a baked-in CTA near the image's
+   bottom edge collided visually. Keeping them in normal flow avoids that
+   entirely, regardless of which image/crop is used. */
 .banner-dots {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  width: 100%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 8px;
-  z-index: 10;
+  padding: 12px 0 4px;
+  background: #fff;
 }
 .banner-dots .dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.5);
+  background: rgba(26,26,26,0.18);
   cursor: pointer;
   transition: background 0.3s;
 }
 .banner-dots .dot.active {
-  background: #fff;
+  background: #1a1a1a;
 }
 
 /* ----------------------------------------------------------

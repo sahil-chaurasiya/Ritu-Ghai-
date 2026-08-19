@@ -23,25 +23,24 @@
     <body class="home1">
 
         <!-- SIMPLE BANNER / SLIDESHOW -->
+        <!-- Populated from /api/banners (managed in the admin panel → Banners).
+             The two slides below are a fallback shown only if that request
+             fails or the database has no banners yet, so the page never
+             shows blank. -->
         <div class="simple-banner">
             <div class="simple-banner-inner" id="simple-banner-inner">
                 <div class="banner-slide active">
-                    <img class="banner-img-desktop" src="/assets/images/slideshow1.jpeg" alt="Banner 1" />
-                    <img class="banner-img-mobile" src="/assets/images/slideshowmob1.jpeg" alt="Banner 1" />
+                    <img class="banner-img-desktop" src="/assets/images/banner-evening-edit.jpg" alt="The Evening Edit — Sophisticated styles for every celebration" />
+                    <img class="banner-img-mobile" src="/assets/images/banner-evening-edit-mobile.jpg" alt="The Evening Edit — Sophisticated styles for every celebration" />
                 </div>
                 <div class="banner-slide">
-                    <img class="banner-img-desktop" src="/assets/images/slideshow2.jpeg" alt="Banner 2" />
-                    <img class="banner-img-mobile" src="/assets/images/slideshowmob2.jpeg" alt="Banner 2" />
-                </div>
-                <div class="banner-slide">
-                    <img class="banner-img-desktop" src="/assets/images/slideshow3.jpeg" alt="Banner 3" />
-                    <img class="banner-img-mobile" src="/assets/images/slideshowmob3.jpeg" alt="Banner 3" />
+                    <img class="banner-img-desktop" src="/assets/images/banner-festive-edit.jpg" alt="The Festive Edit — Elegant dresses for every occasion" />
+                    <img class="banner-img-mobile" src="/assets/images/banner-festive-edit-mobile.jpg" alt="The Festive Edit — Elegant dresses for every occasion" />
                 </div>
             </div>
             <div class="banner-dots" id="banner-dots">
                 <span class="dot active" data-index="0"></span>
                 <span class="dot" data-index="1"></span>
-                <span class="dot" data-index="2"></span>
             </div>
         </div>
         <!-- /.simple-banner -->
