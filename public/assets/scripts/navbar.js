@@ -634,12 +634,7 @@
           </div>
         </div>
         <div class="bottom-footer">
-          <div class="copyright">&copy;COPYRIGHT 2025. RITU GHAI</div>
-          <ul class="list-payment">
-            <li><a href="#"><img src="/assets/images/visa.png" alt="Visa"/></a></li>
-            <li><a href="#"><img src="/assets/images/paypal.png" alt="PayPal"/></a></li>
-            <li><a href="#"><img src="/assets/images/upi.svg" alt="UPI" style="height:24px;width:auto;vertical-align:middle;"/></a></li>
-          </ul>
+          <div class="copyright" style="float:none;width:100%;text-align:center;">&copy;COPYRIGHT 2026. ALL RIGHTS RESERVED BY <a href="https://toflymediaa.com/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">TOFLY MEDIA</a>. DESIGNED &amp; DEVELOPED BY <a href="https://toflymediaa.com/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">TOFLY MEDIA</a></div>
         </div>
       </div>
     </footer>`;
